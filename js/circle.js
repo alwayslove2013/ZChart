@@ -1,5 +1,10 @@
 import * as d3 from "d3";
 
+const linkMap = {
+  curve: d3.curveCatmullRom.alpha(0.5),
+  linear: d3.curveLinear,
+};
+
 const colors = d3.schemeTableau10;
 const drawCircles = (circlesG, data, config, xScale, yScale) => {
   circlesG.selectAll("*").remove();
@@ -9,27 +14,26 @@ const drawCircles = (circlesG, data, config, xScale, yScale) => {
     yScale(item[y.key]),
   ]);
 
-  const { withLinks = false, linkWidth = 2, linkColor = "#ccc" } = circle;
+  const {
+    withLinks = false,
+    linkWidth = 2,
+    linkColor = "#ccc",
+    linkType = "curve",
+  } = circle;
   if (withLinks) {
-    const links = positions
-      .map((d, i) => {
-        if (i === 0) return null;
-        return [...positions[i - 1], ...positions[i]];
-      })
-      .filter((a) => a);
+    const link = d3
+      .line()
+      .curve(linkMap[linkType])
+      .x((d) => d[0])
+      .y((d) => d[1]);
     circlesG
       .append("g")
       .attr("id", "circles-links")
-      .selectAll("line")
-      .data(links)
-      .join("line")
-      .attr("x1", (d) => d[0])
-      .attr("y1", (d) => d[1])
-      .attr("x2", (d) => d[2])
-      .attr("y2", (d) => d[3])
+      .append("path")
+      .attr("fill", "none")
       .attr("stroke", linkColor)
       .attr("stroke-width", linkWidth)
-      .attr("stroke-linecap", "round");
+      .attr("d", link(positions));
   }
 
   const circleG = circlesG
@@ -77,13 +81,12 @@ const drawCircles = (circlesG, data, config, xScale, yScale) => {
       .append("g", "tooltip-g")
       .style("pointer-events", "none")
       .attr("opacity", 0);
-    circleG.on("mouseover", (e, d) => {
+    circleG.style("cursor", "pointer").on("mouseover", (e, d) => {
       tooltipG.attr("opacity", 1);
       tooltipG.attr(
         "transform",
         `translate(${xScale(d[x.key])},${yScale(d[y.key])})`
       );
-      const pointer = d3.pointer(e);
       const path = tooltipG
         .selectAll("path")
         .data([,])

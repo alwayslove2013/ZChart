@@ -10,17 +10,17 @@
     let compare1 = f;
     let compare2 = f;
     if (f.length !== 2) {
-      delta = (d, x) => f(d) - x;
+      delta = (d, x2) => f(d) - x2;
       compare1 = ascending;
-      compare2 = (d, x) => ascending(f(d), x);
+      compare2 = (d, x2) => ascending(f(d), x2);
     }
-    function left2(a, x, lo = 0, hi = a.length) {
+    function left2(a, x2, lo = 0, hi = a.length) {
       if (lo < hi) {
-        if (compare1(x, x) !== 0)
+        if (compare1(x2, x2) !== 0)
           return hi;
         do {
           const mid = lo + hi >>> 1;
-          if (compare2(a[mid], x) < 0)
+          if (compare2(a[mid], x2) < 0)
             lo = mid + 1;
           else
             hi = mid;
@@ -28,13 +28,13 @@
       }
       return lo;
     }
-    function right2(a, x, lo = 0, hi = a.length) {
+    function right2(a, x2, lo = 0, hi = a.length) {
       if (lo < hi) {
-        if (compare1(x, x) !== 0)
+        if (compare1(x2, x2) !== 0)
           return hi;
         do {
           const mid = lo + hi >>> 1;
-          if (compare2(a[mid], x) <= 0)
+          if (compare2(a[mid], x2) <= 0)
             lo = mid + 1;
           else
             hi = mid;
@@ -42,16 +42,16 @@
       }
       return lo;
     }
-    function center2(a, x, lo = 0, hi = a.length) {
-      const i = left2(a, x, lo, hi - 1);
-      return i > lo && delta(a[i - 1], x) > -delta(a[i], x) ? i - 1 : i;
+    function center2(a, x2, lo = 0, hi = a.length) {
+      const i = left2(a, x2, lo, hi - 1);
+      return i > lo && delta(a[i - 1], x2) > -delta(a[i], x2) ? i - 1 : i;
     }
     return { left: left2, center: center2, right: right2 };
   }
 
   // node_modules/d3-array/src/number.js
-  function number(x) {
-    return x === null ? NaN : +x;
+  function number(x2) {
+    return x2 === null ? NaN : +x2;
   }
 
   // node_modules/d3-array/src/bisect.js
@@ -196,8 +196,8 @@
   }
 
   // node_modules/d3-axis/src/identity.js
-  function identity_default(x) {
-    return x;
+  function identity_default(x2) {
+    return x2;
   }
 
   // node_modules/d3-axis/src/axis.js
@@ -206,11 +206,11 @@
   var bottom = 3;
   var left = 4;
   var epsilon = 1e-6;
-  function translateX(x) {
-    return "translate(" + x + ",0)";
+  function translateX(x2) {
+    return "translate(" + x2 + ",0)";
   }
-  function translateY(y) {
-    return "translate(0," + y + ")";
+  function translateY(y2) {
+    return "translate(0," + y2 + ")";
   }
   function number2(scale) {
     return (d) => +scale(d);
@@ -225,15 +225,15 @@
     return !this.__axis;
   }
   function axis(orient, scale) {
-    var tickArguments = [], tickValues = null, tickFormat2 = null, tickSizeInner = 6, tickSizeOuter = 6, tickPadding = 3, offset = typeof window !== "undefined" && window.devicePixelRatio > 1 ? 0 : 0.5, k = orient === top || orient === left ? -1 : 1, x = orient === left || orient === right ? "x" : "y", transform2 = orient === top || orient === bottom ? translateX : translateY;
+    var tickArguments = [], tickValues = null, tickFormat2 = null, tickSizeInner = 6, tickSizeOuter = 6, tickPadding = 3, offset = typeof window !== "undefined" && window.devicePixelRatio > 1 ? 0 : 0.5, k = orient === top || orient === left ? -1 : 1, x2 = orient === left || orient === right ? "x" : "y", transform2 = orient === top || orient === bottom ? translateX : translateY;
     function axis2(context) {
-      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range = scale.range(), range0 = +range[0] + offset, range1 = +range[range.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
-      path = path.merge(path.enter().insert("path", ".tick").attr("class", "domain").attr("stroke", "currentColor"));
+      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range = scale.range(), range0 = +range[0] + offset, range1 = +range[range.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path2 = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
+      path2 = path2.merge(path2.enter().insert("path", ".tick").attr("class", "domain").attr("stroke", "currentColor"));
       tick = tick.merge(tickEnter);
-      line = line.merge(tickEnter.append("line").attr("stroke", "currentColor").attr(x + "2", k * tickSizeInner));
-      text = text.merge(tickEnter.append("text").attr("fill", "currentColor").attr(x, k * spacing).attr("dy", orient === top ? "0em" : orient === bottom ? "0.71em" : "0.32em"));
+      line = line.merge(tickEnter.append("line").attr("stroke", "currentColor").attr(x2 + "2", k * tickSizeInner));
+      text = text.merge(tickEnter.append("text").attr("fill", "currentColor").attr(x2, k * spacing).attr("dy", orient === top ? "0em" : orient === bottom ? "0.71em" : "0.32em"));
       if (context !== selection2) {
-        path = path.transition(context);
+        path2 = path2.transition(context);
         tick = tick.transition(context);
         line = line.transition(context);
         text = text.transition(context);
@@ -246,12 +246,12 @@
         });
       }
       tickExit.remove();
-      path.attr("d", orient === left || orient === right ? tickSizeOuter ? "M" + k * tickSizeOuter + "," + range0 + "H" + offset + "V" + range1 + "H" + k * tickSizeOuter : "M" + offset + "," + range0 + "V" + range1 : tickSizeOuter ? "M" + range0 + "," + k * tickSizeOuter + "V" + offset + "H" + range1 + "V" + k * tickSizeOuter : "M" + range0 + "," + offset + "H" + range1);
+      path2.attr("d", orient === left || orient === right ? tickSizeOuter ? "M" + k * tickSizeOuter + "," + range0 + "H" + offset + "V" + range1 + "H" + k * tickSizeOuter : "M" + offset + "," + range0 + "V" + range1 : tickSizeOuter ? "M" + range0 + "," + k * tickSizeOuter + "V" + offset + "H" + range1 + "V" + k * tickSizeOuter : "M" + range0 + "," + offset + "H" + range1);
       tick.attr("opacity", 1).attr("transform", function(d) {
         return transform2(position(d) + offset);
       });
-      line.attr(x + "2", k * tickSizeInner);
-      text.attr(x, k * spacing).text(format2);
+      line.attr(x2 + "2", k * tickSizeInner);
+      text.attr(x2, k * spacing).text(format2);
       selection2.filter(entering).attr("fill", "none").attr("font-size", 10).attr("font-family", "sans-serif").attr("text-anchor", orient === right ? "start" : orient === left ? "end" : "middle");
       selection2.each(function() {
         this.__axis = position;
@@ -450,8 +450,8 @@
   }
 
   // node_modules/d3-selection/src/array.js
-  function array(x) {
-    return x == null ? [] : Array.isArray(x) ? x : Array.from(x);
+  function array(x2) {
+    return x2 == null ? [] : Array.isArray(x2) ? x2 : Array.from(x2);
   }
 
   // node_modules/d3-selection/src/selectorAll.js
@@ -573,9 +573,9 @@
   };
 
   // node_modules/d3-selection/src/constant.js
-  function constant_default(x) {
+  function constant_default(x2) {
     return function() {
-      return x;
+      return x2;
     };
   }
 
@@ -1239,10 +1239,10 @@
     if (node) {
       var svg = node.ownerSVGElement || node;
       if (svg.createSVGPoint) {
-        var point = svg.createSVGPoint();
-        point.x = event.clientX, point.y = event.clientY;
-        point = point.matrixTransform(node.getScreenCTM().inverse());
-        return [point.x, point.y];
+        var point3 = svg.createSVGPoint();
+        point3.x = event.clientX, point3.y = event.clientY;
+        point3 = point3.matrixTransform(node.getScreenCTM().inverse());
+        return [point3.x, point3.y];
       }
       if (node.getBoundingClientRect) {
         var rect = node.getBoundingClientRect();
@@ -1638,7 +1638,7 @@
   }
 
   // node_modules/d3-interpolate/src/constant.js
-  var constant_default2 = (x) => () => x;
+  var constant_default2 = (x2) => () => x2;
 
   // node_modules/d3-interpolate/src/color.js
   function linear(a, d) {
@@ -1646,14 +1646,14 @@
       return a + t * d;
     };
   }
-  function exponential(a, b, y) {
-    return a = Math.pow(a, y), b = Math.pow(b, y) - a, y = 1 / y, function(t) {
-      return Math.pow(a + t * b, y);
+  function exponential(a, b, y2) {
+    return a = Math.pow(a, y2), b = Math.pow(b, y2) - a, y2 = 1 / y2, function(t) {
+      return Math.pow(a + t * b, y2);
     };
   }
-  function gamma(y) {
-    return (y = +y) === 1 ? nogamma : function(a, b) {
-      return b - a ? exponential(a, b, y) : constant_default2(isNaN(a) ? b : a);
+  function gamma(y2) {
+    return (y2 = +y2) === 1 ? nogamma : function(a, b) {
+      return b - a ? exponential(a, b, y2) : constant_default2(isNaN(a) ? b : a);
     };
   }
   function nogamma(a, b) {
@@ -1662,8 +1662,8 @@
   }
 
   // node_modules/d3-interpolate/src/rgb.js
-  var rgb_default = function rgbGamma(y) {
-    var color2 = gamma(y);
+  var rgb_default = function rgbGamma(y2) {
+    var color2 = gamma(y2);
     function rgb2(start2, end) {
       var r = color2((start2 = rgb(start2)).r, (end = rgb(end)).r), g = color2(start2.g, end.g), b = color2(start2.b, end.b), opacity = nogamma(start2.opacity, end.opacity);
       return function(t) {
@@ -1712,20 +1712,20 @@
       return c;
     };
   }
-  function isNumberArray(x) {
-    return ArrayBuffer.isView(x) && !(x instanceof DataView);
+  function isNumberArray(x2) {
+    return ArrayBuffer.isView(x2) && !(x2 instanceof DataView);
   }
 
   // node_modules/d3-interpolate/src/array.js
   function genericArray(a, b) {
-    var nb = b ? b.length : 0, na = a ? Math.min(nb, a.length) : 0, x = new Array(na), c = new Array(nb), i;
+    var nb = b ? b.length : 0, na = a ? Math.min(nb, a.length) : 0, x2 = new Array(na), c = new Array(nb), i;
     for (i = 0; i < na; ++i)
-      x[i] = value_default(a[i], b[i]);
+      x2[i] = value_default(a[i], b[i]);
     for (; i < nb; ++i)
       c[i] = b[i];
     return function(t) {
       for (i = 0; i < na; ++i)
-        c[i] = x[i](t);
+        c[i] = x2[i](t);
       return c;
     };
   }
@@ -1936,14 +1936,14 @@
 
   // node_modules/d3-interpolate/src/zoom.js
   var epsilon2 = 1e-12;
-  function cosh(x) {
-    return ((x = Math.exp(x)) + 1 / x) / 2;
+  function cosh(x2) {
+    return ((x2 = Math.exp(x2)) + 1 / x2) / 2;
   }
-  function sinh(x) {
-    return ((x = Math.exp(x)) - 1 / x) / 2;
+  function sinh(x2) {
+    return ((x2 = Math.exp(x2)) - 1 / x2) / 2;
   }
-  function tanh(x) {
-    return ((x = Math.exp(2 * x)) - 1) / (x + 1);
+  function tanh(x2) {
+    return ((x2 = Math.exp(2 * x2)) - 1) / (x2 + 1);
   }
   var zoom_default = function zoomRho(rho, rho2, rho4) {
     function zoom(p0, p1) {
@@ -2849,8 +2849,8 @@
   var X = {
     name: "x",
     handles: ["w", "e"].map(type),
-    input: function(x, e) {
-      return x == null ? null : [[+x[0], e[0][1]], [+x[1], e[1][1]]];
+    input: function(x2, e) {
+      return x2 == null ? null : [[+x2[0], e[0][1]], [+x2[1], e[1][1]]];
     },
     output: function(xy) {
       return xy && [xy[0][0], xy[1][0]];
@@ -2859,8 +2859,8 @@
   var Y = {
     name: "y",
     handles: ["n", "s"].map(type),
-    input: function(y, e) {
-      return y == null ? null : [[e[0][0], +y[0]], [e[1][0], +y[1]]];
+    input: function(y2, e) {
+      return y2 == null ? null : [[e[0][0], +y2[0]], [e[1][0], +y2[1]]];
     },
     output: function(xy) {
       return xy && [xy[0][1], xy[1][1]];
@@ -2880,23 +2880,103 @@
     return { type: t };
   }
 
-  // node_modules/d3-format/src/formatDecimal.js
-  function formatDecimal_default(x) {
-    return Math.abs(x = Math.round(x)) >= 1e21 ? x.toLocaleString("en").replace(/,/g, "") : x.toString(10);
+  // node_modules/d3-path/src/path.js
+  var pi = Math.PI;
+  var tau = 2 * pi;
+  var epsilon3 = 1e-6;
+  var tauEpsilon = tau - epsilon3;
+  function Path() {
+    this._x0 = this._y0 = this._x1 = this._y1 = null;
+    this._ = "";
   }
-  function formatDecimalParts(x, p) {
-    if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0)
+  function path() {
+    return new Path();
+  }
+  Path.prototype = path.prototype = {
+    constructor: Path,
+    moveTo: function(x2, y2) {
+      this._ += "M" + (this._x0 = this._x1 = +x2) + "," + (this._y0 = this._y1 = +y2);
+    },
+    closePath: function() {
+      if (this._x1 !== null) {
+        this._x1 = this._x0, this._y1 = this._y0;
+        this._ += "Z";
+      }
+    },
+    lineTo: function(x2, y2) {
+      this._ += "L" + (this._x1 = +x2) + "," + (this._y1 = +y2);
+    },
+    quadraticCurveTo: function(x1, y1, x2, y2) {
+      this._ += "Q" + +x1 + "," + +y1 + "," + (this._x1 = +x2) + "," + (this._y1 = +y2);
+    },
+    bezierCurveTo: function(x1, y1, x2, y2, x3, y3) {
+      this._ += "C" + +x1 + "," + +y1 + "," + +x2 + "," + +y2 + "," + (this._x1 = +x3) + "," + (this._y1 = +y3);
+    },
+    arcTo: function(x1, y1, x2, y2, r) {
+      x1 = +x1, y1 = +y1, x2 = +x2, y2 = +y2, r = +r;
+      var x0 = this._x1, y0 = this._y1, x21 = x2 - x1, y21 = y2 - y1, x01 = x0 - x1, y01 = y0 - y1, l01_2 = x01 * x01 + y01 * y01;
+      if (r < 0)
+        throw new Error("negative radius: " + r);
+      if (this._x1 === null) {
+        this._ += "M" + (this._x1 = x1) + "," + (this._y1 = y1);
+      } else if (!(l01_2 > epsilon3))
+        ;
+      else if (!(Math.abs(y01 * x21 - y21 * x01) > epsilon3) || !r) {
+        this._ += "L" + (this._x1 = x1) + "," + (this._y1 = y1);
+      } else {
+        var x20 = x2 - x0, y20 = y2 - y0, l21_2 = x21 * x21 + y21 * y21, l20_2 = x20 * x20 + y20 * y20, l21 = Math.sqrt(l21_2), l01 = Math.sqrt(l01_2), l = r * Math.tan((pi - Math.acos((l21_2 + l01_2 - l20_2) / (2 * l21 * l01))) / 2), t01 = l / l01, t21 = l / l21;
+        if (Math.abs(t01 - 1) > epsilon3) {
+          this._ += "L" + (x1 + t01 * x01) + "," + (y1 + t01 * y01);
+        }
+        this._ += "A" + r + "," + r + ",0,0," + +(y01 * x20 > x01 * y20) + "," + (this._x1 = x1 + t21 * x21) + "," + (this._y1 = y1 + t21 * y21);
+      }
+    },
+    arc: function(x2, y2, r, a0, a1, ccw) {
+      x2 = +x2, y2 = +y2, r = +r, ccw = !!ccw;
+      var dx = r * Math.cos(a0), dy = r * Math.sin(a0), x0 = x2 + dx, y0 = y2 + dy, cw = 1 ^ ccw, da = ccw ? a0 - a1 : a1 - a0;
+      if (r < 0)
+        throw new Error("negative radius: " + r);
+      if (this._x1 === null) {
+        this._ += "M" + x0 + "," + y0;
+      } else if (Math.abs(this._x1 - x0) > epsilon3 || Math.abs(this._y1 - y0) > epsilon3) {
+        this._ += "L" + x0 + "," + y0;
+      }
+      if (!r)
+        return;
+      if (da < 0)
+        da = da % tau + tau;
+      if (da > tauEpsilon) {
+        this._ += "A" + r + "," + r + ",0,1," + cw + "," + (x2 - dx) + "," + (y2 - dy) + "A" + r + "," + r + ",0,1," + cw + "," + (this._x1 = x0) + "," + (this._y1 = y0);
+      } else if (da > epsilon3) {
+        this._ += "A" + r + "," + r + ",0," + +(da >= pi) + "," + cw + "," + (this._x1 = x2 + r * Math.cos(a1)) + "," + (this._y1 = y2 + r * Math.sin(a1));
+      }
+    },
+    rect: function(x2, y2, w, h) {
+      this._ += "M" + (this._x0 = this._x1 = +x2) + "," + (this._y0 = this._y1 = +y2) + "h" + +w + "v" + +h + "h" + -w + "Z";
+    },
+    toString: function() {
+      return this._;
+    }
+  };
+  var path_default = path;
+
+  // node_modules/d3-format/src/formatDecimal.js
+  function formatDecimal_default(x2) {
+    return Math.abs(x2 = Math.round(x2)) >= 1e21 ? x2.toLocaleString("en").replace(/,/g, "") : x2.toString(10);
+  }
+  function formatDecimalParts(x2, p) {
+    if ((i = (x2 = p ? x2.toExponential(p - 1) : x2.toExponential()).indexOf("e")) < 0)
       return null;
-    var i, coefficient = x.slice(0, i);
+    var i, coefficient = x2.slice(0, i);
     return [
       coefficient.length > 1 ? coefficient[0] + coefficient.slice(2) : coefficient,
-      +x.slice(i + 1)
+      +x2.slice(i + 1)
     ];
   }
 
   // node_modules/d3-format/src/exponent.js
-  function exponent_default(x) {
-    return x = formatDecimalParts(Math.abs(x)), x ? x[1] : NaN;
+  function exponent_default(x2) {
+    return x2 = formatDecimalParts(Math.abs(x2)), x2 ? x2[1] : NaN;
   }
 
   // node_modules/d3-format/src/formatGroup.js
@@ -2986,43 +3066,43 @@
 
   // node_modules/d3-format/src/formatPrefixAuto.js
   var prefixExponent;
-  function formatPrefixAuto_default(x, p) {
-    var d = formatDecimalParts(x, p);
+  function formatPrefixAuto_default(x2, p) {
+    var d = formatDecimalParts(x2, p);
     if (!d)
-      return x + "";
+      return x2 + "";
     var coefficient = d[0], exponent = d[1], i = exponent - (prefixExponent = Math.max(-8, Math.min(8, Math.floor(exponent / 3))) * 3) + 1, n = coefficient.length;
-    return i === n ? coefficient : i > n ? coefficient + new Array(i - n + 1).join("0") : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i) : "0." + new Array(1 - i).join("0") + formatDecimalParts(x, Math.max(0, p + i - 1))[0];
+    return i === n ? coefficient : i > n ? coefficient + new Array(i - n + 1).join("0") : i > 0 ? coefficient.slice(0, i) + "." + coefficient.slice(i) : "0." + new Array(1 - i).join("0") + formatDecimalParts(x2, Math.max(0, p + i - 1))[0];
   }
 
   // node_modules/d3-format/src/formatRounded.js
-  function formatRounded_default(x, p) {
-    var d = formatDecimalParts(x, p);
+  function formatRounded_default(x2, p) {
+    var d = formatDecimalParts(x2, p);
     if (!d)
-      return x + "";
+      return x2 + "";
     var coefficient = d[0], exponent = d[1];
     return exponent < 0 ? "0." + new Array(-exponent).join("0") + coefficient : coefficient.length > exponent + 1 ? coefficient.slice(0, exponent + 1) + "." + coefficient.slice(exponent + 1) : coefficient + new Array(exponent - coefficient.length + 2).join("0");
   }
 
   // node_modules/d3-format/src/formatTypes.js
   var formatTypes_default = {
-    "%": (x, p) => (x * 100).toFixed(p),
-    "b": (x) => Math.round(x).toString(2),
-    "c": (x) => x + "",
+    "%": (x2, p) => (x2 * 100).toFixed(p),
+    "b": (x2) => Math.round(x2).toString(2),
+    "c": (x2) => x2 + "",
     "d": formatDecimal_default,
-    "e": (x, p) => x.toExponential(p),
-    "f": (x, p) => x.toFixed(p),
-    "g": (x, p) => x.toPrecision(p),
-    "o": (x) => Math.round(x).toString(8),
-    "p": (x, p) => formatRounded_default(x * 100, p),
+    "e": (x2, p) => x2.toExponential(p),
+    "f": (x2, p) => x2.toFixed(p),
+    "g": (x2, p) => x2.toPrecision(p),
+    "o": (x2) => Math.round(x2).toString(8),
+    "p": (x2, p) => formatRounded_default(x2 * 100, p),
     "r": formatRounded_default,
     "s": formatPrefixAuto_default,
-    "X": (x) => Math.round(x).toString(16).toUpperCase(),
-    "x": (x) => Math.round(x).toString(16)
+    "X": (x2) => Math.round(x2).toString(16).toUpperCase(),
+    "x": (x2) => Math.round(x2).toString(16)
   };
 
   // node_modules/d3-format/src/identity.js
-  function identity_default2(x) {
-    return x;
+  function identity_default2(x2) {
+    return x2;
   }
 
   // node_modules/d3-format/src/locale.js
@@ -3191,33 +3271,33 @@
   }
 
   // node_modules/d3-scale/src/constant.js
-  function constants(x) {
+  function constants(x2) {
     return function() {
-      return x;
+      return x2;
     };
   }
 
   // node_modules/d3-scale/src/number.js
-  function number3(x) {
-    return +x;
+  function number3(x2) {
+    return +x2;
   }
 
   // node_modules/d3-scale/src/continuous.js
   var unit = [0, 1];
-  function identity2(x) {
-    return x;
+  function identity2(x2) {
+    return x2;
   }
   function normalize(a, b) {
-    return (b -= a = +a) ? function(x) {
-      return (x - a) / b;
+    return (b -= a = +a) ? function(x2) {
+      return (x2 - a) / b;
     } : constants(isNaN(b) ? NaN : 0.5);
   }
   function clamper(a, b) {
     var t;
     if (a > b)
       t = a, a = b, b = t;
-    return function(x) {
-      return Math.max(a, Math.min(b, x));
+    return function(x2) {
+      return Math.max(a, Math.min(b, x2));
     };
   }
   function bimap(domain, range, interpolate) {
@@ -3226,8 +3306,8 @@
       d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
     else
       d0 = normalize(d0, d1), r0 = interpolate(r0, r1);
-    return function(x) {
-      return r0(d0(x));
+    return function(x2) {
+      return r0(d0(x2));
     };
   }
   function polymap(domain, range, interpolate) {
@@ -3240,9 +3320,9 @@
       d[i] = normalize(domain[i], domain[i + 1]);
       r[i] = interpolate(range[i], range[i + 1]);
     }
-    return function(x) {
-      var i2 = bisect_default(domain, x, 1, j) - 1;
-      return r[i2](d[i2](x));
+    return function(x2) {
+      var i2 = bisect_default(domain, x2, 1, j) - 1;
+      return r[i2](d[i2](x2));
     };
   }
   function copy(source, target) {
@@ -3258,11 +3338,11 @@
       output = input = null;
       return scale;
     }
-    function scale(x) {
-      return x == null || isNaN(x = +x) ? unknown : (output || (output = piecewise(domain.map(transform2), range, interpolate)))(transform2(clamp(x)));
+    function scale(x2) {
+      return x2 == null || isNaN(x2 = +x2) ? unknown : (output || (output = piecewise(domain.map(transform2), range, interpolate)))(transform2(clamp(x2)));
     }
-    scale.invert = function(y) {
-      return clamp(untransform((input || (input = piecewise(range, domain.map(transform2), number_default)))(y)));
+    scale.invert = function(y2) {
+      return clamp(untransform((input || (input = piecewise(range, domain.map(transform2), number_default)))(y2)));
     };
     scale.domain = function(_) {
       return arguments.length ? (domain = Array.from(_, number3), rescale()) : domain.slice();
@@ -3391,29 +3471,29 @@
   }
 
   // node_modules/d3-scale/src/log.js
-  function transformLog(x) {
-    return Math.log(x);
+  function transformLog(x2) {
+    return Math.log(x2);
   }
-  function transformExp(x) {
-    return Math.exp(x);
+  function transformExp(x2) {
+    return Math.exp(x2);
   }
-  function transformLogn(x) {
-    return -Math.log(-x);
+  function transformLogn(x2) {
+    return -Math.log(-x2);
   }
-  function transformExpn(x) {
-    return -Math.exp(-x);
+  function transformExpn(x2) {
+    return -Math.exp(-x2);
   }
-  function pow10(x) {
-    return isFinite(x) ? +("1e" + x) : x < 0 ? 0 : x;
+  function pow10(x2) {
+    return isFinite(x2) ? +("1e" + x2) : x2 < 0 ? 0 : x2;
   }
   function powp(base) {
-    return base === 10 ? pow10 : base === Math.E ? Math.exp : (x) => Math.pow(base, x);
+    return base === 10 ? pow10 : base === Math.E ? Math.exp : (x2) => Math.pow(base, x2);
   }
   function logp(base) {
-    return base === Math.E ? Math.log : base === 10 && Math.log10 || base === 2 && Math.log2 || (base = Math.log(base), (x) => Math.log(x) / base);
+    return base === Math.E ? Math.log : base === 10 && Math.log10 || base === 2 && Math.log2 || (base = Math.log(base), (x2) => Math.log(x2) / base);
   }
   function reflect(f) {
-    return (x, k) => -f(-x, k);
+    return (x2, k) => -f(-x2, k);
   }
   function loggish(transform2) {
     const scale = transform2(transformLog, transformExp);
@@ -3503,8 +3583,8 @@
     };
     scale.nice = () => {
       return domain(nice(domain(), {
-        floor: (x) => pows(Math.floor(logs(x))),
-        ceil: (x) => pows(Math.ceil(logs(x)))
+        floor: (x2) => pows(Math.floor(logs(x2))),
+        ceil: (x2) => pows(Math.ceil(logs(x2)))
       }));
     };
     return scale;
@@ -3527,8 +3607,255 @@
   // node_modules/d3-scale-chromatic/src/categorical/Tableau10.js
   var Tableau10_default = colors_default("4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab");
 
+  // node_modules/d3-shape/src/constant.js
+  function constant_default4(x2) {
+    return function constant() {
+      return x2;
+    };
+  }
+
+  // node_modules/d3-shape/src/math.js
+  var epsilon4 = 1e-12;
+  var pi2 = Math.PI;
+  var halfPi = pi2 / 2;
+  var tau2 = 2 * pi2;
+
+  // node_modules/d3-shape/src/array.js
+  var slice = Array.prototype.slice;
+  function array_default(x2) {
+    return typeof x2 === "object" && "length" in x2 ? x2 : Array.from(x2);
+  }
+
+  // node_modules/d3-shape/src/curve/linear.js
+  function Linear(context) {
+    this._context = context;
+  }
+  Linear.prototype = {
+    areaStart: function() {
+      this._line = 0;
+    },
+    areaEnd: function() {
+      this._line = NaN;
+    },
+    lineStart: function() {
+      this._point = 0;
+    },
+    lineEnd: function() {
+      if (this._line || this._line !== 0 && this._point === 1)
+        this._context.closePath();
+      this._line = 1 - this._line;
+    },
+    point: function(x2, y2) {
+      x2 = +x2, y2 = +y2;
+      switch (this._point) {
+        case 0:
+          this._point = 1;
+          this._line ? this._context.lineTo(x2, y2) : this._context.moveTo(x2, y2);
+          break;
+        case 1:
+          this._point = 2;
+        default:
+          this._context.lineTo(x2, y2);
+          break;
+      }
+    }
+  };
+  function linear_default(context) {
+    return new Linear(context);
+  }
+
+  // node_modules/d3-shape/src/point.js
+  function x(p) {
+    return p[0];
+  }
+  function y(p) {
+    return p[1];
+  }
+
+  // node_modules/d3-shape/src/line.js
+  function line_default(x2, y2) {
+    var defined = constant_default4(true), context = null, curve = linear_default, output = null;
+    x2 = typeof x2 === "function" ? x2 : x2 === void 0 ? x : constant_default4(x2);
+    y2 = typeof y2 === "function" ? y2 : y2 === void 0 ? y : constant_default4(y2);
+    function line(data) {
+      var i, n = (data = array_default(data)).length, d, defined0 = false, buffer;
+      if (context == null)
+        output = curve(buffer = path_default());
+      for (i = 0; i <= n; ++i) {
+        if (!(i < n && defined(d = data[i], i, data)) === defined0) {
+          if (defined0 = !defined0)
+            output.lineStart();
+          else
+            output.lineEnd();
+        }
+        if (defined0)
+          output.point(+x2(d, i, data), +y2(d, i, data));
+      }
+      if (buffer)
+        return output = null, buffer + "" || null;
+    }
+    line.x = function(_) {
+      return arguments.length ? (x2 = typeof _ === "function" ? _ : constant_default4(+_), line) : x2;
+    };
+    line.y = function(_) {
+      return arguments.length ? (y2 = typeof _ === "function" ? _ : constant_default4(+_), line) : y2;
+    };
+    line.defined = function(_) {
+      return arguments.length ? (defined = typeof _ === "function" ? _ : constant_default4(!!_), line) : defined;
+    };
+    line.curve = function(_) {
+      return arguments.length ? (curve = _, context != null && (output = curve(context)), line) : curve;
+    };
+    line.context = function(_) {
+      return arguments.length ? (_ == null ? context = output = null : output = curve(context = _), line) : context;
+    };
+    return line;
+  }
+
+  // node_modules/d3-shape/src/curve/cardinal.js
+  function point(that, x2, y2) {
+    that._context.bezierCurveTo(that._x1 + that._k * (that._x2 - that._x0), that._y1 + that._k * (that._y2 - that._y0), that._x2 + that._k * (that._x1 - x2), that._y2 + that._k * (that._y1 - y2), that._x2, that._y2);
+  }
+  function Cardinal(context, tension) {
+    this._context = context;
+    this._k = (1 - tension) / 6;
+  }
+  Cardinal.prototype = {
+    areaStart: function() {
+      this._line = 0;
+    },
+    areaEnd: function() {
+      this._line = NaN;
+    },
+    lineStart: function() {
+      this._x0 = this._x1 = this._x2 = this._y0 = this._y1 = this._y2 = NaN;
+      this._point = 0;
+    },
+    lineEnd: function() {
+      switch (this._point) {
+        case 2:
+          this._context.lineTo(this._x2, this._y2);
+          break;
+        case 3:
+          point(this, this._x1, this._y1);
+          break;
+      }
+      if (this._line || this._line !== 0 && this._point === 1)
+        this._context.closePath();
+      this._line = 1 - this._line;
+    },
+    point: function(x2, y2) {
+      x2 = +x2, y2 = +y2;
+      switch (this._point) {
+        case 0:
+          this._point = 1;
+          this._line ? this._context.lineTo(x2, y2) : this._context.moveTo(x2, y2);
+          break;
+        case 1:
+          this._point = 2;
+          this._x1 = x2, this._y1 = y2;
+          break;
+        case 2:
+          this._point = 3;
+        default:
+          point(this, x2, y2);
+          break;
+      }
+      this._x0 = this._x1, this._x1 = this._x2, this._x2 = x2;
+      this._y0 = this._y1, this._y1 = this._y2, this._y2 = y2;
+    }
+  };
+  var cardinal_default = function custom(tension) {
+    function cardinal(context) {
+      return new Cardinal(context, tension);
+    }
+    cardinal.tension = function(tension2) {
+      return custom(+tension2);
+    };
+    return cardinal;
+  }(0);
+
+  // node_modules/d3-shape/src/curve/catmullRom.js
+  function point2(that, x2, y2) {
+    var x1 = that._x1, y1 = that._y1, x22 = that._x2, y22 = that._y2;
+    if (that._l01_a > epsilon4) {
+      var a = 2 * that._l01_2a + 3 * that._l01_a * that._l12_a + that._l12_2a, n = 3 * that._l01_a * (that._l01_a + that._l12_a);
+      x1 = (x1 * a - that._x0 * that._l12_2a + that._x2 * that._l01_2a) / n;
+      y1 = (y1 * a - that._y0 * that._l12_2a + that._y2 * that._l01_2a) / n;
+    }
+    if (that._l23_a > epsilon4) {
+      var b = 2 * that._l23_2a + 3 * that._l23_a * that._l12_a + that._l12_2a, m = 3 * that._l23_a * (that._l23_a + that._l12_a);
+      x22 = (x22 * b + that._x1 * that._l23_2a - x2 * that._l12_2a) / m;
+      y22 = (y22 * b + that._y1 * that._l23_2a - y2 * that._l12_2a) / m;
+    }
+    that._context.bezierCurveTo(x1, y1, x22, y22, that._x2, that._y2);
+  }
+  function CatmullRom(context, alpha) {
+    this._context = context;
+    this._alpha = alpha;
+  }
+  CatmullRom.prototype = {
+    areaStart: function() {
+      this._line = 0;
+    },
+    areaEnd: function() {
+      this._line = NaN;
+    },
+    lineStart: function() {
+      this._x0 = this._x1 = this._x2 = this._y0 = this._y1 = this._y2 = NaN;
+      this._l01_a = this._l12_a = this._l23_a = this._l01_2a = this._l12_2a = this._l23_2a = this._point = 0;
+    },
+    lineEnd: function() {
+      switch (this._point) {
+        case 2:
+          this._context.lineTo(this._x2, this._y2);
+          break;
+        case 3:
+          this.point(this._x2, this._y2);
+          break;
+      }
+      if (this._line || this._line !== 0 && this._point === 1)
+        this._context.closePath();
+      this._line = 1 - this._line;
+    },
+    point: function(x2, y2) {
+      x2 = +x2, y2 = +y2;
+      if (this._point) {
+        var x23 = this._x2 - x2, y23 = this._y2 - y2;
+        this._l23_a = Math.sqrt(this._l23_2a = Math.pow(x23 * x23 + y23 * y23, this._alpha));
+      }
+      switch (this._point) {
+        case 0:
+          this._point = 1;
+          this._line ? this._context.lineTo(x2, y2) : this._context.moveTo(x2, y2);
+          break;
+        case 1:
+          this._point = 2;
+          break;
+        case 2:
+          this._point = 3;
+        default:
+          point2(this, x2, y2);
+          break;
+      }
+      this._l01_a = this._l12_a, this._l12_a = this._l23_a;
+      this._l01_2a = this._l12_2a, this._l12_2a = this._l23_2a;
+      this._x0 = this._x1, this._x1 = this._x2, this._x2 = x2;
+      this._y0 = this._y1, this._y1 = this._y2, this._y2 = y2;
+    }
+  };
+  var catmullRom_default = function custom2(alpha) {
+    function catmullRom(context) {
+      return alpha ? new CatmullRom(context, alpha) : new Cardinal(context, 0);
+    }
+    catmullRom.alpha = function(alpha2) {
+      return custom2(+alpha2);
+    };
+    return catmullRom;
+  }(0.5);
+
   // node_modules/d3-zoom/src/constant.js
-  var constant_default4 = (x) => () => x;
+  var constant_default5 = (x2) => () => x2;
 
   // node_modules/d3-zoom/src/event.js
   function ZoomEvent(type2, {
@@ -3547,42 +3874,42 @@
   }
 
   // node_modules/d3-zoom/src/transform.js
-  function Transform(k, x, y) {
+  function Transform(k, x2, y2) {
     this.k = k;
-    this.x = x;
-    this.y = y;
+    this.x = x2;
+    this.y = y2;
   }
   Transform.prototype = {
     constructor: Transform,
     scale: function(k) {
       return k === 1 ? this : new Transform(this.k * k, this.x, this.y);
     },
-    translate: function(x, y) {
-      return x === 0 & y === 0 ? this : new Transform(this.k, this.x + this.k * x, this.y + this.k * y);
+    translate: function(x2, y2) {
+      return x2 === 0 & y2 === 0 ? this : new Transform(this.k, this.x + this.k * x2, this.y + this.k * y2);
     },
-    apply: function(point) {
-      return [point[0] * this.k + this.x, point[1] * this.k + this.y];
+    apply: function(point3) {
+      return [point3[0] * this.k + this.x, point3[1] * this.k + this.y];
     },
-    applyX: function(x) {
-      return x * this.k + this.x;
+    applyX: function(x2) {
+      return x2 * this.k + this.x;
     },
-    applyY: function(y) {
-      return y * this.k + this.y;
+    applyY: function(y2) {
+      return y2 * this.k + this.y;
     },
     invert: function(location) {
       return [(location[0] - this.x) / this.k, (location[1] - this.y) / this.k];
     },
-    invertX: function(x) {
-      return (x - this.x) / this.k;
+    invertX: function(x2) {
+      return (x2 - this.x) / this.k;
     },
-    invertY: function(y) {
-      return (y - this.y) / this.k;
+    invertY: function(y2) {
+      return (y2 - this.y) / this.k;
     },
-    rescaleX: function(x) {
-      return x.copy().domain(x.range().map(this.invertX, this).map(x.invert, x));
+    rescaleX: function(x2) {
+      return x2.copy().domain(x2.range().map(this.invertX, this).map(x2.invert, x2));
     },
-    rescaleY: function(y) {
-      return y.copy().domain(y.range().map(this.invertY, this).map(y.invert, y));
+    rescaleY: function(y2) {
+      return y2.copy().domain(y2.range().map(this.invertY, this).map(y2.invert, y2));
     },
     toString: function() {
       return "translate(" + this.x + "," + this.y + ") scale(" + this.k + ")";
@@ -3640,11 +3967,11 @@
     function zoom(selection2) {
       selection2.property("__zoom", defaultTransform).on("wheel.zoom", wheeled, { passive: false }).on("mousedown.zoom", mousedowned).on("dblclick.zoom", dblclicked).filter(touchable).on("touchstart.zoom", touchstarted).on("touchmove.zoom", touchmoved).on("touchend.zoom touchcancel.zoom", touchended).style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
     }
-    zoom.transform = function(collection, transform2, point, event) {
+    zoom.transform = function(collection, transform2, point3, event) {
       var selection2 = collection.selection ? collection.selection() : collection;
       selection2.property("__zoom", defaultTransform);
       if (collection !== selection2) {
-        schedule(collection, transform2, point, event);
+        schedule(collection, transform2, point3, event);
       } else {
         selection2.interrupt().each(function() {
           gesture(this, arguments).event(event).start().zoom(null, typeof transform2 === "function" ? transform2.apply(this, arguments) : transform2).end();
@@ -3663,15 +3990,15 @@
         return constrain(translate(scale(t0, k1), p0, p1), e, translateExtent);
       }, p, event);
     };
-    zoom.translateBy = function(selection2, x, y, event) {
+    zoom.translateBy = function(selection2, x2, y2, event) {
       zoom.transform(selection2, function() {
-        return constrain(this.__zoom.translate(typeof x === "function" ? x.apply(this, arguments) : x, typeof y === "function" ? y.apply(this, arguments) : y), extent2.apply(this, arguments), translateExtent);
+        return constrain(this.__zoom.translate(typeof x2 === "function" ? x2.apply(this, arguments) : x2, typeof y2 === "function" ? y2.apply(this, arguments) : y2), extent2.apply(this, arguments), translateExtent);
       }, null, event);
     };
-    zoom.translateTo = function(selection2, x, y, p, event) {
+    zoom.translateTo = function(selection2, x2, y2, p, event) {
       zoom.transform(selection2, function() {
         var e = extent2.apply(this, arguments), t = this.__zoom, p0 = p == null ? centroid(e) : typeof p === "function" ? p.apply(this, arguments) : p;
-        return constrain(identity3.translate(p0[0], p0[1]).scale(t.k).translate(typeof x === "function" ? -x.apply(this, arguments) : -x, typeof y === "function" ? -y.apply(this, arguments) : -y), e, translateExtent);
+        return constrain(identity3.translate(p0[0], p0[1]).scale(t.k).translate(typeof x2 === "function" ? -x2.apply(this, arguments) : -x2, typeof y2 === "function" ? -y2.apply(this, arguments) : -y2), e, translateExtent);
       }, p, event);
     };
     function scale(transform2, k) {
@@ -3679,19 +4006,19 @@
       return k === transform2.k ? transform2 : new Transform(k, transform2.x, transform2.y);
     }
     function translate(transform2, p0, p1) {
-      var x = p0[0] - p1[0] * transform2.k, y = p0[1] - p1[1] * transform2.k;
-      return x === transform2.x && y === transform2.y ? transform2 : new Transform(transform2.k, x, y);
+      var x2 = p0[0] - p1[0] * transform2.k, y2 = p0[1] - p1[1] * transform2.k;
+      return x2 === transform2.x && y2 === transform2.y ? transform2 : new Transform(transform2.k, x2, y2);
     }
     function centroid(extent3) {
       return [(+extent3[0][0] + +extent3[1][0]) / 2, (+extent3[0][1] + +extent3[1][1]) / 2];
     }
-    function schedule(transition2, transform2, point, event) {
+    function schedule(transition2, transform2, point3, event) {
       transition2.on("start.zoom", function() {
         gesture(this, arguments).event(event).start();
       }).on("interrupt.zoom end.zoom", function() {
         gesture(this, arguments).event(event).end();
       }).tween("zoom", function() {
-        var that = this, args = arguments, g = gesture(that, args).event(event), e = extent2.apply(that, args), p = point == null ? centroid(e) : typeof point === "function" ? point.apply(that, args) : point, w = Math.max(e[1][0] - e[0][0], e[1][1] - e[0][1]), a = that.__zoom, b = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i = interpolate(a.invert(p).concat(w / a.k), b.invert(p).concat(w / b.k));
+        var that = this, args = arguments, g = gesture(that, args).event(event), e = extent2.apply(that, args), p = point3 == null ? centroid(e) : typeof point3 === "function" ? point3.apply(that, args) : point3, w = Math.max(e[1][0] - e[0][0], e[1][1] - e[0][1]), a = that.__zoom, b = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i = interpolate(a.invert(p).concat(w / a.k), b.invert(p).concat(w / b.k));
         return function(t) {
           if (t === 1)
             t = b;
@@ -3896,16 +4223,16 @@
       }
     }
     zoom.wheelDelta = function(_) {
-      return arguments.length ? (wheelDelta = typeof _ === "function" ? _ : constant_default4(+_), zoom) : wheelDelta;
+      return arguments.length ? (wheelDelta = typeof _ === "function" ? _ : constant_default5(+_), zoom) : wheelDelta;
     };
     zoom.filter = function(_) {
-      return arguments.length ? (filter2 = typeof _ === "function" ? _ : constant_default4(!!_), zoom) : filter2;
+      return arguments.length ? (filter2 = typeof _ === "function" ? _ : constant_default5(!!_), zoom) : filter2;
     };
     zoom.touchable = function(_) {
-      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant_default4(!!_), zoom) : touchable;
+      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant_default5(!!_), zoom) : touchable;
     };
     zoom.extent = function(_) {
-      return arguments.length ? (extent2 = typeof _ === "function" ? _ : constant_default4([[+_[0][0], +_[0][1]], [+_[1][0], +_[1][1]]]), zoom) : extent2;
+      return arguments.length ? (extent2 = typeof _ === "function" ? _ : constant_default5([[+_[0][0], +_[0][1]], [+_[1][0], +_[1][1]]]), zoom) : extent2;
     };
     zoom.scaleExtent = function(_) {
       return arguments.length ? (scaleExtent[0] = +_[0], scaleExtent[1] = +_[1], zoom) : [scaleExtent[0], scaleExtent[1]];
@@ -3943,36 +4270,41 @@
     right: axisRight
   };
   var xAxis = (g, scale, config) => {
-    const { width, height, padding, x } = config;
-    g.attr("transform", x.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", x.tickFontSize).attr("fill", x.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x.labelColor).attr("text-anchor", "middle").style("font-size", x.labelFontSize).style("font-weight", x.labelWeight).text(x.label));
+    const { width, height, padding, x: x2 } = config;
+    g.attr("transform", x2.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x2.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", x2.tickFontSize).attr("fill", x2.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x2.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x2.labelColor).attr("text-anchor", "middle").style("font-size", x2.labelFontSize).style("font-weight", x2.labelWeight).text(x2.label));
   };
   var yAxis = (g, scale, config) => {
-    const { width, height, padding, y } = config;
-    g.attr("transform", y.tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`).call(tickMap[y.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y.tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y.tickFontSize).attr("fill", y.tickColor)).call((g2) => {
-      const labelX2 = y.tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
+    const { width, height, padding, y: y2 } = config;
+    g.attr("transform", y2.tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`).call(tickMap[y2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y2.tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y2.tickFontSize).attr("fill", y2.tickColor)).call((g2) => {
+      const labelX2 = y2.tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
       const labelY2 = (height - padding[0] - padding[2]) / 2 + padding[0];
-      const rotate2 = y.tickType === "left" ? 270 : 90;
-      g2.append("text").attr("x", 0).attr("y", 0).attr("transform", `translate(${labelX2},${labelY2}) rotate(${rotate2})`).attr("fill", y.labelColor).attr("text-anchor", "middle").style("font-size", y.labelFontSize).style("font-weight", y.labelWeight).text(y.label);
+      const rotate2 = y2.tickType === "left" ? 270 : 90;
+      g2.append("text").attr("x", 0).attr("y", 0).attr("transform", `translate(${labelX2},${labelY2}) rotate(${rotate2})`).attr("fill", y2.labelColor).attr("text-anchor", "middle").style("font-size", y2.labelFontSize).style("font-weight", y2.labelWeight).text(y2.label);
     });
   };
 
   // js/circle.js
+  var linkMap = {
+    curve: catmullRom_default.alpha(0.5),
+    linear: linear_default
+  };
   var colors = Tableau10_default;
   var drawCircles = (circlesG, data, config, xScale, yScale) => {
     circlesG.selectAll("*").remove();
-    const { circle, x, y, tooltip = false } = config;
+    const { circle, x: x2, y: y2, tooltip = false } = config;
     const positions = data.map((item) => [
-      xScale(item[x.key]),
-      yScale(item[y.key])
+      xScale(item[x2.key]),
+      yScale(item[y2.key])
     ]);
-    const { withLinks = false, linkWidth = 2, linkColor = "#ccc" } = circle;
+    const {
+      withLinks = false,
+      linkWidth = 2,
+      linkColor = "#ccc",
+      linkType = "curve"
+    } = circle;
     if (withLinks) {
-      const links = positions.map((d, i) => {
-        if (i === 0)
-          return null;
-        return [...positions[i - 1], ...positions[i]];
-      }).filter((a) => a);
-      circlesG.append("g").attr("id", "circles-links").selectAll("line").data(links).join("line").attr("x1", (d) => d[0]).attr("y1", (d) => d[1]).attr("x2", (d) => d[2]).attr("y2", (d) => d[3]).attr("stroke", linkColor).attr("stroke-width", linkWidth).attr("stroke-linecap", "round");
+      const link = line_default().curve(linkMap[linkType]).x((d) => d[0]).y((d) => d[1]);
+      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", linkColor).attr("stroke-width", linkWidth).attr("d", link(positions));
     }
     const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g").attr("transform", (_, i) => `translate(${positions[i]})`);
     const { color: color2, r = 5, strokeColor = "", strokeWidth = 1 } = circle;
@@ -3989,15 +4321,14 @@
     }
     if (tooltip) {
       const tooltipG = circlesG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
-      circleG.on("mouseover", (e, d) => {
+      circleG.style("cursor", "pointer").on("mouseover", (e, d) => {
         tooltipG.attr("opacity", 1);
-        tooltipG.attr("transform", `translate(${xScale(d[x.key])},${yScale(d[y.key])})`);
-        const pointer = pointer_default(e);
-        const path = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
+        tooltipG.attr("transform", `translate(${xScale(d[x2.key])},${yScale(d[y2.key])})`);
+        const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
         const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
         const { y: _y, width: w, height: h } = text.node().getBBox();
         text.attr("transform", `translate(${-w / 2},${15 - _y})`);
-        path.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+        path2.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
       });
       circleG.on("mouseout", (e, d) => {
         tooltipG.attr("opacity", 0);
@@ -4024,19 +4355,19 @@
   };
   var zillizBI = ({ chartType, domSelector, data, config }) => {
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
-    const { width, height, background, border, padding, x, y } = config;
+    const { width, height, background, border, padding, x: x2, y: y2 } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
-    const xDomain = domainExtent(extent(data, (d) => d[x.key]));
-    const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
+    const xDomain = domainExtent(extent(data, (d) => d[x2.key]));
+    const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
     const xAxisG = svg.append("g").attr("id", "x-axis-g");
-    let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
+    let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
     xAxisG.call(xAxis, xScale, config);
-    const yDomain = domainExtent(extent(data, (d) => d[y.key]));
-    const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
+    const yDomain = domainExtent(extent(data, (d) => d[y2.key]));
+    const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
     const yAxisG = svg.append("g").attr("id", "y-axis-g");
-    let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
+    let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
     yAxisG.call(yAxis, yScale, config);
     if (chartType === "scatter_plot") {
       const circlesG = svg.append("g").attr("id", "circles-g");
@@ -4044,15 +4375,15 @@
       const zoomed = ({ transform: transform2 }) => {
         const newXScale = transform2.rescaleX(xScale);
         const newYScale = transform2.rescaleY(yScale);
-        circlesG.call(circle_default, data, config, x.zoom ? newXScale : xScale, y.zoom ? newYScale : yScale);
-        x.zoom && xAxisG.call(xAxis, newXScale, config);
-        y.zoom && yAxisG.call(yAxis, newYScale, config);
+        circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale);
+        x2.zoom && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && yAxisG.call(yAxis, newYScale, config);
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).extent([
         [padding[3], padding[0]],
         [width - padding[1], height - padding[2]]
       ]).on("zoom", zoomed);
-      (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     }
   };
   var js_default = zillizBI;
@@ -4087,6 +4418,7 @@
         label: (item) => `ef=${item.ef}`,
         labelFontSize: 14,
         withLinks: true,
+        linkType: "curve",
         linkWidth: 4,
         linkColor: "#ccc"
       },
