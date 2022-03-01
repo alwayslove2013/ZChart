@@ -3958,7 +3958,7 @@
 
   // js/circle.js
   var colors = Tableau10_default;
-  var drawCircles = ({ circlesG, data, config, xScale, yScale }) => {
+  var drawCircles = (circlesG, data, config, xScale, yScale) => {
     circlesG.selectAll("*").remove();
     const { circle, x, y } = config;
     const positions = data.map((item) => [
@@ -3990,6 +3990,13 @@
   };
   var circle_default = drawCircles;
 
+  // js/title.js
+  var drawTitle = (titleG, config) => {
+    const { width, height, padding, title } = config;
+    titleG.append("text").attr("x", width / 2).attr("y", padding[0] / 2 + title.fontSize / 2).attr("text-anchor", "middle").attr("font-size", title.fontSize).attr("font-weight", title.fontWeight).attr("fill", title.fontColor).text(title.text);
+  };
+  var title_default = drawTitle;
+
   // js/index.js
   var scaleMap = {
     linear: linear2,
@@ -4003,6 +4010,8 @@
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     const { width, height, background, border, padding, x, y } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
+    const titleG = svg.append("g").attr("id", "title-g");
+    titleG.call(title_default, config);
     const xDomain = domainExtent(extent(data, (d) => d[x.key]));
     const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
     const xAxisG = svg.append("g").attr("id", "x-axis-g");
@@ -4015,17 +4024,11 @@
     yAxisG.call(yAxis, yScale, config);
     if (chartType === "scatter_plot") {
       const circlesG = svg.append("g").attr("id", "circles-g");
-      circle_default({ circlesG, data, config, xScale, yScale });
+      circlesG.call(circle_default, data, config, xScale, yScale);
       const zoomed = ({ transform: transform2 }) => {
         const newXScale = transform2.rescaleX(xScale);
         const newYScale = transform2.rescaleY(yScale);
-        circle_default({
-          circlesG,
-          data,
-          config,
-          xScale: x.zoom ? newXScale : xScale,
-          yScale: y.zoom ? newYScale : yScale
-        });
+        circlesG.call(circle_default, data, config, x.zoom ? newXScale : xScale, y.zoom ? newYScale : yScale);
         x.zoom && xAxisG.call(xAxis, newXScale, config);
         y.zoom && yAxisG.call(yAxis, newYScale, config);
       };
@@ -4048,7 +4051,13 @@
       width: 1e3,
       height: 620,
       border: "1px solid #999",
-      padding: [100, 40, 50, 65],
+      padding: [60, 40, 50, 65],
+      title: {
+        text: "Recall - Latency",
+        fontSize: 24,
+        fontWeight: 600,
+        fontColor: "#222"
+      },
       circle: {
         r: 5,
         color: "ef",

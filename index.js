@@ -11,7 +11,13 @@ window.addEventListener("DOMContentLoaded", async () => {
     height: 620,
     // background: "rgba(0,0,0,0.1)",
     border: "1px solid #999",
-    padding: [100, 40, 50, 65],
+    padding: [60, 40, 50, 65],
+    title: {
+      text: "Recall - Latency",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222",
+    },
     circle: {
       r: 5,
       // strokeColor: '#666',

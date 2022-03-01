@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { xAxis, yAxis } from "./axis.js";
 import drawCircles from "./circle.js";
+import drawTitle from "./title.js";
 
 const scaleMap = {
   linear: d3.scaleLinear,
@@ -21,6 +22,9 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     .style("background", background)
     .style("border", border);
 
+  const titleG = svg.append("g").attr("id", "title-g");
+  titleG.call(drawTitle, config);
+
   const xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
   const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
   const xAxisG = svg.append("g").attr("id", "x-axis-g");
@@ -37,17 +41,17 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
 
   if (chartType === "scatter_plot") {
     const circlesG = svg.append("g").attr("id", "circles-g");
-    drawCircles({ circlesG, data, config, xScale, yScale });
+    circlesG.call(drawCircles, data, config, xScale, yScale);
     const zoomed = ({ transform }) => {
       const newXScale = transform.rescaleX(xScale);
       const newYScale = transform.rescaleY(yScale);
-      drawCircles({
-        circlesG,
+      circlesG.call(
+        drawCircles,
         data,
         config,
-        xScale: x.zoom ? newXScale : xScale,
-        yScale: y.zoom ? newYScale : yScale,
-      });
+        x.zoom ? newXScale : xScale,
+        y.zoom ? newYScale : yScale
+      );
       x.zoom && xAxisG.call(xAxis, newXScale, config);
       y.zoom && yAxisG.call(yAxis, newYScale, config);
     };

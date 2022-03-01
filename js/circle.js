@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 const colors = d3.schemeTableau10;
-const drawCircles = ({ circlesG, data, config, xScale, yScale }) => {
+const drawCircles = (circlesG, data, config, xScale, yScale) => {
   circlesG.selectAll("*").remove();
   const { circle, x, y } = config;
   const positions = data.map((item) => [
