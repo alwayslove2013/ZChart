@@ -17,16 +17,6 @@ const drawCircles = (circlesG, data, config, xScale, yScale) => {
         return [...positions[i - 1], ...positions[i]];
       })
       .filter((a) => a);
-    // circlesG
-    //   .append("g")
-    //   .attr("id", "circles-links")
-    //   .selectAll("path")
-    //   .data(links)
-    //   .join("path")
-    //   .attr("d", (d) => `M${d[0]},${d[1]}L${d[2]},${d[3]}`)
-    //   .attr("stroke", linkColor)
-    //   .attr("strokeWidth", linkWidth)
-    //   .attr("fill", "none");
     circlesG
       .append("g")
       .attr("id", "circles-links")
@@ -38,7 +28,8 @@ const drawCircles = (circlesG, data, config, xScale, yScale) => {
       .attr("x2", (d) => d[2])
       .attr("y2", (d) => d[3])
       .attr("stroke", linkColor)
-      .attr("strokeWidth", linkWidth);
+      .attr("stroke-width", linkWidth)
+      .attr("stroke-linecap", "round");
   }
 
   const circleG = circlesG

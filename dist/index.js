@@ -3972,7 +3972,7 @@
           return null;
         return [...positions[i - 1], ...positions[i]];
       }).filter((a) => a);
-      circlesG.append("g").attr("id", "circles-links").selectAll("line").data(links).join("line").attr("x1", (d) => d[0]).attr("y1", (d) => d[1]).attr("x2", (d) => d[2]).attr("y2", (d) => d[3]).attr("stroke", linkColor).attr("strokeWidth", linkWidth);
+      circlesG.append("g").attr("id", "circles-links").selectAll("line").data(links).join("line").attr("x1", (d) => d[0]).attr("y1", (d) => d[1]).attr("x2", (d) => d[2]).attr("y2", (d) => d[3]).attr("stroke", linkColor).attr("stroke-width", linkWidth).attr("stroke-linecap", "round");
     }
     const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g").attr("transform", (_, i) => `translate(${positions[i]})`);
     const { color: color2, r = 5, strokeColor = "", strokeWidth = 1 } = circle;
@@ -4065,7 +4065,7 @@
         label: (item) => `ef=${item.ef}`,
         labelFontSize: 14,
         withLinks: true,
-        linkWidth: 25,
+        linkWidth: 4,
         linkColor: "#ccc"
       },
       x: {

@@ -27,7 +27,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       label: (item) => `ef=${item.ef}`,
       labelFontSize: 14,
       withLinks: true,
-      linkWidth: 25,
+      linkWidth: 4,
       linkColor: "#ccc",
     },
     x: {
