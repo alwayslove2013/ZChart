@@ -13,7 +13,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     border: "1px solid #999",
     padding: [60, 40, 50, 65],
     tooltip: {
-      content: ["acc", "search_rps", "ef"],
+      content: ["group_id", "acc", "search_rps", "ef"],
       fontSize: 16,
       fontWeight: 500,
       fontColor: "#43a2ca",
@@ -65,7 +65,8 @@ window.addEventListener("DOMContentLoaded", async () => {
     },
     group: {
       key: "group_id",
-      sameScale: true,
+      sameXScale: false,
+      sameYScale: true,
     },
   };
   zillizBI({ chartType, domSelector, data, config });

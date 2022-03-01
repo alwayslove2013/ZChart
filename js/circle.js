@@ -13,6 +13,7 @@ const drawCircles = (circlesG, data, config, xScale, yScale) => {
     xScale(item[x.key]),
     yScale(item[y.key]),
   ]);
+  console.log(positions[0]);
 
   const {
     withLinks = false,

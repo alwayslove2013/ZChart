@@ -4296,6 +4296,7 @@
       xScale(item[x2.key]),
       yScale(item[y2.key])
     ]);
+    console.log(positions[0]);
     const {
       withLinks = false,
       linkWidth = 2,
@@ -4355,34 +4356,62 @@
   };
   var zillizBI = ({ chartType, domSelector, data, config }) => {
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
-    const { width, height, background, border, padding, x: x2, y: y2 } = config;
+    const {
+      width,
+      height,
+      background,
+      border,
+      padding,
+      x: x2,
+      y: y2,
+      group = false
+    } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
-    const xDomain = domainExtent(extent(data, (d) => d[x2.key]));
-    const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
-    const xAxisG = svg.append("g").attr("id", "x-axis-g");
-    let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
-    xAxisG.call(xAxis, xScale, config);
-    const yDomain = domainExtent(extent(data, (d) => d[y2.key]));
-    const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
-    const yAxisG = svg.append("g").attr("id", "y-axis-g");
-    let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
-    yAxisG.call(yAxis, yScale, config);
-    if (chartType === "scatter_plot") {
-      const circlesG = svg.append("g").attr("id", "circles-g");
-      circlesG.call(circle_default, data, config, xScale, yScale);
+    const zoomedFuncs = [];
+    if (!!group) {
+      const groupKeySet = new Set(data.map((d) => d[group.key]));
+      const groupKeyOrder = Array.from(groupKeySet);
+      const datas = groupKeyOrder.map((key) => data.filter((d) => d[group.key] === key));
+      let xDomain = domainExtent(extent(data, (d) => d[x2.key]));
+      let xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
+      let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+      let xAxisG = svg.append("g").attr("id", "x-axis-g");
+      group.sameXScale && xAxisG.call(xAxis, xScale, config);
+      let yDomain = domainExtent(extent(data, (d) => d[y2.key]));
+      let yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
+      let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+      let yAxisG = svg.append("g").attr("id", "y-axis-g");
+      group.sameYScale && yAxisG.call(yAxis, yScale, config);
+      datas.forEach((data2, i) => {
+        if (!group.sameXScale) {
+          xDomain = domainExtent(extent(data2, (d) => d[x2.key]));
+          xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+        }
+        if (!group.sameYScale) {
+          yDomain = domainExtent(extent(data2, (d) => d[y2.key]));
+          yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+        }
+        const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
+        console.log("???", data2[0].acc, xScale(data2[0].acc));
+        circlesG.call(circle_default, data2, config, xScale, yScale);
+        zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
+          console.log("??????", data2[0].acc, xScale(data2[0].acc));
+          const _newXScale = group.sameXScale ? newXScale : transform2.rescaleX(xScale);
+          const _newYScale = group.sameYScale ? newYScale : transform2.rescaleY(yScale);
+          circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScale, y2.zoom ? _newYScale : yScale);
+        });
+      });
       const zoomed = ({ transform: transform2 }) => {
+        console.log("...");
         const newXScale = transform2.rescaleX(xScale);
         const newYScale = transform2.rescaleY(yScale);
-        circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale);
-        x2.zoom && xAxisG.call(xAxis, newXScale, config);
-        y2.zoom && yAxisG.call(yAxis, newYScale, config);
+        x2.zoom && group.sameXScale && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && group.sameYScale && yAxisG.call(yAxis, newYScale, config);
+        zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
       };
-      const zoom = zoom_default2().scaleExtent([0.5, 32]).extent([
-        [padding[3], padding[0]],
-        [width - padding[1], height - padding[2]]
-      ]).on("zoom", zoomed);
+      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
       (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     }
   };
@@ -4400,7 +4429,7 @@
       border: "1px solid #999",
       padding: [60, 40, 50, 65],
       tooltip: {
-        content: ["acc", "search_rps", "ef"],
+        content: ["group_id", "acc", "search_rps", "ef"],
         fontSize: 16,
         fontWeight: 500,
         fontColor: "#43a2ca"
@@ -4450,7 +4479,8 @@
       },
       group: {
         key: "group_id",
-        sameScale: true
+        sameXScale: false,
+        sameYScale: true
       }
     };
     js_default({ chartType, domSelector, data, config });

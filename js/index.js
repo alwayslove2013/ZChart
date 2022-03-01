@@ -15,7 +15,16 @@ const domainExtent = (domain) => {
 
 const zillizBI = ({ chartType, domSelector, data, config }) => {
   const svg = d3.select(domSelector).append("svg").attr("id", "chart-svg");
-  const { width, height, background, border, padding, x, y } = config;
+  const {
+    width,
+    height,
+    background,
+    border,
+    padding,
+    x,
+    y,
+    group = false,
+  } = config;
   svg
     .attr("width", width)
     .attr("height", height)
@@ -25,44 +34,71 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
   const titleG = svg.append("g").attr("id", "title-g");
   titleG.call(drawTitle, config);
 
-  const xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
-  const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
-  const xAxisG = svg.append("g").attr("id", "x-axis-g");
-  let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
+  const zoomedFuncs = [];
 
-  xAxisG.call(xAxis, xScale, config);
+  if (!!group) {
+    const groupKeySet = new Set(data.map((d) => d[group.key]));
+    const groupKeyOrder = Array.from(groupKeySet);
+    const datas = groupKeyOrder.map((key) =>
+      data.filter((d) => d[group.key] === key)
+    );
 
-  const yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
-  const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
-  const yAxisG = svg.append("g").attr("id", "y-axis-g");
-  let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
+    let xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
+    let xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
+    let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
 
-  yAxisG.call(yAxis, yScale, config);
+    let xAxisG = svg.append("g").attr("id", "x-axis-g");
+    group.sameXScale && xAxisG.call(xAxis, xScale, config);
 
-  if (chartType === "scatter_plot") {
-    const circlesG = svg.append("g").attr("id", "circles-g");
-    circlesG.call(drawCircles, data, config, xScale, yScale);
+    let yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
+    let yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
+    let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
+
+    let yAxisG = svg.append("g").attr("id", "y-axis-g");
+    group.sameYScale && yAxisG.call(yAxis, yScale, config);
+
+    datas.forEach((data, i) => {
+      if (!group.sameXScale) {
+        xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
+        xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
+      }
+      if (!group.sameYScale) {
+        yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
+        yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
+      }
+      const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
+      console.log("???", data[0].acc, xScale(data[0].acc));
+      circlesG.call(drawCircles, data, config, xScale, yScale);
+
+      zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
+        console.log("??????", data[0].acc, xScale(data[0].acc));
+        const _newXScale = group.sameXScale
+          ? newXScale
+          : transform.rescaleX(xScale);
+        const _newYScale = group.sameYScale
+          ? newYScale
+          : transform.rescaleY(yScale);
+        circlesG.call(
+          drawCircles,
+          data,
+          config,
+          x.zoom ? _newXScale : xScale,
+          y.zoom ? _newYScale : yScale
+        );
+      });
+    });
+
     const zoomed = ({ transform }) => {
+      console.log('...')
       const newXScale = transform.rescaleX(xScale);
       const newYScale = transform.rescaleY(yScale);
-      circlesG.call(
-        drawCircles,
-        data,
-        config,
-        x.zoom ? newXScale : xScale,
-        y.zoom ? newYScale : yScale
+      x.zoom && group.sameXScale && xAxisG.call(xAxis, newXScale, config);
+      y.zoom && group.sameYScale && yAxisG.call(yAxis, newYScale, config);
+      zoomedFuncs.forEach((zoomedFunc) =>
+        zoomedFunc({ transform, newXScale, newYScale })
       );
-      x.zoom && xAxisG.call(xAxis, newXScale, config);
-      y.zoom && yAxisG.call(yAxis, newYScale, config);
     };
-    const zoom = d3
-      .zoom()
-      .scaleExtent([0.5, 32])
-      .extent([
-        [padding[3], padding[0]],
-        [width - padding[1], height - padding[2]],
-      ])
-      .on("zoom", zoomed);
+    const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
     (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
   }
 };
