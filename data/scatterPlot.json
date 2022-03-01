@@ -2,31 +2,74 @@
   {
     "acc": 0.86,
     "search_rps": 1.29,
-    "ef": 16
+    "ef": 16,
+    "group_id": 0
   },
   {
     "acc": 0.88,
     "search_rps": 1.59,
-    "ef": 32
+    "ef": 32,
+    "group_id": 0
   },
   {
     "acc": 0.903,
     "search_rps": 2.08,
-    "ef": 64
+    "ef": 64,
+    "group_id": 0
   },
   {
     "acc": 0.93,
     "search_rps": 2.90,
-    "ef": 128
+    "ef": 128,
+    "group_id": 0
   },
   {
     "acc": 0.963,
     "search_rps": 4.45,
-    "ef": 256
+    "ef": 256,
+    "group_id": 0
   },
   {
     "acc": 1.00,
     "search_rps": 7.57,
-    "ef": 512
+    "ef": 512,
+    "group_id": 0
+  },
+
+  {
+    "acc": 1.86,
+    "search_rps": 11.29,
+    "ef": 16,
+    "group_id": 1
+  },
+  {
+    "acc": 1.88,
+    "search_rps": 11.59,
+    "ef": 32,
+    "group_id": 1
+  },
+  {
+    "acc": 1.903,
+    "search_rps": 21.08,
+    "ef": 64,
+    "group_id": 1
+  },
+  {
+    "acc": 1.93,
+    "search_rps": 21.90,
+    "ef": 128,
+    "group_id": 1
+  },
+  {
+    "acc": 1.963,
+    "search_rps": 41.45,
+    "ef": 256,
+    "group_id": 1
+  },
+  {
+    "acc": 3.00,
+    "search_rps": 57.57,
+    "ef": 512,
+    "group_id": 1
   }
 ]

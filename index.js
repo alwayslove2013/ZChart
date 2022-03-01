@@ -12,6 +12,12 @@ window.addEventListener("DOMContentLoaded", async () => {
     // background: "rgba(0,0,0,0.1)",
     border: "1px solid #999",
     padding: [60, 40, 50, 65],
+    tooltip: {
+      content: ["acc", "search_rps", "ef"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca",
+    },
     title: {
       text: "Recall - Latency",
       fontSize: 24,
@@ -47,7 +53,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       key: "search_rps",
       scaleType: "linear",
       tickType: "left",
-      tickFontSize: 12,
+      tickFontSize: 14,
       tickColor: "#666",
       label: "Latency / s",
       labelFontSize: 16,
@@ -56,7 +62,10 @@ window.addEventListener("DOMContentLoaded", async () => {
       inset: 6,
       zoom: false,
     },
-    // groupBy: "",
+    group: {
+      key: "group_id",
+      sameScale: true,
+    },
   };
   zillizBI({ chartType, domSelector, data, config });
 });

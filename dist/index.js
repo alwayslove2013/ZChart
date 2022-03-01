@@ -3960,7 +3960,7 @@
   var colors = Tableau10_default;
   var drawCircles = (circlesG, data, config, xScale, yScale) => {
     circlesG.selectAll("*").remove();
-    const { circle, x, y } = config;
+    const { circle, x, y, tooltip = false } = config;
     const positions = data.map((item) => [
       xScale(item[x.key]),
       yScale(item[y.key])
@@ -3976,7 +3976,7 @@
     }
     const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g").attr("transform", (_, i) => `translate(${positions[i]})`);
     const { color: color2, r = 5, strokeColor = "", strokeWidth = 1 } = circle;
-    const isColorMapping = !!(color2 && data[0][color2]);
+    const isColorMapping = !!(color2 && color2 in data[0]);
     if (!isColorMapping) {
       circleG.append("circle").attr("fill", color2 || "#666").attr("r", r);
     } else {
@@ -3986,6 +3986,22 @@
       if (withLabels) {
         circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => colorMap(item[color2])).attr("text-anchor", "middle").attr("y", -r - 4);
       }
+    }
+    if (tooltip) {
+      const tooltipG = circlesG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
+      circleG.on("mouseover", (e, d) => {
+        tooltipG.attr("opacity", 1);
+        tooltipG.attr("transform", `translate(${xScale(d[x.key])},${yScale(d[y.key])})`);
+        const pointer = pointer_default(e);
+        const path = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
+        const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
+        const { y: _y, width: w, height: h } = text.node().getBBox();
+        text.attr("transform", `translate(${-w / 2},${15 - _y})`);
+        path.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+      });
+      circleG.on("mouseout", (e, d) => {
+        tooltipG.attr("opacity", 0);
+      });
     }
   };
   var circle_default = drawCircles;
@@ -4052,6 +4068,12 @@
       height: 620,
       border: "1px solid #999",
       padding: [60, 40, 50, 65],
+      tooltip: {
+        content: ["acc", "search_rps", "ef"],
+        fontSize: 16,
+        fontWeight: 500,
+        fontColor: "#43a2ca"
+      },
       title: {
         text: "Recall - Latency",
         fontSize: 24,
@@ -4085,7 +4107,7 @@
         key: "search_rps",
         scaleType: "linear",
         tickType: "left",
-        tickFontSize: 12,
+        tickFontSize: 14,
         tickColor: "#666",
         label: "Latency / s",
         labelFontSize: 16,
@@ -4093,6 +4115,10 @@
         labelColor: "#444",
         inset: 6,
         zoom: false
+      },
+      group: {
+        key: "group_id",
+        sameScale: true
       }
     };
     js_default({ chartType, domSelector, data, config });
