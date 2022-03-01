@@ -4270,10 +4270,12 @@
     right: axisRight
   };
   var xAxis = (g, scale, config) => {
+    g.selectAll("*").remove();
     const { width, height, padding, x: x2 } = config;
     g.attr("transform", x2.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x2.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", x2.tickFontSize).attr("fill", x2.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x2.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x2.labelColor).attr("text-anchor", "middle").style("font-size", x2.labelFontSize).style("font-weight", x2.labelWeight).text(x2.label));
   };
   var yAxis = (g, scale, config) => {
+    g.selectAll("*").remove();
     const { width, height, padding, y: y2 } = config;
     g.attr("transform", y2.tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`).call(tickMap[y2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y2.tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y2.tickFontSize).attr("fill", y2.tickColor)).call((g2) => {
       const labelX2 = y2.tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
@@ -4371,14 +4373,14 @@
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
     const colorScale = ordinal().range(colors);
-    let xDomain = domainExtent(extent(data, (d) => d[x2.key]));
-    let xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
+    const xDomain = domainExtent(extent(data, (d) => d[x2.key]));
+    const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
     let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
-    let xAxisG = svg.append("g").attr("id", "x-axis-g");
-    let yDomain = domainExtent(extent(data, (d) => d[y2.key]));
-    let yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
+    const xAxisG = svg.append("g").attr("id", "x-axis-g");
+    const yDomain = domainExtent(extent(data, (d) => d[y2.key]));
+    const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
     let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
-    let yAxisG = svg.append("g").attr("id", "y-axis-g");
+    const yAxisG = svg.append("g").attr("id", "y-axis-g");
     const zoomedFuncs = [];
     if (groupBy.isGroupBy) {
       const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
@@ -4390,14 +4392,14 @@
       const yScales = [];
       datas.forEach((data2, i) => {
         if (!groupBy.sameXScale) {
-          xDomain = domainExtent(extent(data2, (d) => d[x2.key]));
-          xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+          const xDomain2 = domainExtent(extent(data2, (d) => d[x2.key]));
+          xScale = scaleMap[x2.scaleType]().domain(xDomain2).range(xRange);
           xScales.push(xScale);
         }
         if (!groupBy.sameYScale) {
-          yDomain = domainExtent(extent(data2, (d) => d[y2.key]));
-          yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
-          yScales.push(scaleMap[y2.scaleType]().domain(yDomain).range(yRange));
+          const yDomain2 = domainExtent(extent(data2, (d) => d[y2.key]));
+          yScale = scaleMap[y2.scaleType]().domain(yDomain2).range(yRange);
+          yScales.push(scaleMap[y2.scaleType]().domain(yDomain2).range(yRange));
         }
         const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
         circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
@@ -4499,9 +4501,9 @@
         zoom: false
       },
       groupBy: {
-        isGroupBy: false,
+        isGroupBy: true,
         key: "test_no",
-        sameXScale: true,
+        sameXScale: false,
         sameYScale: true
       }
     };

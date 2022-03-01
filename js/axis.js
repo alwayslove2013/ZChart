@@ -7,6 +7,7 @@ const tickMap = {
 };
 
 export const xAxis = (g, scale, config) => {
+  g.selectAll("*").remove();
   const { width, height, padding, x } = config;
   g.attr(
     "transform",
@@ -48,6 +49,7 @@ export const xAxis = (g, scale, config) => {
 };
 
 export const yAxis = (g, scale, config) => {
+  g.selectAll("*").remove();
   const { width, height, padding, y } = config;
   g.attr(
     "transform",

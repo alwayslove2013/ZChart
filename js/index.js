@@ -38,17 +38,17 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
 
   const colorScale = d3.scaleOrdinal().range(colors);
 
-  let xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
-  let xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
+  const xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
+  const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
   let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
 
-  let xAxisG = svg.append("g").attr("id", "x-axis-g");
+  const xAxisG = svg.append("g").attr("id", "x-axis-g");
 
-  let yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
-  let yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
+  const yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
+  const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
   let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
 
-  let yAxisG = svg.append("g").attr("id", "y-axis-g");
+  const yAxisG = svg.append("g").attr("id", "y-axis-g");
 
   const zoomedFuncs = [];
 
@@ -65,12 +65,12 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     const yScales = [];
     datas.forEach((data, i) => {
       if (!groupBy.sameXScale) {
-        xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
+        const xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
         xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
         xScales.push(xScale);
       }
       if (!groupBy.sameYScale) {
-        yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
+        const yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
         yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
         yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
       }
