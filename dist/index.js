@@ -1223,6 +1223,68 @@
     return typeof selector === "string" ? new Selection([[document.querySelector(selector)]], [document.documentElement]) : new Selection([[selector]], root);
   }
 
+  // node_modules/d3-selection/src/sourceEvent.js
+  function sourceEvent_default(event) {
+    let sourceEvent;
+    while (sourceEvent = event.sourceEvent)
+      event = sourceEvent;
+    return event;
+  }
+
+  // node_modules/d3-selection/src/pointer.js
+  function pointer_default(event, node) {
+    event = sourceEvent_default(event);
+    if (node === void 0)
+      node = event.currentTarget;
+    if (node) {
+      var svg = node.ownerSVGElement || node;
+      if (svg.createSVGPoint) {
+        var point = svg.createSVGPoint();
+        point.x = event.clientX, point.y = event.clientY;
+        point = point.matrixTransform(node.getScreenCTM().inverse());
+        return [point.x, point.y];
+      }
+      if (node.getBoundingClientRect) {
+        var rect = node.getBoundingClientRect();
+        return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
+      }
+    }
+    return [event.pageX, event.pageY];
+  }
+
+  // node_modules/d3-drag/src/noevent.js
+  var nonpassivecapture = { capture: true, passive: false };
+  function noevent_default(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+
+  // node_modules/d3-drag/src/nodrag.js
+  function nodrag_default(view) {
+    var root2 = view.document.documentElement, selection2 = select_default2(view).on("dragstart.drag", noevent_default, nonpassivecapture);
+    if ("onselectstart" in root2) {
+      selection2.on("selectstart.drag", noevent_default, nonpassivecapture);
+    } else {
+      root2.__noselect = root2.style.MozUserSelect;
+      root2.style.MozUserSelect = "none";
+    }
+  }
+  function yesdrag(view, noclick) {
+    var root2 = view.document.documentElement, selection2 = select_default2(view).on("dragstart.drag", null);
+    if (noclick) {
+      selection2.on("click.drag", noevent_default, nonpassivecapture);
+      setTimeout(function() {
+        selection2.on("click.drag", null);
+      }, 0);
+    }
+    if ("onselectstart" in root2) {
+      selection2.on("selectstart.drag", null);
+    } else {
+      root2.style.MozUserSelect = root2.__noselect;
+      delete root2.__noselect;
+    }
+  }
+
   // node_modules/d3-color/src/define.js
   function define_default(constructor, factory, prototype) {
     constructor.prototype = factory.prototype = prototype;
@@ -1827,7 +1889,7 @@
         s.push("translate(" + xb + pxComma + yb + pxParen);
       }
     }
-    function rotate(a, b, s, q) {
+    function rotate2(a, b, s, q) {
       if (a !== b) {
         if (a - b > 180)
           b += 360;
@@ -1857,7 +1919,7 @@
       var s = [], q = [];
       a = parse(a), b = parse(b);
       translate(a.translateX, a.translateY, b.translateX, b.translateY, s, q);
-      rotate(a.rotate, b.rotate, s, q);
+      rotate2(a.rotate, b.rotate, s, q);
       skewX(a.skewX, b.skewX, s, q);
       scale(a.scaleX, a.scaleY, b.scaleX, b.scaleY, s, q);
       a = b = null;
@@ -1871,6 +1933,51 @@
   }
   var interpolateTransformCss = interpolateTransform(parseCss, "px, ", "px)", "deg)");
   var interpolateTransformSvg = interpolateTransform(parseSvg, ", ", ")", ")");
+
+  // node_modules/d3-interpolate/src/zoom.js
+  var epsilon2 = 1e-12;
+  function cosh(x) {
+    return ((x = Math.exp(x)) + 1 / x) / 2;
+  }
+  function sinh(x) {
+    return ((x = Math.exp(x)) - 1 / x) / 2;
+  }
+  function tanh(x) {
+    return ((x = Math.exp(2 * x)) - 1) / (x + 1);
+  }
+  var zoom_default = function zoomRho(rho, rho2, rho4) {
+    function zoom(p0, p1) {
+      var ux0 = p0[0], uy0 = p0[1], w0 = p0[2], ux1 = p1[0], uy1 = p1[1], w1 = p1[2], dx = ux1 - ux0, dy = uy1 - uy0, d2 = dx * dx + dy * dy, i, S;
+      if (d2 < epsilon2) {
+        S = Math.log(w1 / w0) / rho;
+        i = function(t) {
+          return [
+            ux0 + t * dx,
+            uy0 + t * dy,
+            w0 * Math.exp(rho * t * S)
+          ];
+        };
+      } else {
+        var d1 = Math.sqrt(d2), b0 = (w1 * w1 - w0 * w0 + rho4 * d2) / (2 * w0 * rho2 * d1), b1 = (w1 * w1 - w0 * w0 - rho4 * d2) / (2 * w1 * rho2 * d1), r0 = Math.log(Math.sqrt(b0 * b0 + 1) - b0), r1 = Math.log(Math.sqrt(b1 * b1 + 1) - b1);
+        S = (r1 - r0) / rho;
+        i = function(t) {
+          var s = t * S, coshr0 = cosh(r0), u = w0 / (rho2 * d1) * (coshr0 * tanh(rho * s + r0) - sinh(r0));
+          return [
+            ux0 + u * dx,
+            uy0 + u * dy,
+            w0 * coshr0 / cosh(rho * s + r0)
+          ];
+        };
+      }
+      i.duration = S * 1e3 * rho / Math.SQRT2;
+      return i;
+    }
+    zoom.rho = function(_) {
+      var _1 = Math.max(1e-3, +_), _2 = _1 * _1, _4 = _2 * _2;
+      return zoomRho(_1, _2, _4);
+    };
+    return zoom;
+  }(Math.SQRT2, 2, 4);
 
   // node_modules/d3-timer/src/timer.js
   var frame = 0;
@@ -3420,6 +3527,25 @@
   // node_modules/d3-scale-chromatic/src/categorical/Tableau10.js
   var Tableau10_default = colors_default("4e79a7f28e2ce1575976b7b259a14fedc949af7aa1ff9da79c755fbab0ab");
 
+  // node_modules/d3-zoom/src/constant.js
+  var constant_default4 = (x) => () => x;
+
+  // node_modules/d3-zoom/src/event.js
+  function ZoomEvent(type2, {
+    sourceEvent,
+    target,
+    transform: transform2,
+    dispatch: dispatch2
+  }) {
+    Object.defineProperties(this, {
+      type: { value: type2, enumerable: true, configurable: true },
+      sourceEvent: { value: sourceEvent, enumerable: true, configurable: true },
+      target: { value: target, enumerable: true, configurable: true },
+      transform: { value: transform2, enumerable: true, configurable: true },
+      _: { value: dispatch2 }
+    });
+  }
+
   // node_modules/d3-zoom/src/transform.js
   function Transform(k, x, y) {
     this.k = k;
@@ -3471,6 +3597,344 @@
     return node.__zoom;
   }
 
+  // node_modules/d3-zoom/src/noevent.js
+  function nopropagation2(event) {
+    event.stopImmediatePropagation();
+  }
+  function noevent_default3(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+  }
+
+  // node_modules/d3-zoom/src/zoom.js
+  function defaultFilter(event) {
+    return (!event.ctrlKey || event.type === "wheel") && !event.button;
+  }
+  function defaultExtent() {
+    var e = this;
+    if (e instanceof SVGElement) {
+      e = e.ownerSVGElement || e;
+      if (e.hasAttribute("viewBox")) {
+        e = e.viewBox.baseVal;
+        return [[e.x, e.y], [e.x + e.width, e.y + e.height]];
+      }
+      return [[0, 0], [e.width.baseVal.value, e.height.baseVal.value]];
+    }
+    return [[0, 0], [e.clientWidth, e.clientHeight]];
+  }
+  function defaultTransform() {
+    return this.__zoom || identity3;
+  }
+  function defaultWheelDelta(event) {
+    return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 2e-3) * (event.ctrlKey ? 10 : 1);
+  }
+  function defaultTouchable() {
+    return navigator.maxTouchPoints || "ontouchstart" in this;
+  }
+  function defaultConstrain(transform2, extent2, translateExtent) {
+    var dx0 = transform2.invertX(extent2[0][0]) - translateExtent[0][0], dx1 = transform2.invertX(extent2[1][0]) - translateExtent[1][0], dy0 = transform2.invertY(extent2[0][1]) - translateExtent[0][1], dy1 = transform2.invertY(extent2[1][1]) - translateExtent[1][1];
+    return transform2.translate(dx1 > dx0 ? (dx0 + dx1) / 2 : Math.min(0, dx0) || Math.max(0, dx1), dy1 > dy0 ? (dy0 + dy1) / 2 : Math.min(0, dy0) || Math.max(0, dy1));
+  }
+  function zoom_default2() {
+    var filter2 = defaultFilter, extent2 = defaultExtent, constrain = defaultConstrain, wheelDelta = defaultWheelDelta, touchable = defaultTouchable, scaleExtent = [0, Infinity], translateExtent = [[-Infinity, -Infinity], [Infinity, Infinity]], duration = 250, interpolate = zoom_default, listeners = dispatch_default("start", "zoom", "end"), touchstarting, touchfirst, touchending, touchDelay = 500, wheelDelay = 150, clickDistance2 = 0, tapDistance = 10;
+    function zoom(selection2) {
+      selection2.property("__zoom", defaultTransform).on("wheel.zoom", wheeled, { passive: false }).on("mousedown.zoom", mousedowned).on("dblclick.zoom", dblclicked).filter(touchable).on("touchstart.zoom", touchstarted).on("touchmove.zoom", touchmoved).on("touchend.zoom touchcancel.zoom", touchended).style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
+    }
+    zoom.transform = function(collection, transform2, point, event) {
+      var selection2 = collection.selection ? collection.selection() : collection;
+      selection2.property("__zoom", defaultTransform);
+      if (collection !== selection2) {
+        schedule(collection, transform2, point, event);
+      } else {
+        selection2.interrupt().each(function() {
+          gesture(this, arguments).event(event).start().zoom(null, typeof transform2 === "function" ? transform2.apply(this, arguments) : transform2).end();
+        });
+      }
+    };
+    zoom.scaleBy = function(selection2, k, p, event) {
+      zoom.scaleTo(selection2, function() {
+        var k0 = this.__zoom.k, k1 = typeof k === "function" ? k.apply(this, arguments) : k;
+        return k0 * k1;
+      }, p, event);
+    };
+    zoom.scaleTo = function(selection2, k, p, event) {
+      zoom.transform(selection2, function() {
+        var e = extent2.apply(this, arguments), t0 = this.__zoom, p0 = p == null ? centroid(e) : typeof p === "function" ? p.apply(this, arguments) : p, p1 = t0.invert(p0), k1 = typeof k === "function" ? k.apply(this, arguments) : k;
+        return constrain(translate(scale(t0, k1), p0, p1), e, translateExtent);
+      }, p, event);
+    };
+    zoom.translateBy = function(selection2, x, y, event) {
+      zoom.transform(selection2, function() {
+        return constrain(this.__zoom.translate(typeof x === "function" ? x.apply(this, arguments) : x, typeof y === "function" ? y.apply(this, arguments) : y), extent2.apply(this, arguments), translateExtent);
+      }, null, event);
+    };
+    zoom.translateTo = function(selection2, x, y, p, event) {
+      zoom.transform(selection2, function() {
+        var e = extent2.apply(this, arguments), t = this.__zoom, p0 = p == null ? centroid(e) : typeof p === "function" ? p.apply(this, arguments) : p;
+        return constrain(identity3.translate(p0[0], p0[1]).scale(t.k).translate(typeof x === "function" ? -x.apply(this, arguments) : -x, typeof y === "function" ? -y.apply(this, arguments) : -y), e, translateExtent);
+      }, p, event);
+    };
+    function scale(transform2, k) {
+      k = Math.max(scaleExtent[0], Math.min(scaleExtent[1], k));
+      return k === transform2.k ? transform2 : new Transform(k, transform2.x, transform2.y);
+    }
+    function translate(transform2, p0, p1) {
+      var x = p0[0] - p1[0] * transform2.k, y = p0[1] - p1[1] * transform2.k;
+      return x === transform2.x && y === transform2.y ? transform2 : new Transform(transform2.k, x, y);
+    }
+    function centroid(extent3) {
+      return [(+extent3[0][0] + +extent3[1][0]) / 2, (+extent3[0][1] + +extent3[1][1]) / 2];
+    }
+    function schedule(transition2, transform2, point, event) {
+      transition2.on("start.zoom", function() {
+        gesture(this, arguments).event(event).start();
+      }).on("interrupt.zoom end.zoom", function() {
+        gesture(this, arguments).event(event).end();
+      }).tween("zoom", function() {
+        var that = this, args = arguments, g = gesture(that, args).event(event), e = extent2.apply(that, args), p = point == null ? centroid(e) : typeof point === "function" ? point.apply(that, args) : point, w = Math.max(e[1][0] - e[0][0], e[1][1] - e[0][1]), a = that.__zoom, b = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i = interpolate(a.invert(p).concat(w / a.k), b.invert(p).concat(w / b.k));
+        return function(t) {
+          if (t === 1)
+            t = b;
+          else {
+            var l = i(t), k = w / l[2];
+            t = new Transform(k, p[0] - l[0] * k, p[1] - l[1] * k);
+          }
+          g.zoom(null, t);
+        };
+      });
+    }
+    function gesture(that, args, clean) {
+      return !clean && that.__zooming || new Gesture(that, args);
+    }
+    function Gesture(that, args) {
+      this.that = that;
+      this.args = args;
+      this.active = 0;
+      this.sourceEvent = null;
+      this.extent = extent2.apply(that, args);
+      this.taps = 0;
+    }
+    Gesture.prototype = {
+      event: function(event) {
+        if (event)
+          this.sourceEvent = event;
+        return this;
+      },
+      start: function() {
+        if (++this.active === 1) {
+          this.that.__zooming = this;
+          this.emit("start");
+        }
+        return this;
+      },
+      zoom: function(key, transform2) {
+        if (this.mouse && key !== "mouse")
+          this.mouse[1] = transform2.invert(this.mouse[0]);
+        if (this.touch0 && key !== "touch")
+          this.touch0[1] = transform2.invert(this.touch0[0]);
+        if (this.touch1 && key !== "touch")
+          this.touch1[1] = transform2.invert(this.touch1[0]);
+        this.that.__zoom = transform2;
+        this.emit("zoom");
+        return this;
+      },
+      end: function() {
+        if (--this.active === 0) {
+          delete this.that.__zooming;
+          this.emit("end");
+        }
+        return this;
+      },
+      emit: function(type2) {
+        var d = select_default2(this.that).datum();
+        listeners.call(type2, this.that, new ZoomEvent(type2, {
+          sourceEvent: this.sourceEvent,
+          target: zoom,
+          type: type2,
+          transform: this.that.__zoom,
+          dispatch: listeners
+        }), d);
+      }
+    };
+    function wheeled(event, ...args) {
+      if (!filter2.apply(this, arguments))
+        return;
+      var g = gesture(this, args).event(event), t = this.__zoom, k = Math.max(scaleExtent[0], Math.min(scaleExtent[1], t.k * Math.pow(2, wheelDelta.apply(this, arguments)))), p = pointer_default(event);
+      if (g.wheel) {
+        if (g.mouse[0][0] !== p[0] || g.mouse[0][1] !== p[1]) {
+          g.mouse[1] = t.invert(g.mouse[0] = p);
+        }
+        clearTimeout(g.wheel);
+      } else if (t.k === k)
+        return;
+      else {
+        g.mouse = [p, t.invert(p)];
+        interrupt_default(this);
+        g.start();
+      }
+      noevent_default3(event);
+      g.wheel = setTimeout(wheelidled, wheelDelay);
+      g.zoom("mouse", constrain(translate(scale(t, k), g.mouse[0], g.mouse[1]), g.extent, translateExtent));
+      function wheelidled() {
+        g.wheel = null;
+        g.end();
+      }
+    }
+    function mousedowned(event, ...args) {
+      if (touchending || !filter2.apply(this, arguments))
+        return;
+      var currentTarget = event.currentTarget, g = gesture(this, args, true).event(event), v = select_default2(event.view).on("mousemove.zoom", mousemoved, true).on("mouseup.zoom", mouseupped, true), p = pointer_default(event, currentTarget), x0 = event.clientX, y0 = event.clientY;
+      nodrag_default(event.view);
+      nopropagation2(event);
+      g.mouse = [p, this.__zoom.invert(p)];
+      interrupt_default(this);
+      g.start();
+      function mousemoved(event2) {
+        noevent_default3(event2);
+        if (!g.moved) {
+          var dx = event2.clientX - x0, dy = event2.clientY - y0;
+          g.moved = dx * dx + dy * dy > clickDistance2;
+        }
+        g.event(event2).zoom("mouse", constrain(translate(g.that.__zoom, g.mouse[0] = pointer_default(event2, currentTarget), g.mouse[1]), g.extent, translateExtent));
+      }
+      function mouseupped(event2) {
+        v.on("mousemove.zoom mouseup.zoom", null);
+        yesdrag(event2.view, g.moved);
+        noevent_default3(event2);
+        g.event(event2).end();
+      }
+    }
+    function dblclicked(event, ...args) {
+      if (!filter2.apply(this, arguments))
+        return;
+      var t0 = this.__zoom, p0 = pointer_default(event.changedTouches ? event.changedTouches[0] : event, this), p1 = t0.invert(p0), k1 = t0.k * (event.shiftKey ? 0.5 : 2), t1 = constrain(translate(scale(t0, k1), p0, p1), extent2.apply(this, args), translateExtent);
+      noevent_default3(event);
+      if (duration > 0)
+        select_default2(this).transition().duration(duration).call(schedule, t1, p0, event);
+      else
+        select_default2(this).call(zoom.transform, t1, p0, event);
+    }
+    function touchstarted(event, ...args) {
+      if (!filter2.apply(this, arguments))
+        return;
+      var touches = event.touches, n = touches.length, g = gesture(this, args, event.changedTouches.length === n).event(event), started, i, t, p;
+      nopropagation2(event);
+      for (i = 0; i < n; ++i) {
+        t = touches[i], p = pointer_default(t, this);
+        p = [p, this.__zoom.invert(p), t.identifier];
+        if (!g.touch0)
+          g.touch0 = p, started = true, g.taps = 1 + !!touchstarting;
+        else if (!g.touch1 && g.touch0[2] !== p[2])
+          g.touch1 = p, g.taps = 0;
+      }
+      if (touchstarting)
+        touchstarting = clearTimeout(touchstarting);
+      if (started) {
+        if (g.taps < 2)
+          touchfirst = p[0], touchstarting = setTimeout(function() {
+            touchstarting = null;
+          }, touchDelay);
+        interrupt_default(this);
+        g.start();
+      }
+    }
+    function touchmoved(event, ...args) {
+      if (!this.__zooming)
+        return;
+      var g = gesture(this, args).event(event), touches = event.changedTouches, n = touches.length, i, t, p, l;
+      noevent_default3(event);
+      for (i = 0; i < n; ++i) {
+        t = touches[i], p = pointer_default(t, this);
+        if (g.touch0 && g.touch0[2] === t.identifier)
+          g.touch0[0] = p;
+        else if (g.touch1 && g.touch1[2] === t.identifier)
+          g.touch1[0] = p;
+      }
+      t = g.that.__zoom;
+      if (g.touch1) {
+        var p0 = g.touch0[0], l0 = g.touch0[1], p1 = g.touch1[0], l1 = g.touch1[1], dp = (dp = p1[0] - p0[0]) * dp + (dp = p1[1] - p0[1]) * dp, dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
+        t = scale(t, Math.sqrt(dp / dl));
+        p = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
+        l = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
+      } else if (g.touch0)
+        p = g.touch0[0], l = g.touch0[1];
+      else
+        return;
+      g.zoom("touch", constrain(translate(t, p, l), g.extent, translateExtent));
+    }
+    function touchended(event, ...args) {
+      if (!this.__zooming)
+        return;
+      var g = gesture(this, args).event(event), touches = event.changedTouches, n = touches.length, i, t;
+      nopropagation2(event);
+      if (touchending)
+        clearTimeout(touchending);
+      touchending = setTimeout(function() {
+        touchending = null;
+      }, touchDelay);
+      for (i = 0; i < n; ++i) {
+        t = touches[i];
+        if (g.touch0 && g.touch0[2] === t.identifier)
+          delete g.touch0;
+        else if (g.touch1 && g.touch1[2] === t.identifier)
+          delete g.touch1;
+      }
+      if (g.touch1 && !g.touch0)
+        g.touch0 = g.touch1, delete g.touch1;
+      if (g.touch0)
+        g.touch0[1] = this.__zoom.invert(g.touch0[0]);
+      else {
+        g.end();
+        if (g.taps === 2) {
+          t = pointer_default(t, this);
+          if (Math.hypot(touchfirst[0] - t[0], touchfirst[1] - t[1]) < tapDistance) {
+            var p = select_default2(this).on("dblclick.zoom");
+            if (p)
+              p.apply(this, arguments);
+          }
+        }
+      }
+    }
+    zoom.wheelDelta = function(_) {
+      return arguments.length ? (wheelDelta = typeof _ === "function" ? _ : constant_default4(+_), zoom) : wheelDelta;
+    };
+    zoom.filter = function(_) {
+      return arguments.length ? (filter2 = typeof _ === "function" ? _ : constant_default4(!!_), zoom) : filter2;
+    };
+    zoom.touchable = function(_) {
+      return arguments.length ? (touchable = typeof _ === "function" ? _ : constant_default4(!!_), zoom) : touchable;
+    };
+    zoom.extent = function(_) {
+      return arguments.length ? (extent2 = typeof _ === "function" ? _ : constant_default4([[+_[0][0], +_[0][1]], [+_[1][0], +_[1][1]]]), zoom) : extent2;
+    };
+    zoom.scaleExtent = function(_) {
+      return arguments.length ? (scaleExtent[0] = +_[0], scaleExtent[1] = +_[1], zoom) : [scaleExtent[0], scaleExtent[1]];
+    };
+    zoom.translateExtent = function(_) {
+      return arguments.length ? (translateExtent[0][0] = +_[0][0], translateExtent[1][0] = +_[1][0], translateExtent[0][1] = +_[0][1], translateExtent[1][1] = +_[1][1], zoom) : [[translateExtent[0][0], translateExtent[0][1]], [translateExtent[1][0], translateExtent[1][1]]];
+    };
+    zoom.constrain = function(_) {
+      return arguments.length ? (constrain = _, zoom) : constrain;
+    };
+    zoom.duration = function(_) {
+      return arguments.length ? (duration = +_, zoom) : duration;
+    };
+    zoom.interpolate = function(_) {
+      return arguments.length ? (interpolate = _, zoom) : interpolate;
+    };
+    zoom.on = function() {
+      var value = listeners.on.apply(listeners, arguments);
+      return value === listeners ? zoom : value;
+    };
+    zoom.clickDistance = function(_) {
+      return arguments.length ? (clickDistance2 = (_ = +_) * _, zoom) : Math.sqrt(clickDistance2);
+    };
+    zoom.tapDistance = function(_) {
+      return arguments.length ? (tapDistance = +_, zoom) : tapDistance;
+    };
+    return zoom;
+  }
+
   // js/axis.js
   var tickMap = {
     bottom: axisBottom,
@@ -3478,73 +3942,25 @@
     left: axisLeft,
     right: axisRight
   };
-  var scaleMap = {
-    linear: linear2,
-    log
+  var xAxis = (g, scale, config) => {
+    const { width, height, padding, x } = config;
+    g.attr("transform", x.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", x.tickFontSize).attr("fill", x.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x.labelColor).attr("text-anchor", "middle").style("font-size", x.labelFontSize).style("font-weight", x.labelWeight).text(x.label));
   };
-  var drawXAxis = ({ svg, data, config }) => {
-    const { width, height, padding, inset = 8 } = config;
-    let {
-      tickType = "bottom",
-      scaleType = "linear",
-      key,
-      tickFontSize = 12,
-      tickColor = "#555",
-      label = "",
-      labelColor = "#333",
-      labelFontSize = 14,
-      labelWeight = 600
-    } = config.x;
-    const domain = extent(data, (d) => d[key]);
-    const domainRange = domain[1] - domain[0];
-    domain[0] -= domainRange * 0.05;
-    domain[1] += domainRange * 0.05;
-    const xScale = scaleMap[scaleType]().domain(domain).range([padding[3] + inset, width - padding[1] - inset]);
-    const xAxis = tickMap[tickType](xScale);
-    const xAxisG = svg.append("g").attr("id", "x-axis-g").attr("transform", tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`);
-    xAxis(xAxisG);
-    xAxisG.select(".domain").remove();
-    xAxisG.selectAll(".tick line").attr("y1", 0).attr("y2", (tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1);
-    xAxisG.selectAll(".tick text").attr("font-size", tickFontSize).attr("fill", tickColor);
-    xAxisG.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", labelColor).attr("text-anchor", "middle").style("font-size", labelFontSize).style("font-weight", labelWeight).text(label);
-    return xScale;
-  };
-  var drawYAxis = ({ svg, data, config }) => {
-    const { width, height, padding, inset = 6 } = config;
-    let {
-      tickType = "left",
-      scaleType = "linear",
-      key,
-      tickFontSize = 12,
-      tickColor = "#555",
-      label = "",
-      labelColor = "#333",
-      labelFontSize = 14,
-      labelWeight = 600
-    } = config.y;
-    const domain = extent(data, (d) => d[key]);
-    const domainRange = domain[1] - domain[0];
-    domain[0] -= domainRange * 0.05;
-    domain[1] += domainRange * 0.05;
-    const yScale = scaleMap[scaleType]().domain(domain).range([height - padding[2] - inset, padding[0] + inset]);
-    const yAxis = tickMap[tickType](yScale);
-    const yAxisG = svg.append("g").attr("id", "y-axis-g").attr("transform", tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`);
-    yAxis(yAxisG);
-    yAxisG.select(".domain").remove();
-    yAxisG.selectAll(".tick text").attr("font-size", tickFontSize).attr("fill", tickColor);
-    yAxisG.selectAll(".tick line").attr("x1", 0).attr("x2", (tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1);
-    const labelX = tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
-    const labelY = (height - padding[0] - padding[2]) / 2 + padding[0];
-    const rotate = tickType === "left" ? 270 : 90;
-    yAxisG.append("text").attr("x", 0).attr("y", 0).attr("transform", `translate(${labelX},${labelY}) rotate(${rotate})`).attr("fill", labelColor).attr("text-anchor", "middle").style("font-size", labelFontSize).style("font-weight", labelWeight).text(label);
-    return yScale;
+  var yAxis = (g, scale, config) => {
+    const { width, height, padding, y } = config;
+    g.attr("transform", y.tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`).call(tickMap[y.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y.tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y.tickFontSize).attr("fill", y.tickColor)).call((g2) => {
+      const labelX2 = y.tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
+      const labelY2 = (height - padding[0] - padding[2]) / 2 + padding[0];
+      const rotate2 = y.tickType === "left" ? 270 : 90;
+      g2.append("text").attr("x", 0).attr("y", 0).attr("transform", `translate(${labelX2},${labelY2}) rotate(${rotate2})`).attr("fill", y.labelColor).attr("text-anchor", "middle").style("font-size", y.labelFontSize).style("font-weight", y.labelWeight).text(y.label);
+    });
   };
 
   // js/circle.js
   var colors = Tableau10_default;
-  var drawCircles = ({ svg, data, config, xScale, yScale }) => {
+  var drawCircles = ({ circlesG, data, config, xScale, yScale }) => {
+    circlesG.selectAll("*").remove();
     const { circle, x, y } = config;
-    const circlesG = svg.append("g").attr("id", "circles-g");
     const positions = data.map((item) => [
       xScale(item[x.key]),
       yScale(item[y.key])
@@ -3575,22 +3991,49 @@
   var circle_default = drawCircles;
 
   // js/index.js
+  var scaleMap = {
+    linear: linear2,
+    log
+  };
+  var domainExtent = (domain) => {
+    const ext = (domain[1] - domain[0]) * 0.06;
+    return [domain[0] - ext, domain[1] + ext];
+  };
   var zillizBI = ({ chartType, domSelector, data, config }) => {
-    const svg = select_default2(domSelector).append("svg");
-    const { width, height, background, border } = config;
+    const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
+    const { width, height, background, border, padding, x, y } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
-    const xScale = drawXAxis({
-      svg,
-      data,
-      config
-    });
-    const yScale = drawYAxis({
-      svg,
-      data,
-      config
-    });
+    const xDomain = domainExtent(extent(data, (d) => d[x.key]));
+    const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
+    const xAxisG = svg.append("g").attr("id", "x-axis-g");
+    let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
+    xAxisG.call(xAxis, xScale, config);
+    const yDomain = domainExtent(extent(data, (d) => d[y.key]));
+    const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
+    const yAxisG = svg.append("g").attr("id", "y-axis-g");
+    let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
+    yAxisG.call(yAxis, yScale, config);
     if (chartType === "scatter_plot") {
-      circle_default({ svg, data, config, xScale, yScale });
+      const circlesG = svg.append("g").attr("id", "circles-g");
+      circle_default({ circlesG, data, config, xScale, yScale });
+      const zoomed = ({ transform: transform2 }) => {
+        const newXScale = transform2.rescaleX(xScale);
+        const newYScale = transform2.rescaleY(yScale);
+        circle_default({
+          circlesG,
+          data,
+          config,
+          xScale: x.zoom ? newXScale : xScale,
+          yScale: y.zoom ? newYScale : yScale
+        });
+        x.zoom && xAxisG.call(xAxis, newXScale, config);
+        y.zoom && yAxisG.call(yAxis, newYScale, config);
+      };
+      const zoom = zoom_default2().scaleExtent([0.5, 32]).extent([
+        [padding[3], padding[0]],
+        [width - padding[1], height - padding[2]]
+      ]).on("zoom", zoomed);
+      (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     }
   };
   var js_default = zillizBI;
@@ -3618,25 +4061,29 @@
       },
       x: {
         key: "acc",
-        scalType: "linear",
+        scaleType: "linear",
         tickType: "bottom",
         tickFontSize: 14,
         tickColor: "#666",
         label: "Recall Rate",
         labelFontSize: 16,
         labelWeight: 600,
-        labelColor: "#444"
+        labelColor: "#444",
+        inset: 8,
+        zoom: true
       },
       y: {
         key: "search_rps",
-        scalType: "linear",
+        scaleType: "linear",
         tickType: "left",
-        tickFontSize: 14,
+        tickFontSize: 12,
         tickColor: "#666",
         label: "Latency / s",
         labelFontSize: 16,
         labelWeight: 600,
-        labelColor: "#444"
+        labelColor: "#444",
+        inset: 6,
+        zoom: false
       }
     };
     js_default({ chartType, domSelector, data, config });

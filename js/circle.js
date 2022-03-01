@@ -1,9 +1,9 @@
 import * as d3 from "d3";
 
 const colors = d3.schemeTableau10;
-const drawCircles = ({ svg, data, config, xScale, yScale }) => {
+const drawCircles = ({ circlesG, data, config, xScale, yScale }) => {
+  circlesG.selectAll("*").remove();
   const { circle, x, y } = config;
-  const circlesG = svg.append("g").attr("id", "circles-g");
   const positions = data.map((item) => [
     xScale(item[x.key]),
     yScale(item[y.key]),
