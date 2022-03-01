@@ -4288,37 +4288,37 @@
     curve: catmullRom_default.alpha(0.5),
     linear: linear_default
   };
-  var colors = Tableau10_default;
-  var drawCircles = (circlesG, data, config, xScale, yScale) => {
+  var drawCircles = (circlesG, data, config, xScale, yScale, colorScale) => {
     circlesG.selectAll("*").remove();
     const { circle, x: x2, y: y2, tooltip = false } = config;
     const positions = data.map((item) => [
       xScale(item[x2.key]),
       yScale(item[y2.key])
     ]);
-    console.log(positions[0]);
     const {
       withLinks = false,
       linkWidth = 2,
       linkColor = "#ccc",
-      linkType = "curve"
+      linkType = "curve",
+      isLinkColorMapping = false
     } = circle;
     if (withLinks) {
       const link = line_default().curve(linkMap[linkType]).x((d) => d[0]).y((d) => d[1]);
-      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", linkColor).attr("stroke-width", linkWidth).attr("d", link(positions));
+      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor).attr("stroke-width", linkWidth).attr("d", link(positions));
     }
     const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g").attr("transform", (_, i) => `translate(${positions[i]})`);
-    const { color: color2, r = 5, strokeColor = "", strokeWidth = 1 } = circle;
-    const isColorMapping = !!(color2 && color2 in data[0]);
-    if (!isColorMapping) {
-      circleG.append("circle").attr("fill", color2 || "#666").attr("r", r);
-    } else {
-      const colorMap = ordinal().domain(data.map((d) => d[circle.color])).range(colors);
-      circleG.append("circle").attr("fill", (item) => colorMap(item[color2])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth);
-      const { withLabels = false, label = () => "", labelFontSize = 14 } = circle;
-      if (withLabels) {
-        circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => colorMap(item[color2])).attr("text-anchor", "middle").attr("y", -r - 4);
-      }
+    const {
+      circleColor = "#e6550d",
+      r = 5,
+      strokeColor = "",
+      strokeWidth = 1,
+      isCircleColorMapping = false
+    } = circle;
+    const circleColorMap = isCircleColorMapping ? colorScale : () => circleColor;
+    circleG.append("circle").attr("fill", (item) => circleColorMap(item[circleColor])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth);
+    const { withLabels = false, label = () => "", labelFontSize = 14 } = circle;
+    if (withLabels) {
+      circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("y", -r - 4);
     }
     if (tooltip) {
       const tooltipG = circlesG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
@@ -4354,6 +4354,7 @@
     const ext = (domain[1] - domain[0]) * 0.06;
     return [domain[0] - ext, domain[1] + ext];
   };
+  var colors = Tableau10_default;
   var zillizBI = ({ chartType, domSelector, data, config }) => {
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     const {
@@ -4364,47 +4365,49 @@
       padding,
       x: x2,
       y: y2,
-      group = false
+      group = {}
     } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
+    const colorScale = ordinal().range(colors);
+    let xDomain = domainExtent(extent(data, (d) => d[x2.key]));
+    let xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
+    let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+    let xAxisG = svg.append("g").attr("id", "x-axis-g");
+    let yDomain = domainExtent(extent(data, (d) => d[y2.key]));
+    let yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
+    let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+    let yAxisG = svg.append("g").attr("id", "y-axis-g");
     const zoomedFuncs = [];
-    if (!!group) {
+    if (group.hasGroup) {
       const groupKeySet = new Set(data.map((d) => d[group.key]));
       const groupKeyOrder = Array.from(groupKeySet);
       const datas = groupKeyOrder.map((key) => data.filter((d) => d[group.key] === key));
-      let xDomain = domainExtent(extent(data, (d) => d[x2.key]));
-      let xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
-      let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
-      let xAxisG = svg.append("g").attr("id", "x-axis-g");
       group.sameXScale && xAxisG.call(xAxis, xScale, config);
-      let yDomain = domainExtent(extent(data, (d) => d[y2.key]));
-      let yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
-      let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
-      let yAxisG = svg.append("g").attr("id", "y-axis-g");
       group.sameYScale && yAxisG.call(yAxis, yScale, config);
+      const xScales = [];
+      const yScales = [];
       datas.forEach((data2, i) => {
         if (!group.sameXScale) {
           xDomain = domainExtent(extent(data2, (d) => d[x2.key]));
           xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+          xScales.push(xScale);
         }
         if (!group.sameYScale) {
           yDomain = domainExtent(extent(data2, (d) => d[y2.key]));
           yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+          yScales.push(scaleMap[y2.scaleType]().domain(yDomain).range(yRange));
         }
         const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
-        console.log("???", data2[0].acc, xScale(data2[0].acc));
-        circlesG.call(circle_default, data2, config, xScale, yScale);
+        circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
         zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
-          console.log("??????", data2[0].acc, xScale(data2[0].acc));
-          const _newXScale = group.sameXScale ? newXScale : transform2.rescaleX(xScale);
-          const _newYScale = group.sameYScale ? newYScale : transform2.rescaleY(yScale);
-          circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScale, y2.zoom ? _newYScale : yScale);
+          const _newXScale = group.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
+          const _newYScale = group.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
+          circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
         });
       });
       const zoomed = ({ transform: transform2 }) => {
-        console.log("...");
         const newXScale = transform2.rescaleX(xScale);
         const newYScale = transform2.rescaleY(yScale);
         x2.zoom && group.sameXScale && xAxisG.call(xAxis, newXScale, config);
@@ -4413,6 +4416,7 @@
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
       (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+    } else {
     }
   };
   var js_default = zillizBI;
@@ -4442,14 +4446,18 @@
       },
       circle: {
         r: 5,
-        color: "ef",
+        strokeColor: "#fff",
+        strokeWidth: 1,
+        isCircleColorMapping: true,
+        circleColor: "ef",
         withLabels: true,
         label: (item) => `ef=${item.ef}`,
         labelFontSize: 14,
         withLinks: true,
+        isLinkColorMapping: true,
         linkType: "curve",
         linkWidth: 4,
-        linkColor: "#ccc"
+        linkColor: "test_no"
       },
       x: {
         key: "acc",
@@ -4478,8 +4486,9 @@
         zoom: false
       },
       group: {
-        key: "group_id",
-        sameXScale: false,
+        hasGroup: true,
+        key: "test_no",
+        sameXScale: true,
         sameYScale: true
       }
     };
