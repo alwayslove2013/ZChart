@@ -4411,7 +4411,7 @@
     if (withLabels) {
       circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("y", -r - 4);
     }
-    if (tooltip) {
+    if (tooltip.hasTooltip) {
       const tooltipG = circlesG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
       circleG.style("cursor", "pointer").on("mouseover", (e, d) => {
         tooltipG.attr("opacity", 1);
@@ -4457,7 +4457,9 @@
       padding,
       x: x2,
       y: y2,
-      groupBy = {}
+      groupBy = {},
+      bar = {},
+      tooltip
     } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
@@ -4529,7 +4531,6 @@
       xScale.paddingInner(0.3).paddingOuter(0.5);
       xAxisG.call(xAxis, xScale, config);
       yAxisG.call(yAxis, yScale, config);
-      const { bar } = config;
       const {
         isColorMapping = false,
         color: color2 = "#888",
@@ -4542,7 +4543,6 @@
       const barG = barsG.selectAll("g").data(data).join("g");
       if (groupBy.isGroupBy) {
         const groupByKeyOrder = Array.from(new Set(data.map((d) => d[groupBy.key])));
-        console.log("groupByKeyOrder", groupByKeyOrder);
         const innerPadding = 0.1;
         const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
         const innerBarWidth = innerBarStep * (1 - innerPadding);
@@ -4552,6 +4552,24 @@
       } else {
         barG.append("rect").attr("x", (d) => xScale(d[x2.key])).attr("y", (d) => yScale(d[y2.key])).attr("width", xScale.bandwidth()).attr("height", (d) => height - padding[2] - y2.inset - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
         withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + xScale.bandwidth() / 2).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
+      }
+      if (tooltip.hasTooltip) {
+        const tooltipG = barsG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
+        barG.style("cursor", "pointer").on("mousemove", (e, d) => {
+          tooltipG.attr("opacity", 1);
+          const { layerX: __x, layerY: __y } = e;
+          console.log(__x, __y);
+          tooltipG.attr("transform", `translate(${__x},${__y})`);
+          const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
+          const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
+          const { y: _y, width: w, height: h } = text.node().getBBox();
+          console.log(_y);
+          text.attr("transform", `translate(${-w / 2},${15 - _y})`);
+          path2.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+        });
+        barG.on("mouseout", (e, d) => {
+          tooltipG.attr("opacity", 0);
+        });
       }
     }
   };
@@ -4569,7 +4587,8 @@
       border: "1px solid #999",
       padding: [60, 40, 50, 65],
       tooltip: {
-        content: ["group_id", "acc", "search_rps", "ef"],
+        hasTooltip: true,
+        content: ["test_no", "acc", "search_rps", "ef"],
         fontSize: 16,
         fontWeight: 500,
         fontColor: "#43a2ca"
@@ -4635,7 +4654,8 @@
       border: "1px solid #999",
       padding: [60, 40, 50, 65],
       tooltip: {
-        content: ["group_id", "acc", "search_rps", "ef"],
+        hasTooltip: true,
+        content: ["test_no", "acc", "search_rps", "ef"],
         fontSize: 16,
         fontWeight: 500,
         fontColor: "#43a2ca"

@@ -73,7 +73,7 @@ const drawCircles = (circlesG, data, config, xScale, yScale, colorScale) => {
       .attr("y", -r - 4);
   }
 
-  if (tooltip) {
+  if (tooltip.hasTooltip) {
     const tooltipG = circlesG
       .append("g", "tooltip-g")
       .style("pointer-events", "none")

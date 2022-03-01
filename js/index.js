@@ -27,6 +27,8 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     x,
     y,
     groupBy = {},
+    bar = {},
+    tooltip,
   } = config;
   svg
     .attr("width", width)
@@ -144,7 +146,6 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     xAxisG.call(xAxis, xScale, config);
     yAxisG.call(yAxis, yScale, config);
 
-    const { bar } = config;
     const {
       isColorMapping = false,
       color = "#888",
@@ -161,7 +162,6 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
       const groupByKeyOrder = Array.from(
         new Set(data.map((d) => d[groupBy.key]))
       );
-      console.log("groupByKeyOrder", groupByKeyOrder);
       const innerPadding = 0.1;
       const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
       const innerBarWidth = innerBarStep * (1 - innerPadding);
@@ -201,6 +201,52 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
           .text((d) => label(d))
           .attr("font-size", labelFontSize)
           .attr("fill", (d) => colorMap(d[color]));
+    }
+
+    if (tooltip.hasTooltip) {
+      const tooltipG = barsG
+        .append("g", "tooltip-g")
+        .style("pointer-events", "none")
+        .attr("opacity", 0);
+      barG.style("cursor", "pointer").on("mousemove", (e, d) => {
+        tooltipG.attr("opacity", 1);
+        const { layerX: __x, layerY: __y } = e;
+        console.log(__x, __y);
+        tooltipG.attr("transform", `translate(${__x},${__y})`);
+        const path = tooltipG
+          .selectAll("path")
+          .data([,])
+          .join("path")
+          .attr("fill", "white")
+          .attr("stroke", "#666");
+        const text = tooltipG
+          .selectAll("text")
+          .data([,])
+          .join("text")
+          .attr("font-size", tooltip.fontSize)
+          .attr("font-weight", tooltip.fontWeight)
+          .attr("fill", tooltip.fontColor)
+          .call((text) =>
+            text
+              .selectAll("tspan")
+              .data(tooltip.content)
+              .join("tspan")
+              .attr("x", 0)
+              .attr("y", (_, i) => `${i * 1.5}em`)
+              .text((key) => `${key}: ${d[key]}`)
+          );
+        const { y: _y, width: w, height: h } = text.node().getBBox();
+        console.log(_y)
+        text.attr("transform", `translate(${-w / 2},${15 - _y})`);
+        path.attr(
+          "d",
+          `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`
+        );
+      });
+
+      barG.on("mouseout", (e, d) => {
+        tooltipG.attr("opacity", 0);
+      });
     }
   }
 };
