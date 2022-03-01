@@ -65,8 +65,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       inset: 6,
       zoom: false,
     },
-    group: {
-      hasGroup: true,
+    groupBy: {
+      isGroupBy: false,
       key: "test_no",
       sameXScale: true,
       sameYScale: true,

@@ -25,7 +25,7 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     padding,
     x,
     y,
-    group = {},
+    groupBy = {},
   } = config;
   svg
     .attr("width", width)
@@ -52,24 +52,24 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
 
   const zoomedFuncs = [];
 
-  if (group.hasGroup) {
-    const groupKeySet = new Set(data.map((d) => d[group.key]));
-    const groupKeyOrder = Array.from(groupKeySet);
-    const datas = groupKeyOrder.map((key) =>
-      data.filter((d) => d[group.key] === key)
+  if (groupBy.isGroupBy) {
+    const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
+    const groupByKeyOrder = Array.from(groupByKeySet);
+    const datas = groupByKeyOrder.map((key) =>
+      data.filter((d) => d[groupBy.key] === key)
     );
-    group.sameXScale && xAxisG.call(xAxis, xScale, config);
-    group.sameYScale && yAxisG.call(yAxis, yScale, config);
+    groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
+    groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
 
     const xScales = [];
     const yScales = [];
     datas.forEach((data, i) => {
-      if (!group.sameXScale) {
+      if (!groupBy.sameXScale) {
         xDomain = domainExtent(d3.extent(data, (d) => d[x.key]));
         xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
         xScales.push(xScale);
       }
-      if (!group.sameYScale) {
+      if (!groupBy.sameYScale) {
         yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
         yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
         yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
@@ -78,10 +78,10 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
       circlesG.call(drawCircles, data, config, xScale, yScale, colorScale);
 
       zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
-        const _newXScale = group.sameXScale
+        const _newXScale = groupBy.sameXScale
           ? newXScale
           : transform.rescaleX(xScales[i]);
-        const _newYScale = group.sameYScale
+        const _newYScale = groupBy.sameYScale
           ? newYScale
           : transform.rescaleY(yScales[i]);
         circlesG.call(
@@ -98,8 +98,8 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     const zoomed = ({ transform }) => {
       const newXScale = transform.rescaleX(xScale);
       const newYScale = transform.rescaleY(yScale);
-      x.zoom && group.sameXScale && xAxisG.call(xAxis, newXScale, config);
-      y.zoom && group.sameYScale && yAxisG.call(yAxis, newYScale, config);
+      x.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
+      y.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
       zoomedFuncs.forEach((zoomedFunc) =>
         zoomedFunc({ transform, newXScale, newYScale })
       );
@@ -107,6 +107,27 @@ const zillizBI = ({ chartType, domSelector, data, config }) => {
     const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
     (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
   } else {
+    xAxisG.call(xAxis, xScale, config);
+    yAxisG.call(yAxis, yScale, config);
+    const circlesG = svg.append("g").attr("id", `circles-g`);
+    circlesG.call(drawCircles, data, config, xScale, yScale, colorScale);
+
+    const zoomed = ({ transform }) => {
+      const newXScale = transform.rescaleX(xScale);
+      const newYScale = transform.rescaleY(yScale);
+      x.zoom && xAxisG.call(xAxis, newXScale, config);
+      y.zoom && yAxisG.call(yAxis, newYScale, config);
+      circlesG.call(
+        drawCircles,
+        data,
+        config,
+        x.zoom ? newXScale : xScale,
+        y.zoom ? newYScale : yScale,
+        colorScale
+      );
+    };
+    const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
+    (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
   }
 };
 

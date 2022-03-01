@@ -4365,7 +4365,7 @@
       padding,
       x: x2,
       y: y2,
-      group = {}
+      groupBy = {}
     } = config;
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
@@ -4380,21 +4380,21 @@
     let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
     let yAxisG = svg.append("g").attr("id", "y-axis-g");
     const zoomedFuncs = [];
-    if (group.hasGroup) {
-      const groupKeySet = new Set(data.map((d) => d[group.key]));
-      const groupKeyOrder = Array.from(groupKeySet);
-      const datas = groupKeyOrder.map((key) => data.filter((d) => d[group.key] === key));
-      group.sameXScale && xAxisG.call(xAxis, xScale, config);
-      group.sameYScale && yAxisG.call(yAxis, yScale, config);
+    if (groupBy.isGroupBy) {
+      const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
+      const groupByKeyOrder = Array.from(groupByKeySet);
+      const datas = groupByKeyOrder.map((key) => data.filter((d) => d[groupBy.key] === key));
+      groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
+      groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
       const xScales = [];
       const yScales = [];
       datas.forEach((data2, i) => {
-        if (!group.sameXScale) {
+        if (!groupBy.sameXScale) {
           xDomain = domainExtent(extent(data2, (d) => d[x2.key]));
           xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
           xScales.push(xScale);
         }
-        if (!group.sameYScale) {
+        if (!groupBy.sameYScale) {
           yDomain = domainExtent(extent(data2, (d) => d[y2.key]));
           yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
           yScales.push(scaleMap[y2.scaleType]().domain(yDomain).range(yRange));
@@ -4402,21 +4402,34 @@
         const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
         circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
         zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
-          const _newXScale = group.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
-          const _newYScale = group.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
+          const _newXScale = groupBy.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
+          const _newYScale = groupBy.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
           circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
         });
       });
       const zoomed = ({ transform: transform2 }) => {
         const newXScale = transform2.rescaleX(xScale);
         const newYScale = transform2.rescaleY(yScale);
-        x2.zoom && group.sameXScale && xAxisG.call(xAxis, newXScale, config);
-        y2.zoom && group.sameYScale && yAxisG.call(yAxis, newYScale, config);
+        x2.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
         zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
       (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     } else {
+      xAxisG.call(xAxis, xScale, config);
+      yAxisG.call(yAxis, yScale, config);
+      const circlesG = svg.append("g").attr("id", `circles-g`);
+      circlesG.call(circle_default, data, config, xScale, yScale, colorScale);
+      const zoomed = ({ transform: transform2 }) => {
+        const newXScale = transform2.rescaleX(xScale);
+        const newYScale = transform2.rescaleY(yScale);
+        x2.zoom && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && yAxisG.call(yAxis, newYScale, config);
+        circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale, colorScale);
+      };
+      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     }
   };
   var js_default = zillizBI;
@@ -4485,8 +4498,8 @@
         inset: 6,
         zoom: false
       },
-      group: {
-        hasGroup: true,
+      groupBy: {
+        isGroupBy: false,
         key: "test_no",
         sameXScale: true,
         sameYScale: true
