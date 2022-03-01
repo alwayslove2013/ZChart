@@ -4,9 +4,10 @@ window.addEventListener("DOMContentLoaded", async () => {
   const domSelector = "#container";
   // const dom = document.querySelector(domSelector);
   const dataFile = "./data/scatterPlot.json";
-  const chartType = "scatter_plot";
+  // const chartType = "scatter_plot";
+  const chartType = "bar";
   const data = await fetch(dataFile).then((res) => res.json());
-  const config = {
+  const config_scatterPlot = {
     width: 1000,
     height: 620,
     // background: "rgba(0,0,0,0.1)",
@@ -26,7 +27,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     },
     circle: {
       r: 5,
-      strokeColor: '#fff',
+      strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
       circleColor: "ef",
@@ -64,6 +65,74 @@ window.addEventListener("DOMContentLoaded", async () => {
       labelColor: "#444",
       inset: 6,
       zoom: false,
+      fromZero: true,
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "test_no",
+      sameXScale: false,
+      sameYScale: true,
+    },
+  };
+  const config_bar = {
+    width: 1000,
+    height: 620,
+    // background: "rgba(0,0,0,0.1)",
+    border: "1px solid #999",
+    padding: [60, 40, 50, 65],
+    tooltip: {
+      content: ["group_id", "acc", "search_rps", "ef"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca",
+    },
+    title: {
+      text: "Recall - Latency",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222",
+    },
+    circle: {
+      r: 5,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "ef",
+      withLabels: true,
+      label: (item) => `ef=${item.ef}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 4,
+      linkColor: "test_no",
+    },
+    x: {
+      key: "ef",
+      scaleType: "bin",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall Rate",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true,
+    },
+    y: {
+      key: "search_rps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Latency / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true,
     },
     groupBy: {
       isGroupBy: true,
@@ -71,6 +140,14 @@ window.addEventListener("DOMContentLoaded", async () => {
       sameXScale: false,
       sameYScale: true,
     },
+    bar: {
+      isColorMapping: true,
+      color: "test_no",
+      withLabels: true,
+      label: (item) => `ef=${item.ef}`,
+      labelFontSize: 14,
+    },
   };
-  zillizBI({ chartType, domSelector, data, config });
+  // zillizBI({ chartType: 'scatter_plot', domSelector, data, config: config_scatterPlot });
+  zillizBI({ chartType: "bar", domSelector, data, config: config_bar });
 });

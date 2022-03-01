@@ -19,17 +19,6 @@ export const xAxis = (g, scale, config) => {
     .call((g) => g.select(".domain").remove())
     .call((g) =>
       g
-        .selectAll(".tick line")
-        .attr("y1", 0)
-        .attr(
-          "y2",
-          (x.tickType === "bottom" ? 1 : -1) *
-            (padding[0] + padding[2] - height)
-        )
-        .attr("stroke-opacity", 0.1)
-    )
-    .call((g) =>
-      g
         .selectAll(".tick text")
         .attr("font-size", x.tickFontSize)
         .attr("fill", x.tickColor)
@@ -46,6 +35,21 @@ export const xAxis = (g, scale, config) => {
         .style("font-weight", x.labelWeight)
         .text(x.label)
     );
+  if (x.scaleType === "bin") {
+    g.call((g) => g.selectAll(".tick line").remove());
+  } else {
+    g.call((g) =>
+      g
+        .selectAll(".tick line")
+        .attr("y1", 0)
+        .attr(
+          "y2",
+          (x.tickType === "bottom" ? 1 : -1) *
+            (padding[0] + padding[2] - height)
+        )
+        .attr("stroke-opacity", 0.1)
+    );
+  }
 };
 
 export const yAxis = (g, scale, config) => {

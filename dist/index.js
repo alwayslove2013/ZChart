@@ -64,18 +64,18 @@
   // node_modules/d3-array/src/extent.js
   function extent(values, valueof) {
     let min2;
-    let max2;
+    let max3;
     if (valueof === void 0) {
       for (const value of values) {
         if (value != null) {
           if (min2 === void 0) {
             if (value >= value)
-              min2 = max2 = value;
+              min2 = max3 = value;
           } else {
             if (min2 > value)
               min2 = value;
-            if (max2 < value)
-              max2 = value;
+            if (max3 < value)
+              max3 = value;
           }
         }
       }
@@ -85,17 +85,17 @@
         if ((value = valueof(value, ++index, values)) != null) {
           if (min2 === void 0) {
             if (value >= value)
-              min2 = max2 = value;
+              min2 = max3 = value;
           } else {
             if (min2 > value)
               min2 = value;
-            if (max2 < value)
-              max2 = value;
+            if (max3 < value)
+              max3 = value;
           }
         }
       }
     }
-    return [min2, max2];
+    return [min2, max3];
   }
 
   // node_modules/internmap/src/index.js
@@ -195,6 +195,36 @@
     return stop < start2 ? -step1 : step1;
   }
 
+  // node_modules/d3-array/src/max.js
+  function max(values, valueof) {
+    let max3;
+    if (valueof === void 0) {
+      for (const value of values) {
+        if (value != null && (max3 < value || max3 === void 0 && value >= value)) {
+          max3 = value;
+        }
+      }
+    } else {
+      let index = -1;
+      for (let value of values) {
+        if ((value = valueof(value, ++index, values)) != null && (max3 < value || max3 === void 0 && value >= value)) {
+          max3 = value;
+        }
+      }
+    }
+    return max3;
+  }
+
+  // node_modules/d3-array/src/range.js
+  function range(start2, stop, step) {
+    start2 = +start2, stop = +stop, step = (n = arguments.length) < 2 ? (stop = start2, start2 = 0, 1) : n < 3 ? 1 : +step;
+    var i = -1, n = Math.max(0, Math.ceil((stop - start2) / step)) | 0, range2 = new Array(n);
+    while (++i < n) {
+      range2[i] = start2 + i * step;
+    }
+    return range2;
+  }
+
   // node_modules/d3-axis/src/identity.js
   function identity_default(x2) {
     return x2;
@@ -227,7 +257,7 @@
   function axis(orient, scale) {
     var tickArguments = [], tickValues = null, tickFormat2 = null, tickSizeInner = 6, tickSizeOuter = 6, tickPadding = 3, offset = typeof window !== "undefined" && window.devicePixelRatio > 1 ? 0 : 0.5, k = orient === top || orient === left ? -1 : 1, x2 = orient === left || orient === right ? "x" : "y", transform2 = orient === top || orient === bottom ? translateX : translateY;
     function axis2(context) {
-      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range = scale.range(), range0 = +range[0] + offset, range1 = +range[range.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path2 = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
+      var values = tickValues == null ? scale.ticks ? scale.ticks.apply(scale, tickArguments) : scale.domain() : tickValues, format2 = tickFormat2 == null ? scale.tickFormat ? scale.tickFormat.apply(scale, tickArguments) : identity_default : tickFormat2, spacing = Math.max(tickSizeInner, 0) + tickPadding, range2 = scale.range(), range0 = +range2[0] + offset, range1 = +range2[range2.length - 1] + offset, position = (scale.bandwidth ? center : number2)(scale.copy(), offset), selection2 = context.selection ? context.selection() : context, path2 = selection2.selectAll(".domain").data([null]), tick = selection2.selectAll(".tick").data(values, scale).order(), tickExit = tick.exit(), tickEnter = tick.enter().append("g").attr("class", "tick"), line = tick.select("line"), text = tick.select("text");
       path2 = path2.merge(path2.enter().insert("path", ".tick").attr("class", "domain").attr("stroke", "currentColor"));
       tick = tick.merge(tickEnter);
       line = line.merge(tickEnter.append("line").attr("stroke", "currentColor").attr(x2 + "2", k * tickSizeInner));
@@ -1239,10 +1269,10 @@
     if (node) {
       var svg = node.ownerSVGElement || node;
       if (svg.createSVGPoint) {
-        var point3 = svg.createSVGPoint();
-        point3.x = event.clientX, point3.y = event.clientY;
-        point3 = point3.matrixTransform(node.getScreenCTM().inverse());
-        return [point3.x, point3.y];
+        var point4 = svg.createSVGPoint();
+        point4.x = event.clientX, point4.y = event.clientY;
+        point4 = point4.matrixTransform(node.getScreenCTM().inverse());
+        return [point4.x, point4.y];
       }
       if (node.getBoundingClientRect) {
         var rect = node.getBoundingClientRect();
@@ -1565,15 +1595,15 @@
     if (o instanceof Hsl)
       return o;
     o = o.rgb();
-    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min2 = Math.min(r, g, b), max2 = Math.max(r, g, b), h = NaN, s = max2 - min2, l = (max2 + min2) / 2;
+    var r = o.r / 255, g = o.g / 255, b = o.b / 255, min2 = Math.min(r, g, b), max3 = Math.max(r, g, b), h = NaN, s = max3 - min2, l = (max3 + min2) / 2;
     if (s) {
-      if (r === max2)
+      if (r === max3)
         h = (g - b) / s + (g < b) * 6;
-      else if (g === max2)
+      else if (g === max3)
         h = (b - r) / s + 2;
       else
         h = (r - g) / s + 4;
-      s /= l < 0.5 ? max2 + min2 : 2 - max2 - min2;
+      s /= l < 0.5 ? max3 + min2 : 2 - max3 - min2;
       h *= 60;
     } else {
       s = l > 0 && l < 1 ? 0 : h;
@@ -2839,7 +2869,7 @@
   selection_default.prototype.transition = transition_default2;
 
   // node_modules/d3-brush/src/brush.js
-  var { abs, max, min } = Math;
+  var { abs, max: max2, min } = Math;
   function number1(e) {
     return [+e[0], +e[1]];
   }
@@ -3213,13 +3243,13 @@
   }
 
   // node_modules/d3-format/src/precisionRound.js
-  function precisionRound_default(step, max2) {
-    step = Math.abs(step), max2 = Math.abs(max2) - step;
-    return Math.max(0, exponent_default(max2) - exponent_default(step)) + 1;
+  function precisionRound_default(step, max3) {
+    step = Math.abs(step), max3 = Math.abs(max3) - step;
+    return Math.max(0, exponent_default(max3) - exponent_default(step)) + 1;
   }
 
   // node_modules/d3-scale/src/init.js
-  function initRange(domain, range) {
+  function initRange(domain, range2) {
     switch (arguments.length) {
       case 0:
         break;
@@ -3227,7 +3257,7 @@
         this.range(domain);
         break;
       default:
-        this.range(range).domain(domain);
+        this.range(range2).domain(domain);
         break;
     }
     return this;
@@ -3236,7 +3266,7 @@
   // node_modules/d3-scale/src/ordinal.js
   var implicit = Symbol("implicit");
   function ordinal() {
-    var index = new InternMap(), domain = [], range = [], unknown = implicit;
+    var index = new InternMap(), domain = [], range2 = [], unknown = implicit;
     function scale(d) {
       let i = index.get(d);
       if (i === void 0) {
@@ -3244,7 +3274,7 @@
           return unknown;
         index.set(d, i = domain.push(d) - 1);
       }
-      return range[i % range.length];
+      return range2[i % range2.length];
     }
     scale.domain = function(_) {
       if (!arguments.length)
@@ -3258,16 +3288,70 @@
       return scale;
     };
     scale.range = function(_) {
-      return arguments.length ? (range = Array.from(_), scale) : range.slice();
+      return arguments.length ? (range2 = Array.from(_), scale) : range2.slice();
     };
     scale.unknown = function(_) {
       return arguments.length ? (unknown = _, scale) : unknown;
     };
     scale.copy = function() {
-      return ordinal(domain, range).unknown(unknown);
+      return ordinal(domain, range2).unknown(unknown);
     };
     initRange.apply(scale, arguments);
     return scale;
+  }
+
+  // node_modules/d3-scale/src/band.js
+  function band() {
+    var scale = ordinal().unknown(void 0), domain = scale.domain, ordinalRange = scale.range, r0 = 0, r1 = 1, step, bandwidth, round = false, paddingInner = 0, paddingOuter = 0, align = 0.5;
+    delete scale.unknown;
+    function rescale() {
+      var n = domain().length, reverse = r1 < r0, start2 = reverse ? r1 : r0, stop = reverse ? r0 : r1;
+      step = (stop - start2) / Math.max(1, n - paddingInner + paddingOuter * 2);
+      if (round)
+        step = Math.floor(step);
+      start2 += (stop - start2 - step * (n - paddingInner)) * align;
+      bandwidth = step * (1 - paddingInner);
+      if (round)
+        start2 = Math.round(start2), bandwidth = Math.round(bandwidth);
+      var values = range(n).map(function(i) {
+        return start2 + step * i;
+      });
+      return ordinalRange(reverse ? values.reverse() : values);
+    }
+    scale.domain = function(_) {
+      return arguments.length ? (domain(_), rescale()) : domain();
+    };
+    scale.range = function(_) {
+      return arguments.length ? ([r0, r1] = _, r0 = +r0, r1 = +r1, rescale()) : [r0, r1];
+    };
+    scale.rangeRound = function(_) {
+      return [r0, r1] = _, r0 = +r0, r1 = +r1, round = true, rescale();
+    };
+    scale.bandwidth = function() {
+      return bandwidth;
+    };
+    scale.step = function() {
+      return step;
+    };
+    scale.round = function(_) {
+      return arguments.length ? (round = !!_, rescale()) : round;
+    };
+    scale.padding = function(_) {
+      return arguments.length ? (paddingInner = Math.min(1, paddingOuter = +_), rescale()) : paddingInner;
+    };
+    scale.paddingInner = function(_) {
+      return arguments.length ? (paddingInner = Math.min(1, _), rescale()) : paddingInner;
+    };
+    scale.paddingOuter = function(_) {
+      return arguments.length ? (paddingOuter = +_, rescale()) : paddingOuter;
+    };
+    scale.align = function(_) {
+      return arguments.length ? (align = Math.max(0, Math.min(1, _)), rescale()) : align;
+    };
+    scale.copy = function() {
+      return band(domain(), [r0, r1]).round(round).paddingInner(paddingInner).paddingOuter(paddingOuter).align(align);
+    };
+    return initRange.apply(rescale(), arguments);
   }
 
   // node_modules/d3-scale/src/constant.js
@@ -3300,8 +3384,8 @@
       return Math.max(a, Math.min(b, x2));
     };
   }
-  function bimap(domain, range, interpolate) {
-    var d0 = domain[0], d1 = domain[1], r0 = range[0], r1 = range[1];
+  function bimap(domain, range2, interpolate) {
+    var d0 = domain[0], d1 = domain[1], r0 = range2[0], r1 = range2[1];
     if (d1 < d0)
       d0 = normalize(d1, d0), r0 = interpolate(r1, r0);
     else
@@ -3310,15 +3394,15 @@
       return r0(d0(x2));
     };
   }
-  function polymap(domain, range, interpolate) {
-    var j = Math.min(domain.length, range.length) - 1, d = new Array(j), r = new Array(j), i = -1;
+  function polymap(domain, range2, interpolate) {
+    var j = Math.min(domain.length, range2.length) - 1, d = new Array(j), r = new Array(j), i = -1;
     if (domain[j] < domain[0]) {
       domain = domain.slice().reverse();
-      range = range.slice().reverse();
+      range2 = range2.slice().reverse();
     }
     while (++i < j) {
       d[i] = normalize(domain[i], domain[i + 1]);
-      r[i] = interpolate(range[i], range[i + 1]);
+      r[i] = interpolate(range2[i], range2[i + 1]);
     }
     return function(x2) {
       var i2 = bisect_default(domain, x2, 1, j) - 1;
@@ -3329,9 +3413,9 @@
     return target.domain(source.domain()).range(source.range()).interpolate(source.interpolate()).clamp(source.clamp()).unknown(source.unknown());
   }
   function transformer() {
-    var domain = unit, range = unit, interpolate = value_default, transform2, untransform, unknown, clamp = identity2, piecewise, output, input;
+    var domain = unit, range2 = unit, interpolate = value_default, transform2, untransform, unknown, clamp = identity2, piecewise, output, input;
     function rescale() {
-      var n = Math.min(domain.length, range.length);
+      var n = Math.min(domain.length, range2.length);
       if (clamp !== identity2)
         clamp = clamper(domain[0], domain[n - 1]);
       piecewise = n > 2 ? polymap : bimap;
@@ -3339,19 +3423,19 @@
       return scale;
     }
     function scale(x2) {
-      return x2 == null || isNaN(x2 = +x2) ? unknown : (output || (output = piecewise(domain.map(transform2), range, interpolate)))(transform2(clamp(x2)));
+      return x2 == null || isNaN(x2 = +x2) ? unknown : (output || (output = piecewise(domain.map(transform2), range2, interpolate)))(transform2(clamp(x2)));
     }
     scale.invert = function(y2) {
-      return clamp(untransform((input || (input = piecewise(range, domain.map(transform2), number_default)))(y2)));
+      return clamp(untransform((input || (input = piecewise(range2, domain.map(transform2), number_default)))(y2)));
     };
     scale.domain = function(_) {
       return arguments.length ? (domain = Array.from(_, number3), rescale()) : domain.slice();
     };
     scale.range = function(_) {
-      return arguments.length ? (range = Array.from(_), rescale()) : range.slice();
+      return arguments.length ? (range2 = Array.from(_), rescale()) : range2.slice();
     };
     scale.rangeRound = function(_) {
-      return range = Array.from(_), interpolate = round_default, rescale();
+      return range2 = Array.from(_), interpolate = round_default, rescale();
     };
     scale.clamp = function(_) {
       return arguments.length ? (clamp = _ ? true : identity2, rescale()) : clamp !== identity2;
@@ -3713,7 +3797,7 @@
   }
 
   // node_modules/d3-shape/src/curve/cardinal.js
-  function point(that, x2, y2) {
+  function point2(that, x2, y2) {
     that._context.bezierCurveTo(that._x1 + that._k * (that._x2 - that._x0), that._y1 + that._k * (that._y2 - that._y0), that._x2 + that._k * (that._x1 - x2), that._y2 + that._k * (that._y1 - y2), that._x2, that._y2);
   }
   function Cardinal(context, tension) {
@@ -3737,7 +3821,7 @@
           this._context.lineTo(this._x2, this._y2);
           break;
         case 3:
-          point(this, this._x1, this._y1);
+          point2(this, this._x1, this._y1);
           break;
       }
       if (this._line || this._line !== 0 && this._point === 1)
@@ -3758,7 +3842,7 @@
         case 2:
           this._point = 3;
         default:
-          point(this, x2, y2);
+          point2(this, x2, y2);
           break;
       }
       this._x0 = this._x1, this._x1 = this._x2, this._x2 = x2;
@@ -3776,7 +3860,7 @@
   }(0);
 
   // node_modules/d3-shape/src/curve/catmullRom.js
-  function point2(that, x2, y2) {
+  function point3(that, x2, y2) {
     var x1 = that._x1, y1 = that._y1, x22 = that._x2, y22 = that._y2;
     if (that._l01_a > epsilon4) {
       var a = 2 * that._l01_2a + 3 * that._l01_a * that._l12_a + that._l12_2a, n = 3 * that._l01_a * (that._l01_a + that._l12_a);
@@ -3835,7 +3919,7 @@
         case 2:
           this._point = 3;
         default:
-          point2(this, x2, y2);
+          point3(this, x2, y2);
           break;
       }
       this._l01_a = this._l12_a, this._l12_a = this._l23_a;
@@ -3887,8 +3971,8 @@
     translate: function(x2, y2) {
       return x2 === 0 & y2 === 0 ? this : new Transform(this.k, this.x + this.k * x2, this.y + this.k * y2);
     },
-    apply: function(point3) {
-      return [point3[0] * this.k + this.x, point3[1] * this.k + this.y];
+    apply: function(point4) {
+      return [point4[0] * this.k + this.x, point4[1] * this.k + this.y];
     },
     applyX: function(x2) {
       return x2 * this.k + this.x;
@@ -3967,11 +4051,11 @@
     function zoom(selection2) {
       selection2.property("__zoom", defaultTransform).on("wheel.zoom", wheeled, { passive: false }).on("mousedown.zoom", mousedowned).on("dblclick.zoom", dblclicked).filter(touchable).on("touchstart.zoom", touchstarted).on("touchmove.zoom", touchmoved).on("touchend.zoom touchcancel.zoom", touchended).style("-webkit-tap-highlight-color", "rgba(0,0,0,0)");
     }
-    zoom.transform = function(collection, transform2, point3, event) {
+    zoom.transform = function(collection, transform2, point4, event) {
       var selection2 = collection.selection ? collection.selection() : collection;
       selection2.property("__zoom", defaultTransform);
       if (collection !== selection2) {
-        schedule(collection, transform2, point3, event);
+        schedule(collection, transform2, point4, event);
       } else {
         selection2.interrupt().each(function() {
           gesture(this, arguments).event(event).start().zoom(null, typeof transform2 === "function" ? transform2.apply(this, arguments) : transform2).end();
@@ -4012,13 +4096,13 @@
     function centroid(extent3) {
       return [(+extent3[0][0] + +extent3[1][0]) / 2, (+extent3[0][1] + +extent3[1][1]) / 2];
     }
-    function schedule(transition2, transform2, point3, event) {
+    function schedule(transition2, transform2, point4, event) {
       transition2.on("start.zoom", function() {
         gesture(this, arguments).event(event).start();
       }).on("interrupt.zoom end.zoom", function() {
         gesture(this, arguments).event(event).end();
       }).tween("zoom", function() {
-        var that = this, args = arguments, g = gesture(that, args).event(event), e = extent2.apply(that, args), p = point3 == null ? centroid(e) : typeof point3 === "function" ? point3.apply(that, args) : point3, w = Math.max(e[1][0] - e[0][0], e[1][1] - e[0][1]), a = that.__zoom, b = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i = interpolate(a.invert(p).concat(w / a.k), b.invert(p).concat(w / b.k));
+        var that = this, args = arguments, g = gesture(that, args).event(event), e = extent2.apply(that, args), p = point4 == null ? centroid(e) : typeof point4 === "function" ? point4.apply(that, args) : point4, w = Math.max(e[1][0] - e[0][0], e[1][1] - e[0][1]), a = that.__zoom, b = typeof transform2 === "function" ? transform2.apply(that, args) : transform2, i = interpolate(a.invert(p).concat(w / a.k), b.invert(p).concat(w / b.k));
         return function(t) {
           if (t === 1)
             t = b;
@@ -4272,7 +4356,12 @@
   var xAxis = (g, scale, config) => {
     g.selectAll("*").remove();
     const { width, height, padding, x: x2 } = config;
-    g.attr("transform", x2.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x2.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", x2.tickFontSize).attr("fill", x2.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x2.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x2.labelColor).attr("text-anchor", "middle").style("font-size", x2.labelFontSize).style("font-weight", x2.labelWeight).text(x2.label));
+    g.attr("transform", x2.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x2.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick text").attr("font-size", x2.tickFontSize).attr("fill", x2.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x2.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x2.labelColor).attr("text-anchor", "middle").style("font-size", x2.labelFontSize).style("font-weight", x2.labelWeight).text(x2.label));
+    if (x2.scaleType === "bin") {
+      g.call((g2) => g2.selectAll(".tick line").remove());
+    } else {
+      g.call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x2.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1));
+    }
   };
   var yAxis = (g, scale, config) => {
     g.selectAll("*").remove();
@@ -4350,7 +4439,8 @@
   // js/index.js
   var scaleMap = {
     linear: linear2,
-    log
+    log,
+    bin: band
   };
   var domainExtent = (domain) => {
     const ext = (domain[1] - domain[0]) * 0.06;
@@ -4373,65 +4463,96 @@
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
     const colorScale = ordinal().range(colors);
-    const xDomain = domainExtent(extent(data, (d) => d[x2.key]));
+    const xDomain = x2.scaleType === "bin" ? data.map((d) => d[x2.key]) : domainExtent(extent(data, (d) => d[x2.key]));
     const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
     let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
     const xAxisG = svg.append("g").attr("id", "x-axis-g");
-    const yDomain = domainExtent(extent(data, (d) => d[y2.key]));
+    const yDomain = y2.fromZero ? [0, max(data, (d) => d[y2.key])] : domainExtent(extent(data, (d) => d[y2.key]));
     const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
     let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
     const yAxisG = svg.append("g").attr("id", "y-axis-g");
-    const zoomedFuncs = [];
-    if (groupBy.isGroupBy) {
-      const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
-      const groupByKeyOrder = Array.from(groupByKeySet);
-      const datas = groupByKeyOrder.map((key) => data.filter((d) => d[groupBy.key] === key));
-      groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
-      groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
-      const xScales = [];
-      const yScales = [];
-      datas.forEach((data2, i) => {
-        if (!groupBy.sameXScale) {
-          const xDomain2 = domainExtent(extent(data2, (d) => d[x2.key]));
-          xScale = scaleMap[x2.scaleType]().domain(xDomain2).range(xRange);
-          xScales.push(xScale);
-        }
-        if (!groupBy.sameYScale) {
-          const yDomain2 = domainExtent(extent(data2, (d) => d[y2.key]));
-          yScale = scaleMap[y2.scaleType]().domain(yDomain2).range(yRange);
-          yScales.push(scaleMap[y2.scaleType]().domain(yDomain2).range(yRange));
-        }
-        const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
-        circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
-        zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
-          const _newXScale = groupBy.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
-          const _newYScale = groupBy.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
-          circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
+    if (chartType === "scatter_plot") {
+      const zoomedFuncs = [];
+      if (groupBy.isGroupBy) {
+        const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
+        const groupByKeyOrder = Array.from(groupByKeySet);
+        const datas = groupByKeyOrder.map((key) => data.filter((d) => d[groupBy.key] === key));
+        groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
+        groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
+        const xScales = [];
+        const yScales = [];
+        datas.forEach((data2, i) => {
+          if (!groupBy.sameXScale) {
+            const xDomain2 = domainExtent(extent(data2, (d) => d[x2.key]));
+            xScale = scaleMap[x2.scaleType]().domain(xDomain2).range(xRange);
+            xScales.push(xScale);
+          }
+          if (!groupBy.sameYScale) {
+            const yDomain2 = domainExtent(extent(data2, (d) => d[y2.key]));
+            yScale = scaleMap[y2.scaleType]().domain(yDomain2).range(yRange);
+            yScales.push(scaleMap[y2.scaleType]().domain(yDomain2).range(yRange));
+          }
+          const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
+          circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
+          zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
+            const _newXScale = groupBy.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
+            const _newYScale = groupBy.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
+            circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
+          });
         });
-      });
-      const zoomed = ({ transform: transform2 }) => {
-        const newXScale = transform2.rescaleX(xScale);
-        const newYScale = transform2.rescaleY(yScale);
-        x2.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
-        y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
-        zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
-      };
-      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
-      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
-    } else {
+        const zoomed = ({ transform: transform2 }) => {
+          const newXScale = transform2.rescaleX(xScale);
+          const newYScale = transform2.rescaleY(yScale);
+          x2.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
+          y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
+          zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
+        };
+        const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+        (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      } else {
+        xAxisG.call(xAxis, xScale, config);
+        yAxisG.call(yAxis, yScale, config);
+        const circlesG = svg.append("g").attr("id", `circles-g`);
+        circlesG.call(circle_default, data, config, xScale, yScale, colorScale);
+        const zoomed = ({ transform: transform2 }) => {
+          const newXScale = transform2.rescaleX(xScale);
+          const newYScale = transform2.rescaleY(yScale);
+          x2.zoom && xAxisG.call(xAxis, newXScale, config);
+          y2.zoom && yAxisG.call(yAxis, newYScale, config);
+          circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale, colorScale);
+        };
+        const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+        (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      }
+    }
+    if (chartType === "bar") {
+      xScale.paddingInner(0.3).paddingOuter(0.5);
       xAxisG.call(xAxis, xScale, config);
       yAxisG.call(yAxis, yScale, config);
-      const circlesG = svg.append("g").attr("id", `circles-g`);
-      circlesG.call(circle_default, data, config, xScale, yScale, colorScale);
-      const zoomed = ({ transform: transform2 }) => {
-        const newXScale = transform2.rescaleX(xScale);
-        const newYScale = transform2.rescaleY(yScale);
-        x2.zoom && xAxisG.call(xAxis, newXScale, config);
-        y2.zoom && yAxisG.call(yAxis, newYScale, config);
-        circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale, colorScale);
-      };
-      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
-      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      const { bar } = config;
+      const {
+        isColorMapping = false,
+        color: color2 = "#888",
+        withLabels,
+        label,
+        labelFontSize
+      } = bar;
+      const colorMap = isColorMapping ? colorScale : () => color2;
+      const barsG = svg.append("g").attr("id", "bars-g");
+      const barG = barsG.selectAll("g").data(data).join("g");
+      if (groupBy.isGroupBy) {
+        const groupByKeyOrder = Array.from(new Set(data.map((d) => d[groupBy.key])));
+        console.log("groupByKeyOrder", groupByKeyOrder);
+        const innerPadding = 0.1;
+        const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
+        const innerBarWidth = innerBarStep * (1 - innerPadding);
+        const innerBias = (d) => (groupByKeyOrder.indexOf(d[groupBy.key]) + innerPadding) * innerBarStep;
+        barG.append("rect").attr("x", (d) => xScale(d[x2.key]) + innerBias(d)).attr("y", (d) => yScale(d[y2.key])).attr("width", innerBarWidth).attr("height", (d) => height - padding[2] - y2.inset - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
+        withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + innerBarWidth / 2 + innerBias(d)).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
+      } else {
+        barG.append("rect").attr("x", (d) => xScale(d[x2.key])).attr("y", (d) => yScale(d[y2.key])).attr("width", xScale.bandwidth()).attr("height", (d) => height - padding[2] - y2.inset - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
+        withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + xScale.bandwidth() / 2).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
+      }
     }
   };
   var js_default = zillizBI;
@@ -4440,9 +4561,9 @@
   window.addEventListener("DOMContentLoaded", async () => {
     const domSelector = "#container";
     const dataFile = "./data/scatterPlot.json";
-    const chartType = "scatter_plot";
+    const chartType = "bar";
     const data = await fetch(dataFile).then((res) => res.json());
-    const config = {
+    const config_scatterPlot = {
       width: 1e3,
       height: 620,
       border: "1px solid #999",
@@ -4498,15 +4619,89 @@
         labelWeight: 600,
         labelColor: "#444",
         inset: 6,
-        zoom: false
+        zoom: false,
+        fromZero: true
+      },
+      groupBy: {
+        isGroupBy: false,
+        key: "test_no",
+        sameXScale: false,
+        sameYScale: true
+      }
+    };
+    const config_bar = {
+      width: 1e3,
+      height: 620,
+      border: "1px solid #999",
+      padding: [60, 40, 50, 65],
+      tooltip: {
+        content: ["group_id", "acc", "search_rps", "ef"],
+        fontSize: 16,
+        fontWeight: 500,
+        fontColor: "#43a2ca"
+      },
+      title: {
+        text: "Recall - Latency",
+        fontSize: 24,
+        fontWeight: 600,
+        fontColor: "#222"
+      },
+      circle: {
+        r: 5,
+        strokeColor: "#fff",
+        strokeWidth: 1,
+        isCircleColorMapping: true,
+        circleColor: "ef",
+        withLabels: true,
+        label: (item) => `ef=${item.ef}`,
+        labelFontSize: 14,
+        withLinks: true,
+        isLinkColorMapping: true,
+        linkType: "curve",
+        linkWidth: 4,
+        linkColor: "test_no"
+      },
+      x: {
+        key: "ef",
+        scaleType: "bin",
+        tickType: "bottom",
+        tickFontSize: 14,
+        tickColor: "#666",
+        label: "Recall Rate",
+        labelFontSize: 16,
+        labelWeight: 600,
+        labelColor: "#444",
+        inset: 8,
+        zoom: true
+      },
+      y: {
+        key: "search_rps",
+        scaleType: "linear",
+        tickType: "left",
+        tickFontSize: 14,
+        tickColor: "#666",
+        label: "Latency / s",
+        labelFontSize: 16,
+        labelWeight: 600,
+        labelColor: "#444",
+        inset: 6,
+        zoom: false,
+        fromZero: true
       },
       groupBy: {
         isGroupBy: true,
         key: "test_no",
         sameXScale: false,
         sameYScale: true
+      },
+      bar: {
+        isColorMapping: true,
+        color: "test_no",
+        withLabels: true,
+        label: (item) => `ef=${item.ef}`,
+        labelFontSize: 14
       }
     };
-    js_default({ chartType, domSelector, data, config });
+    js_default({ chartType: "bar", domSelector, data, config: config_bar });
   });
 })();
