@@ -8,7 +8,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   const chartType = "bar";
   const data = await fetch(dataFile).then((res) => res.json());
   const config_scatterPlot = {
-    width: 1000,
+    width: 1600,
     height: 620,
     // background: "rgba(0,0,0,0.1)",
     border: "1px solid #999",
@@ -21,7 +21,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       fontColor: "#43a2ca",
     },
     title: {
-      text: "Recall - Latency",
+      text: "Recall - Latency -12121212",
       fontSize: 24,
       fontWeight: 600,
       fontColor: "#222",
@@ -71,7 +71,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     groupBy: {
       isGroupBy: true,
       key: "test_no",
-      sameXScale: false,
+      sameXScale: true,
       sameYScale: true,
     },
   };
@@ -95,7 +95,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       fontColor: "#222",
     },
     x: {
-      key: "ef",
+      key: "test_no",
       scaleType: "bin",
       tickType: "bottom",
       tickFontSize: 14,
@@ -123,7 +123,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     },
     groupBy: {
       isGroupBy: true,
-      key: "test_no",
+      key: "ef",
       sameXScale: false,
       sameYScale: true,
     },

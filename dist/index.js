@@ -4633,7 +4633,7 @@
     const chartType = "bar";
     const data = await fetch(dataFile).then((res) => res.json());
     const config_scatterPlot = {
-      width: 1e3,
+      width: 1600,
       height: 620,
       border: "1px solid #999",
       padding: [60, 40, 50, 65],
@@ -4645,7 +4645,7 @@
         fontColor: "#43a2ca"
       },
       title: {
-        text: "Recall - Latency",
+        text: "Recall - Latency -12121212",
         fontSize: 24,
         fontWeight: 600,
         fontColor: "#222"
@@ -4695,7 +4695,7 @@
       groupBy: {
         isGroupBy: true,
         key: "test_no",
-        sameXScale: false,
+        sameXScale: true,
         sameYScale: true
       }
     };
@@ -4718,7 +4718,7 @@
         fontColor: "#222"
       },
       x: {
-        key: "ef",
+        key: "test_no",
         scaleType: "bin",
         tickType: "bottom",
         tickFontSize: 14,
@@ -4746,7 +4746,7 @@
       },
       groupBy: {
         isGroupBy: true,
-        key: "test_no",
+        key: "ef",
         sameXScale: false,
         sameYScale: true
       },
