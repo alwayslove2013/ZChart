@@ -4889,7 +4889,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -4900,7 +4900,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "test_no"
     },
     x: {
@@ -5021,7 +5021,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5032,7 +5032,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5091,7 +5091,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5102,7 +5102,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5161,7 +5161,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5172,7 +5172,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5231,7 +5231,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5242,7 +5242,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5301,7 +5301,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5312,7 +5312,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5371,7 +5371,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5382,7 +5382,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "topk"
     },
     x: {
@@ -5441,7 +5441,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5452,7 +5452,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "ef"
     },
     x: {
@@ -5511,7 +5511,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5522,7 +5522,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "nprobe"
     },
     x: {
@@ -5581,7 +5581,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5592,7 +5592,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "nprobe"
     },
     x: {
@@ -5651,7 +5651,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5662,7 +5662,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "nprobe"
     },
     x: {
@@ -5721,7 +5721,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5732,7 +5732,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "deploy_mode"
     },
     x: {
@@ -5791,7 +5791,7 @@
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
@@ -5802,7 +5802,7 @@
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "name"
     },
     x: {

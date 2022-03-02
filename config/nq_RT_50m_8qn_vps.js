@@ -18,7 +18,7 @@ const scatterPlotConfig = {
     fontColor: "#222",
   },
   circle: {
-    r: 5,
+    r: 3,
     strokeColor: "#fff",
     strokeWidth: 1,
     isCircleColorMapping: true,
@@ -29,7 +29,7 @@ const scatterPlotConfig = {
     withLinks: true,
     isLinkColorMapping: true,
     linkType: "curve",
-    linkWidth: 4,
+    linkWidth: 2,
     linkColor: "topk",
   },
   x: {
