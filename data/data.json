@@ -1,0 +1,75 @@
+[
+  {
+    "acc": 0.86,
+    "search_rps": 1.29,
+    "ef": 16,
+    "test_no": 1
+  },
+  {
+    "acc": 0.88,
+    "search_rps": 1.59,
+    "ef": 32,
+    "test_no": 1
+  },
+  {
+    "acc": 0.903,
+    "search_rps": 2.08,
+    "ef": 64,
+    "test_no": 1
+  },
+  {
+    "acc": 0.93,
+    "search_rps": 2.9,
+    "ef": 128,
+    "test_no": 1
+  },
+  {
+    "acc": 0.963,
+    "search_rps": 4.45,
+    "ef": 256,
+    "test_no": 1
+  },
+  {
+    "acc": 1.0,
+    "search_rps": 7.57,
+    "ef": 512,
+    "test_no": 1
+  },
+
+  {
+    "acc": 1.86,
+    "search_rps": 11.29,
+    "ef": 16,
+    "test_no": 2
+  },
+  {
+    "acc": 1.88,
+    "search_rps": 11.59,
+    "ef": 32,
+    "test_no": 2
+  },
+  {
+    "acc": 1.903,
+    "search_rps": 21.08,
+    "ef": 64,
+    "test_no": 2
+  },
+  {
+    "acc": 1.93,
+    "search_rps": 21.9,
+    "ef": 128,
+    "test_no": 2
+  },
+  {
+    "acc": 2.163,
+    "search_rps": 41.45,
+    "ef": 256,
+    "test_no": 2
+  },
+  {
+    "acc": 3.0,
+    "search_rps": 57.57,
+    "ef": 512,
+    "test_no": 2
+  }
+]

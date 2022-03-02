@@ -13,6 +13,8 @@ const ZChart = ({ chartType, domSelector, data, config }) => {
     padding = [50, 25, 35, 35],
     x = {},
     y = {},
+    circle = {},
+    groupBy = {},
   } = config;
 
   // init svg
@@ -61,7 +63,7 @@ const ZChart = ({ chartType, domSelector, data, config }) => {
       config,
     });
   }
-  if (chartType === "bar") {
+  if (chartType === "barchart") {
     drawBarChart({
       svg,
       xAxisG,
@@ -72,6 +74,56 @@ const ZChart = ({ chartType, domSelector, data, config }) => {
       colorScale,
       config,
     });
+  }
+
+  // legend
+  if (groupBy.isGroupBy) {
+    const legendsG = svg
+      .append("g")
+      .attr("id", "legends-g")
+      .attr(
+        "transform",
+        `translate(${width - padding[1] * 0.8},${padding[0]})`
+      );
+
+    const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
+    const legendHeight = 30;
+    const legendIconWidth = 50;
+    const legendG = legendsG
+      .selectAll("g")
+      .data(groupByKeyList)
+      .join("g")
+      .attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
+    if (chartType === "scatter_plot") {
+      if (circle.withLinks) {
+        legendG
+          .append("path")
+          .attr("d", `M0,${legendHeight / 2}h${legendIconWidth}`)
+          .attr("fill", "none")
+          .attr("stroke", (d) => colorScale(d))
+          .attr("stroke-width", circle.linkWidth)
+          .attr("stroke-linecap", "round");
+      }
+      legendG
+        .append("circle")
+        .attr("cx", legendIconWidth / 2)
+        .attr("cy", legendHeight / 2)
+        .attr("r", circle.r)
+        .attr("fill", (d) => colorScale(d))
+        .attr("stroke", circle.strokeColor)
+        .attr("stroke-width", circle.strokeWidth);
+    }
+    if (chartType === "barchart") {
+      legendG
+        .append("rect")
+        .attr("x", 0)
+        .attr("y", legendHeight * 0.25)
+        .attr("width", legendIconWidth)
+        .attr("height", legendHeight * 0.5)
+        .attr("fill", (d) => colorScale(d));
+    }
+
+    // legendG.append("");
   }
 };
 

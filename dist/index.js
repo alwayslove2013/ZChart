@@ -4582,7 +4582,9 @@
       border = null,
       padding = [50, 25, 35, 35],
       x: x2 = {},
-      y: y2 = {}
+      y: y2 = {},
+      circle = {},
+      groupBy = {}
     } = config;
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
@@ -4611,7 +4613,7 @@
         config
       });
     }
-    if (chartType === "bar") {
+    if (chartType === "barchart") {
       barChart_default({
         svg,
         xAxisG,
@@ -4623,141 +4625,173 @@
         config
       });
     }
+    if (groupBy.isGroupBy) {
+      const legendsG = svg.append("g").attr("id", "legends-g").attr("transform", `translate(${width - padding[1] * 0.8},${padding[0]})`);
+      const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
+      const legendHeight = 30;
+      const legendIconWidth = 50;
+      const legendG = legendsG.selectAll("g").data(groupByKeyList).join("g").attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
+      if (chartType === "scatter_plot") {
+        if (circle.withLinks) {
+          legendG.append("path").attr("d", `M0,${legendHeight / 2}h${legendIconWidth}`).attr("fill", "none").attr("stroke", (d) => colorScale(d)).attr("stroke-width", circle.linkWidth).attr("stroke-linecap", "round");
+        }
+        legendG.append("circle").attr("cx", legendIconWidth / 2).attr("cy", legendHeight / 2).attr("r", circle.r).attr("fill", (d) => colorScale(d)).attr("stroke", circle.strokeColor).attr("stroke-width", circle.strokeWidth);
+      }
+      if (chartType === "barchart") {
+        legendG.append("rect").attr("x", 0).attr("y", legendHeight * 0.25).attr("width", legendIconWidth).attr("height", legendHeight * 0.5).attr("fill", (d) => colorScale(d));
+      }
+    }
   };
   var js_default = ZChart;
+
+  // barChartConfig.js
+  var barChartConfig = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 50, 65],
+    tooltip: {
+      hasTooltip: true,
+      content: ["test_no", "acc", "search_rps", "ef"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall - Latency",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    x: {
+      key: "ef",
+      scaleType: "bin",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall Rate",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "search_rps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Latency / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "test_no",
+      sameXScale: false,
+      sameYScale: true
+    },
+    bar: {
+      isColorMapping: true,
+      color: "test_no",
+      withLabels: true,
+      label: (item) => `ef=${item.ef}`,
+      labelFontSize: 14
+    }
+  };
+  var barChartConfig_default = barChartConfig;
+
+  // scatterPlotConfig.js
+  var scatterPlotConfig = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 50, 65],
+    tooltip: {
+      hasTooltip: true,
+      content: ["test_no", "acc", "search_rps", "ef"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall - Latency -12121212",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 5,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "test_no",
+      withLabels: true,
+      label: (item) => `ef=${item.ef}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 4,
+      linkColor: "test_no"
+    },
+    x: {
+      key: "acc",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall Rate",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "search_rps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Latency / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "test_no",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var scatterPlotConfig_default = scatterPlotConfig;
 
   // index.js
   window.addEventListener("DOMContentLoaded", async () => {
     const domSelector = "#container";
-    const dataFile = "./data/scatterPlot.json";
-    const chartType = "bar";
+    const dataFile = "./data/data.json";
     const data = await fetch(dataFile).then((res) => res.json());
-    const config_scatterPlot = {
-      width: 1600,
-      height: 620,
-      border: "1px solid #999",
-      padding: [60, 40, 50, 65],
-      tooltip: {
-        hasTooltip: true,
-        content: ["test_no", "acc", "search_rps", "ef"],
-        fontSize: 16,
-        fontWeight: 500,
-        fontColor: "#43a2ca"
-      },
-      title: {
-        text: "Recall - Latency -12121212",
-        fontSize: 24,
-        fontWeight: 600,
-        fontColor: "#222"
-      },
-      circle: {
-        r: 5,
-        strokeColor: "#fff",
-        strokeWidth: 1,
-        isCircleColorMapping: true,
-        circleColor: "test_no",
-        withLabels: true,
-        label: (item) => `ef=${item.ef}`,
-        labelFontSize: 14,
-        withLinks: true,
-        isLinkColorMapping: true,
-        linkType: "curve",
-        linkWidth: 4,
-        linkColor: "test_no"
-      },
-      x: {
-        key: "acc",
-        scaleType: "linear",
-        tickType: "bottom",
-        tickFontSize: 14,
-        tickColor: "#666",
-        label: "Recall Rate",
-        labelFontSize: 16,
-        labelWeight: 600,
-        labelColor: "#444",
-        inset: 8,
-        zoom: true
-      },
-      y: {
-        key: "search_rps",
-        scaleType: "linear",
-        tickType: "left",
-        tickFontSize: 14,
-        tickColor: "#666",
-        label: "Latency / s",
-        labelFontSize: 16,
-        labelWeight: 600,
-        labelColor: "#444",
-        inset: 6,
-        zoom: false,
-        fromZero: true
-      },
-      groupBy: {
-        isGroupBy: true,
-        key: "test_no",
-        sameXScale: true,
-        sameYScale: true
-      }
-    };
-    const config_bar = {
-      width: 1e3,
-      height: 620,
-      border: "1px solid #999",
-      padding: [60, 40, 50, 65],
-      tooltip: {
-        hasTooltip: true,
-        content: ["test_no", "acc", "search_rps", "ef"],
-        fontSize: 16,
-        fontWeight: 500,
-        fontColor: "#43a2ca"
-      },
-      title: {
-        text: "Recall - Latency",
-        fontSize: 24,
-        fontWeight: 600,
-        fontColor: "#222"
-      },
-      x: {
-        key: "test_no",
-        scaleType: "bin",
-        tickType: "bottom",
-        tickFontSize: 14,
-        tickColor: "#666",
-        label: "Recall Rate",
-        labelFontSize: 16,
-        labelWeight: 600,
-        labelColor: "#444",
-        inset: 8,
-        zoom: true
-      },
-      y: {
-        key: "search_rps",
-        scaleType: "linear",
-        tickType: "left",
-        tickFontSize: 14,
-        tickColor: "#666",
-        label: "Latency / s",
-        labelFontSize: 16,
-        labelWeight: 600,
-        labelColor: "#444",
-        inset: 6,
-        zoom: false,
-        fromZero: true
-      },
-      groupBy: {
-        isGroupBy: true,
-        key: "ef",
-        sameXScale: false,
-        sameYScale: true
-      },
-      bar: {
-        isColorMapping: true,
-        color: "test_no",
-        withLabels: true,
-        label: (item) => `ef=${item.ef}`,
-        labelFontSize: 14
-      }
-    };
-    js_default({ chartType: "scatter_plot", domSelector, data, config: config_scatterPlot });
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#container-1",
+      data,
+      config: scatterPlotConfig_default
+    });
+    js_default({
+      chartType: "barchart",
+      domSelector: "#container-2",
+      data,
+      config: barChartConfig_default
+    });
   });
 })();
