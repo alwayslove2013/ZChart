@@ -1,0 +1,11 @@
+index_time,indexNodes,index_type
+16066.927,1,hnsw
+2122.4817,8,hnsw
+2789.7433,6,hnsw
+4326.4367,4,hnsw
+8159.5504,2,hnsw
+693.42,8,ivf_flat
+855.19,6,ivf_flat
+1321.30,4,ivf_flat
+2532.61,2,ivf_flat
+4848.31,1,ivf_flat
