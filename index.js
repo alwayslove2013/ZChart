@@ -1,4 +1,4 @@
-import zillizBI from "./js/index.js";
+import ZChart from "./js/index.js";
 
 window.addEventListener("DOMContentLoaded", async () => {
   const domSelector = "#container";
@@ -31,7 +31,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
-      circleColor: "ef",
+      circleColor: "test_no",
       withLabels: true,
       label: (item) => `ef=${item.ef}`,
       labelFontSize: 14,
@@ -69,7 +69,7 @@ window.addEventListener("DOMContentLoaded", async () => {
       fromZero: true,
     },
     groupBy: {
-      isGroupBy: false,
+      isGroupBy: true,
       key: "test_no",
       sameXScale: false,
       sameYScale: true,
@@ -93,21 +93,6 @@ window.addEventListener("DOMContentLoaded", async () => {
       fontSize: 24,
       fontWeight: 600,
       fontColor: "#222",
-    },
-    circle: {
-      r: 5,
-      strokeColor: "#fff",
-      strokeWidth: 1,
-      isCircleColorMapping: true,
-      circleColor: "ef",
-      withLabels: true,
-      label: (item) => `ef=${item.ef}`,
-      labelFontSize: 14,
-      withLinks: true,
-      isLinkColorMapping: true,
-      linkType: "curve",
-      linkWidth: 4,
-      linkColor: "test_no",
     },
     x: {
       key: "ef",
@@ -150,6 +135,6 @@ window.addEventListener("DOMContentLoaded", async () => {
       labelFontSize: 14,
     },
   };
-  // zillizBI({ chartType: 'scatter_plot', domSelector, data, config: config_scatterPlot });
-  zillizBI({ chartType: "bar", domSelector, data, config: config_bar });
+  ZChart({ chartType: 'scatter_plot', domSelector, data, config: config_scatterPlot });
+  // ZChart({ chartType: "bar", domSelector, data, config: config_bar });
 });

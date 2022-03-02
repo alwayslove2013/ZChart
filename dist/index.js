@@ -4346,6 +4346,13 @@
     return zoom;
   }
 
+  // js/title.js
+  var drawTitle = (titleG, config) => {
+    const { width, height, padding, title } = config;
+    titleG.append("text").attr("x", width / 2).attr("y", padding[0] / 2 + title.fontSize / 2).attr("text-anchor", "middle").attr("font-size", title.fontSize).attr("font-weight", title.fontWeight).attr("fill", title.fontColor).text(title.text);
+  };
+  var title_default = drawTitle;
+
   // js/axis.js
   var tickMap = {
     bottom: axisBottom,
@@ -4429,38 +4436,155 @@
   };
   var circle_default = drawCircles;
 
-  // js/title.js
-  var drawTitle = (titleG, config) => {
-    const { width, height, padding, title } = config;
-    titleG.append("text").attr("x", width / 2).attr("y", padding[0] / 2 + title.fontSize / 2).attr("text-anchor", "middle").attr("font-size", title.fontSize).attr("font-weight", title.fontWeight).attr("fill", title.fontColor).text(title.text);
+  // js/utils.js
+  var domainExtent = (domain) => {
+    const ext = (domain[1] - domain[0]) * 0.06;
+    return domain[0] === 0 ? [domain[0], domain[1] + ext] : [domain[0] - ext, domain[1] + ext];
   };
-  var title_default = drawTitle;
-
-  // js/index.js
   var scaleMap = {
     linear: linear2,
     log,
     bin: band
   };
-  var domainExtent = (domain) => {
-    const ext = (domain[1] - domain[0]) * 0.06;
-    return [domain[0] - ext, domain[1] + ext];
-  };
   var colors = Tableau10_default;
-  var zillizBI = ({ chartType, domSelector, data, config }) => {
-    const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
+
+  // js/scatterPlot.js
+  var drawScatterPlot = ({
+    svg,
+    xAxisG,
+    yAxisG,
+    data,
+    colorScale,
+    xScale,
+    yScale,
+    xRange,
+    yRange,
+    config
+  }) => {
+    const { groupBy, x: x2, y: y2 } = config;
+    const zoomedFuncs = [];
+    if (groupBy.isGroupBy) {
+      const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
+      const groupByKeyOrder = Array.from(groupByKeySet);
+      const datas = groupByKeyOrder.map((key) => data.filter((d) => d[groupBy.key] === key));
+      groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
+      groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
+      const xScales = [];
+      const yScales = [];
+      datas.forEach((data2, i) => {
+        if (!groupBy.sameXScale) {
+          const xDomain = domainExtent(extent(data2, (d) => d[x2.key]));
+          xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
+          xScales.push(xScale);
+        }
+        if (!groupBy.sameYScale) {
+          const yDomain = domainExtent(extent(data2, (d) => d[y2.key]));
+          yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+          yScales.push(scaleMap[y2.scaleType]().domain(yDomain).range(yRange));
+        }
+        const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
+        circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
+        zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
+          const _newXScale = groupBy.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
+          const _newYScale = groupBy.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
+          circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
+        });
+      });
+      const zoomed = ({ transform: transform2 }) => {
+        const newXScale = transform2.rescaleX(xScale);
+        const newYScale = transform2.rescaleY(yScale);
+        x2.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
+        zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
+      };
+      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+    } else {
+      xAxisG.call(xAxis, xScale, config);
+      yAxisG.call(yAxis, yScale, config);
+      const circlesG = svg.append("g").attr("id", `circles-g`);
+      circlesG.call(circle_default, data, config, xScale, yScale, colorScale);
+      const zoomed = ({ transform: transform2 }) => {
+        const newXScale = transform2.rescaleX(xScale);
+        const newYScale = transform2.rescaleY(yScale);
+        x2.zoom && xAxisG.call(xAxis, newXScale, config);
+        y2.zoom && yAxisG.call(yAxis, newYScale, config);
+        circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale, colorScale);
+      };
+      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+      (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+    }
+  };
+  var scatterPlot_default = drawScatterPlot;
+
+  // js/barChart.js
+  var drawBarChart = ({
+    svg,
+    xAxisG,
+    yAxisG,
+    data,
+    xScale,
+    yScale,
+    colorScale,
+    config
+  }) => {
+    xScale.paddingInner(0.3).paddingOuter(0.5);
+    xAxisG.call(xAxis, xScale, config);
+    yAxisG.call(yAxis, yScale, config);
+    const { bar, groupBy, x: x2, y: y2, tooltip } = config;
     const {
-      width,
-      height,
-      background,
-      border,
-      padding,
-      x: x2,
-      y: y2,
-      groupBy = {},
-      bar = {},
-      tooltip
+      isColorMapping = false,
+      color: color2 = "#888",
+      withLabels,
+      label,
+      labelFontSize
+    } = bar;
+    const colorMap = isColorMapping ? colorScale : () => color2;
+    const barsG = svg.append("g").attr("id", "bars-g");
+    const barG = barsG.selectAll("g").data(data).join("g");
+    if (groupBy.isGroupBy) {
+      const groupByKeyOrder = Array.from(new Set(data.map((d) => d[groupBy.key])));
+      const innerPadding = 0.1;
+      const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
+      const innerBarWidth = innerBarStep * (1 - innerPadding);
+      const innerBias = (d) => (groupByKeyOrder.indexOf(d[groupBy.key]) + innerPadding) * innerBarStep;
+      barG.append("rect").attr("x", (d) => xScale(d[x2.key]) + innerBias(d)).attr("y", (d) => yScale(d[y2.key])).attr("width", innerBarWidth).attr("height", (d) => yScale(0) - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
+      withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + innerBarWidth / 2 + innerBias(d)).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
+    } else {
+      barG.append("rect").attr("x", (d) => xScale(d[x2.key])).attr("y", (d) => yScale(d[y2.key])).attr("width", xScale.bandwidth()).attr("height", (d) => yScale(0) - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
+      withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + xScale.bandwidth() / 2).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
+    }
+    if (tooltip.hasTooltip) {
+      const tooltipG = barsG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
+      barG.style("cursor", "pointer").on("mousemove", (e, d) => {
+        tooltipG.attr("opacity", 1);
+        const { layerX: __x, layerY: __y } = e;
+        tooltipG.attr("transform", `translate(${__x},${__y})`);
+        const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
+        const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
+        const { y: _y, width: w, height: h } = text.node().getBBox();
+        text.attr("transform", `translate(${-w / 2},${15 - _y})`);
+        path2.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+      });
+      barG.on("mouseout", () => {
+        tooltipG.attr("opacity", 0);
+      });
+    }
+  };
+  var barChart_default = drawBarChart;
+
+  // js/index.js
+  var ZChart = ({ chartType, domSelector, data, config }) => {
+    const {
+      width = 800,
+      height = 600,
+      background = null,
+      border = null,
+      padding = [50, 25, 35, 35],
+      x: x2 = {},
+      y: y2 = {}
     } = config;
+    const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
@@ -4468,112 +4592,39 @@
     const xDomain = x2.scaleType === "bin" ? data.map((d) => d[x2.key]) : domainExtent(extent(data, (d) => d[x2.key]));
     const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
     let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
-    const xAxisG = svg.append("g").attr("id", "x-axis-g");
-    const yDomain = y2.fromZero ? [0, max(data, (d) => d[y2.key])] : domainExtent(extent(data, (d) => d[y2.key]));
+    const yDomain = y2.fromZero ? domainExtent([0, max(data, (d) => d[y2.key])]) : domainExtent(extent(data, (d) => d[y2.key]));
     const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
     let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
+    const xAxisG = svg.append("g").attr("id", "x-axis-g");
     const yAxisG = svg.append("g").attr("id", "y-axis-g");
     if (chartType === "scatter_plot") {
-      const zoomedFuncs = [];
-      if (groupBy.isGroupBy) {
-        const groupByKeySet = new Set(data.map((d) => d[groupBy.key]));
-        const groupByKeyOrder = Array.from(groupByKeySet);
-        const datas = groupByKeyOrder.map((key) => data.filter((d) => d[groupBy.key] === key));
-        groupBy.sameXScale && xAxisG.call(xAxis, xScale, config);
-        groupBy.sameYScale && yAxisG.call(yAxis, yScale, config);
-        const xScales = [];
-        const yScales = [];
-        datas.forEach((data2, i) => {
-          if (!groupBy.sameXScale) {
-            const xDomain2 = domainExtent(extent(data2, (d) => d[x2.key]));
-            xScale = scaleMap[x2.scaleType]().domain(xDomain2).range(xRange);
-            xScales.push(xScale);
-          }
-          if (!groupBy.sameYScale) {
-            const yDomain2 = domainExtent(extent(data2, (d) => d[y2.key]));
-            yScale = scaleMap[y2.scaleType]().domain(yDomain2).range(yRange);
-            yScales.push(scaleMap[y2.scaleType]().domain(yDomain2).range(yRange));
-          }
-          const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
-          circlesG.call(circle_default, data2, config, xScale, yScale, colorScale);
-          zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
-            const _newXScale = groupBy.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
-            const _newYScale = groupBy.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
-            circlesG.call(circle_default, data2, config, x2.zoom ? _newXScale : xScales[i] || xScale, y2.zoom ? _newYScale : yScales[i] || yScale, colorScale);
-          });
-        });
-        const zoomed = ({ transform: transform2 }) => {
-          const newXScale = transform2.rescaleX(xScale);
-          const newYScale = transform2.rescaleY(yScale);
-          x2.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
-          y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
-          zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
-        };
-        const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
-        (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
-      } else {
-        xAxisG.call(xAxis, xScale, config);
-        yAxisG.call(yAxis, yScale, config);
-        const circlesG = svg.append("g").attr("id", `circles-g`);
-        circlesG.call(circle_default, data, config, xScale, yScale, colorScale);
-        const zoomed = ({ transform: transform2 }) => {
-          const newXScale = transform2.rescaleX(xScale);
-          const newYScale = transform2.rescaleY(yScale);
-          x2.zoom && xAxisG.call(xAxis, newXScale, config);
-          y2.zoom && yAxisG.call(yAxis, newYScale, config);
-          circlesG.call(circle_default, data, config, x2.zoom ? newXScale : xScale, y2.zoom ? newYScale : yScale, colorScale);
-        };
-        const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
-        (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
-      }
+      scatterPlot_default({
+        svg,
+        xAxisG,
+        yAxisG,
+        data,
+        xScale,
+        yScale,
+        colorScale,
+        xRange,
+        yRange,
+        config
+      });
     }
     if (chartType === "bar") {
-      xScale.paddingInner(0.3).paddingOuter(0.5);
-      xAxisG.call(xAxis, xScale, config);
-      yAxisG.call(yAxis, yScale, config);
-      const {
-        isColorMapping = false,
-        color: color2 = "#888",
-        withLabels,
-        label,
-        labelFontSize
-      } = bar;
-      const colorMap = isColorMapping ? colorScale : () => color2;
-      const barsG = svg.append("g").attr("id", "bars-g");
-      const barG = barsG.selectAll("g").data(data).join("g");
-      if (groupBy.isGroupBy) {
-        const groupByKeyOrder = Array.from(new Set(data.map((d) => d[groupBy.key])));
-        const innerPadding = 0.1;
-        const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
-        const innerBarWidth = innerBarStep * (1 - innerPadding);
-        const innerBias = (d) => (groupByKeyOrder.indexOf(d[groupBy.key]) + innerPadding) * innerBarStep;
-        barG.append("rect").attr("x", (d) => xScale(d[x2.key]) + innerBias(d)).attr("y", (d) => yScale(d[y2.key])).attr("width", innerBarWidth).attr("height", (d) => height - padding[2] - y2.inset - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
-        withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + innerBarWidth / 2 + innerBias(d)).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
-      } else {
-        barG.append("rect").attr("x", (d) => xScale(d[x2.key])).attr("y", (d) => yScale(d[y2.key])).attr("width", xScale.bandwidth()).attr("height", (d) => height - padding[2] - y2.inset - yScale(d[y2.key])).attr("fill", (d) => colorMap(d[color2]));
-        withLabels && barG.append("text").attr("x", (d) => xScale(d[x2.key]) + xScale.bandwidth() / 2).attr("y", (d) => yScale(d[y2.key]) - 5).attr("text-anchor", "middle").text((d) => label(d)).attr("font-size", labelFontSize).attr("fill", (d) => colorMap(d[color2]));
-      }
-      if (tooltip.hasTooltip) {
-        const tooltipG = barsG.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
-        barG.style("cursor", "pointer").on("mousemove", (e, d) => {
-          tooltipG.attr("opacity", 1);
-          const { layerX: __x, layerY: __y } = e;
-          console.log(__x, __y);
-          tooltipG.attr("transform", `translate(${__x},${__y})`);
-          const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
-          const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
-          const { y: _y, width: w, height: h } = text.node().getBBox();
-          console.log(_y);
-          text.attr("transform", `translate(${-w / 2},${15 - _y})`);
-          path2.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
-        });
-        barG.on("mouseout", (e, d) => {
-          tooltipG.attr("opacity", 0);
-        });
-      }
+      barChart_default({
+        svg,
+        xAxisG,
+        yAxisG,
+        data,
+        xScale,
+        yScale,
+        colorScale,
+        config
+      });
     }
   };
-  var js_default = zillizBI;
+  var js_default = ZChart;
 
   // index.js
   window.addEventListener("DOMContentLoaded", async () => {
@@ -4604,7 +4655,7 @@
         strokeColor: "#fff",
         strokeWidth: 1,
         isCircleColorMapping: true,
-        circleColor: "ef",
+        circleColor: "test_no",
         withLabels: true,
         label: (item) => `ef=${item.ef}`,
         labelFontSize: 14,
@@ -4642,7 +4693,7 @@
         fromZero: true
       },
       groupBy: {
-        isGroupBy: false,
+        isGroupBy: true,
         key: "test_no",
         sameXScale: false,
         sameYScale: true
@@ -4665,21 +4716,6 @@
         fontSize: 24,
         fontWeight: 600,
         fontColor: "#222"
-      },
-      circle: {
-        r: 5,
-        strokeColor: "#fff",
-        strokeWidth: 1,
-        isCircleColorMapping: true,
-        circleColor: "ef",
-        withLabels: true,
-        label: (item) => `ef=${item.ef}`,
-        labelFontSize: 14,
-        withLinks: true,
-        isLinkColorMapping: true,
-        linkType: "curve",
-        linkWidth: 4,
-        linkColor: "test_no"
       },
       x: {
         key: "ef",
@@ -4722,6 +4758,6 @@
         labelFontSize: 14
       }
     };
-    js_default({ chartType: "bar", domSelector, data, config: config_bar });
+    js_default({ chartType: "scatter_plot", domSelector, data, config: config_scatterPlot });
   });
 })();
