@@ -69,7 +69,7 @@
     "labelWeight": 600,
     "labelColor": "#444",
     "inset": 6,
-    "zoom": false,
+    "zoom": true,
     "fromZero": true
   },
   "groupBy": {

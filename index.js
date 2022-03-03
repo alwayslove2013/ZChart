@@ -152,7 +152,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     config: Recall_RT_sift_ivf_sq8_c,
   });
 
-  // Recall & RT - sift-ivf_sq8
+  // Recall & RT - glove_ivf_flat
   csvFile = "./data/Recall_RT_glove_ivf_flat.csv";
   let Recall_RT_glove_ivf_flat = await d3.csv(csvFile);
   configFile = "./config_json/Recall_RT_glove_ivf_flat_c.json";
@@ -163,4 +163,29 @@ window.addEventListener("DOMContentLoaded", async () => {
     data: Recall_RT_glove_ivf_flat,
     config: Recall_RT_glove_ivf_flat_c,
   });
+
+  // Recall & RT - sift
+  csvFile = "./data/Recall_RT_sift.csv";
+  let Recall_RT_sift = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_sift.json";
+  const Recall_RT_sift_c = await fetch(configFile).then((res) => res.json());
+  ZChart({
+    chartType: "scatter_plot",
+    domSelector: "#Recall_RT_sift",
+    data: Recall_RT_sift,
+    config: Recall_RT_sift_c,
+  });
+
+  // Recall & RT - ivf_flat
+  csvFile = "./data/Recall_RT_ivf_flat.csv";
+  let Recall_RT_ivf_flat = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_ivf_flat.json";
+  const Recall_RT_ivf_flat_c = await fetch(configFile).then((res) => res.json());
+  ZChart({
+    chartType: "scatter_plot",
+    domSelector: "#Recall_RT_ivf_flat",
+    data: Recall_RT_ivf_flat,
+    config: Recall_RT_ivf_flat_c,
+  });
+
 });
