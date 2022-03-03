@@ -31,7 +31,7 @@
     "circleColor": "name",
     "withLabels": true,
     "label": "(item) => `${item.name}=${item.value}`",
-    "labelFontSize": 14,
+    "labelFontSize": 10,
     "withLinks": true,
     "isLinkColorMapping": true,
     "linkType": "curve",
@@ -62,7 +62,7 @@
     "labelWeight": 600,
     "labelColor": "#444",
     "inset": 6,
-    "zoom": false,
+    "zoom": true,
     "fromZero": true
   },
   "groupBy": {
@@ -72,7 +72,7 @@
     "sameYScale": true,
     "legendHeight": 30,
     "legendIconWidth": 40,
-    "legendFontSize": 16,
-    "legendLabel": "name => name"
+    "legendFontSize": 10,
+    "legendLabel": "(name, i) => `${name}${i==1 ? `(TP99) / ms`:''}`"
   }
 }

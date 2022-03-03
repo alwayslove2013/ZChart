@@ -19,6 +19,14 @@
     "fontWeight": 500,
     "fontColor": "#666"
   },
+  "dataProcessing": {
+    "needSort": false,
+    "sort": "indexNodes",
+    "sortReverse": false,
+    "needFixed": true,
+    "fixedKey": "RT",
+    "fixedNum": 2
+  },
   "title": {
     "text": "nq & RT - 50m - 4queryNodes",
     "fontSize": 24,
@@ -33,7 +41,7 @@
     "circleColor": "topk",
     "withLabels": true,
     "label": "(item) => `${item.RT}`",
-    "labelFontSize": 14,
+    "labelFontSize": 10,
     "withLinks": true,
     "isLinkColorMapping": true,
     "linkType": "curve",

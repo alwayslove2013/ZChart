@@ -5,27 +5,22 @@
   "padding": [
     60,
     140,
-    60,
-    60
+    50,
+    90
   ],
-  "dataProcessing": {
-    "needFixed": true,
-    "fixedKey": "RT",
-    "fixedNum": 2
-  },
   "tooltip": {
     "hasTooltip": true,
     "content": [
-      "RT",
       "Recall",
-      "nprobe"
+      "RT",
+      "index_type"
     ],
     "fontSize": 16,
     "fontWeight": 500,
     "fontColor": "#666"
   },
   "title": {
-    "text": "Recall & RT - sift - ivf_sq8",
+    "text": "Recall & RT - sift",
     "fontSize": 24,
     "fontWeight": 600,
     "fontColor": "#222"
@@ -35,15 +30,15 @@
     "strokeColor": "#fff",
     "strokeWidth": 1,
     "isCircleColorMapping": true,
-    "circleColor": "nprobe",
+    "circleColor": "index_type",
     "withLabels": true,
-    "label": "(item) => `nprobe=${item.nprobe}`",
-    "labelFontSize": 12,
+    "label": "(item) => `${item.valueType}=${item.value}`",
+    "labelFontSize": 10,
     "withLinks": true,
     "isLinkColorMapping": true,
     "linkType": "curve",
     "linkWidth": 2,
-    "linkColor": "nprobe"
+    "linkColor": "index_type"
   },
   "x": {
     "key": "Recall",
@@ -73,9 +68,13 @@
     "fromZero": true
   },
   "groupBy": {
-    "isGroupBy": false,
-    "key": "ivf_sq8",
+    "isGroupBy": true,
+    "key": "index_type",
     "sameXScale": true,
-    "sameYScale": true
+    "sameYScale": true,
+    "legendHeight": 30,
+    "legendIconWidth": 40,
+    "legendFontSize": 12,
+    "legendLabel": "index_type => index_type"
   }
 }

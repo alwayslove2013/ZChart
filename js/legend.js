@@ -51,7 +51,7 @@ const drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
     .attr("y", legendHeight / 2 + legendFontSize * 0.35)
     .attr("font-size", legendFontSize)
     .attr("fill", (d) => colorScale(d))
-    .text((d) => legendLabel(d));
+    .text(legendLabel);
 };
 
 export default drawLegend;

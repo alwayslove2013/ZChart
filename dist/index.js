@@ -4802,7 +4802,7 @@
       legendG.append("rect").attr("x", 0).attr("y", legendHeight * 0.25).attr("width", legendIconWidth).attr("height", legendHeight * 0.5).attr("fill", (d) => colorScale(d));
     }
     const legendLabel = eval(_legendLabel);
-    legendG.append("text").attr("x", legendIconWidth + 6).attr("y", legendHeight / 2 + legendFontSize * 0.35).attr("font-size", legendFontSize).attr("fill", (d) => colorScale(d)).text((d) => legendLabel(d));
+    legendG.append("text").attr("x", legendIconWidth + 6).attr("y", legendHeight / 2 + legendFontSize * 0.35).attr("font-size", legendFontSize).attr("fill", (d) => colorScale(d)).text(legendLabel);
   };
   var legend_default = drawLegend;
 
@@ -5065,6 +5065,26 @@
       domSelector: "#Recall_RT_glove_ivf_flat",
       data: Recall_RT_glove_ivf_flat,
       config: Recall_RT_glove_ivf_flat_c
+    });
+    csvFile = "./data/Recall_RT_sift.csv";
+    let Recall_RT_sift = await csv2(csvFile);
+    configFile = "./config_json/Recall_RT_sift.json";
+    const Recall_RT_sift_c = await fetch(configFile).then((res) => res.json());
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_sift",
+      data: Recall_RT_sift,
+      config: Recall_RT_sift_c
+    });
+    csvFile = "./data/Recall_RT_ivf_flat.csv";
+    let Recall_RT_ivf_flat = await csv2(csvFile);
+    configFile = "./config_json/Recall_RT_ivf_flat.json";
+    const Recall_RT_ivf_flat_c = await fetch(configFile).then((res) => res.json());
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_ivf_flat",
+      data: Recall_RT_ivf_flat,
+      config: Recall_RT_ivf_flat_c
     });
   });
 })();

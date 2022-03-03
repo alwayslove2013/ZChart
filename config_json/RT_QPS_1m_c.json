@@ -33,7 +33,7 @@
     "circleColor": "deploy_mode",
     "withLabels": true,
     "label": "(item) => `${item.QPS}`",
-    "labelFontSize": 14,
+    "labelFontSize": 10,
     "withLinks": true,
     "isLinkColorMapping": true,
     "linkType": "curve",
@@ -64,7 +64,7 @@
     "labelWeight": 600,
     "labelColor": "#444",
     "inset": 6,
-    "zoom": false,
+    "zoom": true,
     "fromZero": true
   },
   "groupBy": {

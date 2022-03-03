@@ -38,7 +38,7 @@
     "circleColor": "topk",
     "withLabels": true,
     "label": "(item) => `${item.vps}`",
-    "labelFontSize": 14,
+    "labelFontSize": 10,
     "withLinks": true,
     "isLinkColorMapping": true,
     "linkType": "curve",
