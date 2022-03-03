@@ -4613,6 +4613,7 @@
   };
   var drawCircles = (circlesG, data, config, xScale, yScale, colorScale, showTooltip, closeTooltip, clip) => {
     circlesG.selectAll("*").remove();
+    circlesG.attr("clip-path", clip);
     const { circle, x, y } = config;
     const positions = data.map((item) => [
       xScale(item[x.key]),
@@ -4627,7 +4628,7 @@
     } = circle;
     if (withLinks) {
       const link = line_default().curve(linkMap[linkType]).x((d) => d[0]).y((d) => d[1]);
-      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor).attr("stroke-width", linkWidth).attr("d", link(positions)).attr("clip-path", clip);
+      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor).attr("stroke-width", linkWidth).attr("d", link(positions));
     }
     const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g");
     const {
@@ -4638,7 +4639,7 @@
       isCircleColorMapping = false
     } = circle;
     const circleColorMap = isCircleColorMapping ? colorScale : () => circleColor;
-    circleG.append("circle").attr("fill", (item) => circleColorMap(item[circleColor])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth).attr("cx", (_, i) => positions[i][0]).attr("cy", (_, i) => positions[i][1]).attr("clip-path", clip);
+    circleG.append("circle").attr("fill", (item) => circleColorMap(item[circleColor])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth).attr("cx", (_, i) => positions[i][0]).attr("cy", (_, i) => positions[i][1]);
     const {
       withLabels = false,
       label: _label = "()=>{}",
@@ -4646,7 +4647,7 @@
     } = circle;
     const label = eval(_label);
     if (withLabels) {
-      circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("x", (_, i) => positions[i][0]).attr("y", (_, i) => positions[i][1] - r - 4).attr("clip-path", clip);
+      circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("x", (_, i) => positions[i][0]).attr("y", (_, i) => positions[i][1] - r - 4);
     }
     circleG.style("cursor", "pointer").on("mousemove", showTooltip);
     circleG.on("mouseout", closeTooltip);
