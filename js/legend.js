@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-const drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
+const drawLegend = ({ chartType, legendsG, data, colorScale, config, svg }) => {
   const { groupBy, circle } = config;
   const {
     legendHeight = 30,
@@ -14,7 +14,7 @@ const drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
     .selectAll("g")
     .data(groupByKeyList)
     .join("g")
-    .attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
+    .attr("transform", (_, i) => `translate(0,${i * legendHeight})`);
   if (chartType === "scatter_plot") {
     if (circle.withLinks) {
       legendG
@@ -52,6 +52,14 @@ const drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
     .attr("font-size", legendFontSize)
     .attr("fill", (d) => colorScale(d))
     .text((d) => legendLabel(d));
+
+  legendG.style("cursor", "pointer").on("click", function (_, d) {
+    const items = svg.selectAll(`.group-${d}`);
+    const legend = d3.select(this);
+    const status = legend.classed("zchart-legend-hide");
+    items.classed("zchart-items-hide", !status);
+    legend.classed("zchart-legend-hide", !status);
+  });
 };
 
 export default drawLegend;

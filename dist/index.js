@@ -1313,9 +1313,9 @@
     if (node === void 0)
       node = event.currentTarget;
     if (node) {
-      var svg = node.ownerSVGElement || node;
-      if (svg.createSVGPoint) {
-        var point4 = svg.createSVGPoint();
+      var svg2 = node.ownerSVGElement || node;
+      if (svg2.createSVGPoint) {
+        var point4 = svg2.createSVGPoint();
         point4.x = event.clientX, point4.y = event.clientY;
         point4 = point4.matrixTransform(node.getScreenCTM().inverse());
         return [point4.x, point4.y];
@@ -4668,7 +4668,7 @@
 
   // js/scatterPlot.js
   var drawScatterPlot = ({
-    svg,
+    svg: svg2,
     circlesPlotG,
     xAxisG: xAxisG2,
     yAxisG: yAxisG2,
@@ -4704,7 +4704,7 @@
           yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
           yScales.push(scaleMap[y3.scaleType]().domain(yDomain).range(yRange));
         }
-        const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g-${i}`);
+        const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g-${i}`).classed(`group-${groupByKeyOrder[i]}`, true);
         zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
           const _newXScale = groupBy2.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
           const _newYScale = groupBy2.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
@@ -4719,7 +4719,7 @@
         zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
       };
       const zoom = zoom_default2().scaleExtent([0.5, 1024]).on("zoom", zoomed);
-      (x3.zoom || y3.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      (x3.zoom || y3.zoom) && svg2.call(zoom).call(zoom.transform, identity3);
     } else {
       xAxisG2.call(xAxis, xScale2, config2);
       yAxisG2.call(yAxis, yScale2, config2);
@@ -4732,7 +4732,7 @@
         circlesG2.call(circle_default, data2, config2, x3.zoom ? newXScale : xScale2, y3.zoom ? newYScale : yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
-      (x3.zoom || y3.zoom) && svg.call(zoom).call(zoom.transform, identity3);
+      (x3.zoom || y3.zoom) && svg2.call(zoom).call(zoom.transform, identity3);
     }
   };
   var scatterPlot_default = drawScatterPlot;
@@ -4753,7 +4753,7 @@
     xScale.paddingInner(0.3).paddingOuter(0.5);
     xAxisG.call(xAxis, xScale, config);
     yAxisG.call(yAxis, yScale, config);
-    const { bar, groupBy, x, y, tooltip } = config;
+    const { bar, groupBy, x, y } = config;
     const {
       isColorMapping = false,
       color = "#888",
@@ -4766,6 +4766,9 @@
     const barG = barsG.selectAll("g").data(data).join("g");
     if (groupBy.isGroupBy) {
       const groupByKeyOrder = Array.from(new Set(data.map((d) => d[groupBy.key])));
+      barG.each(function(d) {
+        select_default2(this).classed(`group-${d[groupBy.key]}`, true);
+      });
       const innerPadding = 0.1;
       const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
       const innerBarWidth = innerBarStep * (1 - innerPadding);
@@ -4782,7 +4785,7 @@
   var barChart_default = drawBarChart;
 
   // js/legend.js
-  var drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
+  var drawLegend = ({ chartType, legendsG, data, colorScale, config, svg }) => {
     const { groupBy, circle } = config;
     const {
       legendHeight = 30,
@@ -4791,7 +4794,7 @@
       legendLabel: _legendLabel = "(v)=>v"
     } = groupBy;
     const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
-    const legendG = legendsG.selectAll("g").data(groupByKeyList).join("g").attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
+    const legendG = legendsG.selectAll("g").data(groupByKeyList).join("g").attr("transform", (_, i) => `translate(0,${i * legendHeight})`);
     if (chartType === "scatter_plot") {
       if (circle.withLinks) {
         legendG.append("path").attr("d", `M0,${legendHeight / 2}h${legendIconWidth}`).attr("fill", "none").attr("stroke", (d) => colorScale(d)).attr("stroke-width", circle.linkWidth).attr("stroke-linecap", "round");
@@ -4803,22 +4806,29 @@
     }
     const legendLabel = eval(_legendLabel);
     legendG.append("text").attr("x", legendIconWidth + 6).attr("y", legendHeight / 2 + legendFontSize * 0.35).attr("font-size", legendFontSize).attr("fill", (d) => colorScale(d)).text((d) => legendLabel(d));
+    legendG.style("cursor", "pointer").on("click", function(_, d) {
+      const items = svg.selectAll(`.group-${d}`);
+      const legend = select_default2(this);
+      const status = legend.classed("zchart-legend-hide");
+      items.classed("zchart-items-hide", !status);
+      legend.classed("zchart-legend-hide", !status);
+    });
   };
   var legend_default = drawLegend;
 
   // js/tooltip.js
   var drawTooltip = ({ tooltipG, config: config2 }) => {
-    const { height, tooltip: tooltip2 } = config2;
+    const { height, tooltip } = config2;
     let showTooltip2 = () => {
     };
     let closeTooltip2 = () => {
     };
-    if (tooltip2.hasTooltip) {
+    if (tooltip.hasTooltip) {
       showTooltip2 = (e, d) => {
         tooltipG.attr("opacity", 1);
         const { layerX: __x, layerY: __y } = e;
         const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
-        const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip2.fontSize).attr("font-weight", tooltip2.fontWeight).attr("fill", tooltip2.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip2.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
+        const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
         const { y: _y, width: w, height: h } = text.node().getBBox();
         let tooltipX = __x;
         let tooltipY = __y;
@@ -4865,8 +4875,8 @@
         d[fixedKey] = (+d[fixedKey]).toFixed(fixedNum);
       });
     }
-    const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
-    svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
+    const svg2 = select_default2(domSelector).append("svg").attr("id", "chart-svg");
+    svg2.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const colorScale2 = ordinal().range(colors);
     const xDomain = x3.scaleType === "bin" ? data2.map((d) => d[x3.key]) : domainExtent(extent(data2, (d) => +d[x3.key]));
     const xRange = [padding[3] + x3.inset, width - padding[1] - x3.inset];
@@ -4876,15 +4886,15 @@
     let yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
     const clipId = "chart-clip";
     const clip2 = `url(#${clipId})`;
-    svg.append("defs").append("clipPath").attr("id", clipId).append("rect").attr("x", padding[3]).attr("y", padding[0]).attr("width", width - padding[1] - padding[3]).attr("height", height - padding[0] - padding[2] - y3.inset);
-    const titleG = svg.append("g").attr("id", "title-g");
+    svg2.append("defs").append("clipPath").attr("id", clipId).append("rect").attr("x", padding[3]).attr("y", padding[0]).attr("width", width - padding[1] - padding[3]).attr("height", height - padding[0] - padding[2] - y3.inset);
+    const titleG = svg2.append("g").attr("id", "title-g");
     titleG.call(title_default, config2);
-    const xAxisG2 = svg.append("g").attr("id", "x-axis-g");
-    const yAxisG2 = svg.append("g").attr("id", "y-axis-g");
-    const circlesPlotG = svg.append("g").attr("id", "circles-plot-g");
-    const barsG2 = svg.append("g").attr("id", "bars-g");
-    const legendsG2 = svg.append("g").attr("id", "legends-g");
-    const tooltipG = svg.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
+    const xAxisG2 = svg2.append("g").attr("id", "x-axis-g");
+    const yAxisG2 = svg2.append("g").attr("id", "y-axis-g");
+    const circlesPlotG = svg2.append("g").attr("id", "circles-plot-g");
+    const barsG2 = svg2.append("g").attr("id", "bars-g");
+    const legendsG2 = svg2.append("g").attr("id", "legends-g");
+    const tooltipG = svg2.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
     const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({
       tooltipG,
       config: config2,
@@ -4892,7 +4902,7 @@
     });
     if (chartType2 === "scatter_plot") {
       scatterPlot_default({
-        svg,
+        svg: svg2,
         circlesPlotG,
         xAxisG: xAxisG2,
         yAxisG: yAxisG2,
@@ -4925,7 +4935,7 @@
     }
     legendsG2.attr("transform", `translate(${width - padding[1] * 0.85},${padding[0]})`);
     if (groupBy2.isGroupBy) {
-      legend_default({ chartType: chartType2, legendsG: legendsG2, data: data2, colorScale: colorScale2, config: config2 });
+      legend_default({ chartType: chartType2, legendsG: legendsG2, data: data2, colorScale: colorScale2, config: config2, svg: svg2 });
     }
   };
   var js_default = ZChart;

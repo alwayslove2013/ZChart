@@ -1,4 +1,5 @@
 import { xAxis, yAxis } from "./axis.js";
+import * as d3 from "d3";
 
 const drawBarChart = ({
   barsG,
@@ -16,7 +17,7 @@ const drawBarChart = ({
   xAxisG.call(xAxis, xScale, config);
   yAxisG.call(yAxis, yScale, config);
 
-  const { bar, groupBy, x, y, tooltip } = config;
+  const { bar, groupBy, x, y } = config;
 
   const {
     isColorMapping = false,
@@ -34,6 +35,11 @@ const drawBarChart = ({
     const groupByKeyOrder = Array.from(
       new Set(data.map((d) => d[groupBy.key]))
     );
+
+    barG.each(function (d) {
+      d3.select(this).classed(`group-${d[groupBy.key]}`, true);
+    });
+
     const innerPadding = 0.1;
     const innerBarStep = xScale.bandwidth() / groupByKeyOrder.length;
     const innerBarWidth = innerBarStep * (1 - innerPadding);

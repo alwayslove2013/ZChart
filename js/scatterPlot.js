@@ -44,7 +44,10 @@ const drawScatterPlot = ({
         yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
         yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
       }
-      const circlesG = circlesPlotG.append("g").attr("id", `circles-g-${i}`);
+      const circlesG = circlesPlotG
+        .append("g")
+        .attr("id", `circles-g-${i}`)
+        .classed(`group-${groupByKeyOrder[i]}`, true);
 
       zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
         const _newXScale = groupBy.sameXScale

@@ -134,7 +134,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     `translate(${width - padding[1] * 0.85},${padding[0]})`
   );
   if (groupBy.isGroupBy) {
-    drawLegend({ chartType, legendsG, data, colorScale, config });
+    drawLegend({ chartType, legendsG, data, colorScale, config, svg });
   }
 };
 
