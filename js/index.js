@@ -35,13 +35,13 @@ const ZChart = ({ chartType, domSelector, data, config }) => {
   const xDomain =
     x.scaleType === "bin"
       ? data.map((d) => d[x.key])
-      : domainExtent(d3.extent(data, (d) => d[x.key]));
+      : domainExtent(d3.extent(data, (d) => +d[x.key]));
   const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
   let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
 
   const yDomain = y.fromZero
-    ? domainExtent([0, d3.max(data, (d) => d[y.key])])
-    : domainExtent(d3.extent(data, (d) => d[y.key]));
+    ? domainExtent([0, d3.max(data, (d) => +d[y.key])])
+    : domainExtent(d3.extent(data, (d) => +d[y.key]));
   const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
   let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
 

@@ -70,7 +70,7 @@ const drawScatterPlot = ({
         zoomedFunc({ transform, newXScale, newYScale })
       );
     };
-    const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);
+    const zoom = d3.zoom().scaleExtent([0.5, 1024]).on("zoom", zoomed);
     (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
   } else {
     xAxisG.call(xAxis, xScale, config);

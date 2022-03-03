@@ -1,0 +1,11 @@
+﻿queryNodes,value,name
+2,22.5,QPS
+4,47.1,QPS
+6,74.1,QPS
+8,91.3,QPS
+10,92.3,QPS
+2,886,RT
+4,422,RT
+6,268,RT
+8,217,RT
+10,216,RT

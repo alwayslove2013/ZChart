@@ -143,6 +143,52 @@
     return value !== null && typeof value === "object" ? value.valueOf() : value;
   }
 
+  // node_modules/d3-array/src/permute.js
+  function permute(source, keys) {
+    return Array.from(keys, (key) => source[key]);
+  }
+
+  // node_modules/d3-array/src/sort.js
+  function sort(values, ...F) {
+    if (typeof values[Symbol.iterator] !== "function")
+      throw new TypeError("values is not iterable");
+    values = Array.from(values);
+    let [f] = F;
+    if (f && f.length !== 2 || F.length > 1) {
+      const index = Uint32Array.from(values, (d, i) => i);
+      if (F.length > 1) {
+        F = F.map((f2) => values.map(f2));
+        index.sort((i, j) => {
+          for (const f2 of F) {
+            const c = ascendingDefined(f2[i], f2[j]);
+            if (c)
+              return c;
+          }
+        });
+      } else {
+        f = values.map(f);
+        index.sort((i, j) => ascendingDefined(f[i], f[j]));
+      }
+      return permute(values, index);
+    }
+    return values.sort(compareDefined(f));
+  }
+  function compareDefined(compare = ascending) {
+    if (compare === ascending)
+      return ascendingDefined;
+    if (typeof compare !== "function")
+      throw new TypeError("compare is not a function");
+    return (a, b) => {
+      const x2 = compare(a, b);
+      if (x2 || x2 === 0)
+        return x2;
+      return (compare(b, b) === 0) - (compare(a, a) === 0);
+    };
+  }
+  function ascendingDefined(a, b) {
+    return (a == null || !(a >= a)) - (b == null || !(b >= b)) || (a < b ? -1 : a > b ? 1 : 0);
+  }
+
   // node_modules/d3-array/src/ticks.js
   var e10 = Math.sqrt(50);
   var e5 = Math.sqrt(10);
@@ -4676,7 +4722,7 @@
         y2.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
         zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
       };
-      const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
+      const zoom = zoom_default2().scaleExtent([0.5, 1024]).on("zoom", zoomed);
       (x2.zoom || y2.zoom) && svg.call(zoom).call(zoom.transform, identity3);
     } else {
       xAxisG.call(xAxis, xScale, config);
@@ -4770,10 +4816,10 @@
     const titleG = svg.append("g").attr("id", "title-g");
     titleG.call(title_default, config);
     const colorScale = ordinal().range(colors);
-    const xDomain = x2.scaleType === "bin" ? data.map((d) => d[x2.key]) : domainExtent(extent(data, (d) => d[x2.key]));
+    const xDomain = x2.scaleType === "bin" ? data.map((d) => d[x2.key]) : domainExtent(extent(data, (d) => +d[x2.key]));
     const xRange = [padding[3] + x2.inset, width - padding[1] - x2.inset];
     let xScale = scaleMap[x2.scaleType]().domain(xDomain).range(xRange);
-    const yDomain = y2.fromZero ? domainExtent([0, max(data, (d) => d[y2.key])]) : domainExtent(extent(data, (d) => d[y2.key]));
+    const yDomain = y2.fromZero ? domainExtent([0, max(data, (d) => +d[y2.key])]) : domainExtent(extent(data, (d) => +d[y2.key]));
     const yRange = [height - padding[2] - y2.inset, padding[0] + y2.inset];
     let yScale = scaleMap[y2.scaleType]().domain(yDomain).range(yRange);
     const xAxisG = svg.append("g").attr("id", "x-axis-g");
@@ -4823,109 +4869,47 @@
   };
   var js_default = ZChart;
 
-  // barChartConfig.js
-  var barChartConfig = {
-    width: 1e3,
-    height: 400,
-    border: "1px solid #999",
-    padding: [60, 140, 50, 65],
-    tooltip: {
-      hasTooltip: true,
-      content: ["test_no", "acc", "search_rps", "ef"],
-      fontSize: 16,
-      fontWeight: 500,
-      fontColor: "#43a2ca"
-    },
-    title: {
-      text: "Recall - Latency",
-      fontSize: 24,
-      fontWeight: 600,
-      fontColor: "#222"
-    },
-    x: {
-      key: "ef",
-      scaleType: "bin",
-      tickType: "bottom",
-      tickFontSize: 14,
-      tickColor: "#666",
-      label: "Recall Rate",
-      labelFontSize: 16,
-      labelWeight: 600,
-      labelColor: "#444",
-      inset: 8,
-      zoom: true
-    },
-    y: {
-      key: "search_rps",
-      scaleType: "linear",
-      tickType: "left",
-      tickFontSize: 14,
-      tickColor: "#666",
-      label: "Latency / s",
-      labelFontSize: 16,
-      labelWeight: 600,
-      labelColor: "#444",
-      inset: 6,
-      zoom: false,
-      fromZero: true
-    },
-    groupBy: {
-      isGroupBy: true,
-      key: "test_no",
-      sameXScale: false,
-      sameYScale: true
-    },
-    bar: {
-      isColorMapping: true,
-      color: "test_no",
-      withLabels: true,
-      label: (item) => `ef=${item.ef}`,
-      labelFontSize: 14
-    }
-  };
-  var barChartConfig_default = barChartConfig;
-
-  // scatterPlotConfig.js
+  // config/NB_RT.js
   var scatterPlotConfig = {
     width: 1e3,
     height: 400,
     border: "1px solid #999",
-    padding: [60, 140, 50, 65],
+    padding: [60, 140, 50, 90],
     tooltip: {
       hasTooltip: true,
-      content: ["test_no", "acc", "search_rps", "ef"],
+      content: ["NB", "RT"],
       fontSize: 16,
       fontWeight: 500,
       fontColor: "#43a2ca"
     },
     title: {
-      text: "Recall - Latency -12121212",
+      text: "NB & RT",
       fontSize: 24,
       fontWeight: 600,
       fontColor: "#222"
     },
     circle: {
-      r: 5,
+      r: 3,
       strokeColor: "#fff",
       strokeWidth: 1,
       isCircleColorMapping: true,
       circleColor: "test_no",
       withLabels: true,
-      label: (item) => `ef=${item.ef}`,
+      label: (item) => `${item.RT}`,
       labelFontSize: 14,
       withLinks: true,
       isLinkColorMapping: true,
       linkType: "curve",
-      linkWidth: 4,
+      linkWidth: 2,
       linkColor: "test_no"
     },
     x: {
-      key: "acc",
+      key: "NB",
       scaleType: "linear",
       tickType: "bottom",
       tickFontSize: 14,
       tickColor: "#666",
-      label: "Recall Rate",
+      label: "NB / k",
       labelFontSize: 16,
       labelWeight: 600,
       labelColor: "#444",
@@ -4933,12 +4917,67 @@
       zoom: true
     },
     y: {
-      key: "search_rps",
+      key: "RT",
       scaleType: "linear",
       tickType: "left",
       tickFontSize: 14,
       tickColor: "#666",
-      label: "Latency / s",
+      label: "RT(TP99) / ms",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "test_no",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var NB_RT_default = scatterPlotConfig;
+
+  // config/indexnodes_indextime.js
+  var barChartConfig = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 50, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["index_time", "indexNodes", "index_type"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "indexNodes & indextime - 50m",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    x: {
+      key: "indexNodes",
+      scaleType: "bin",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "indexNodes",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "index_time",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "index time / s",
       labelFontSize: 16,
       labelWeight: 600,
       labelColor: "#444",
@@ -4948,31 +4987,975 @@
     },
     groupBy: {
       isGroupBy: true,
-      key: "test_no",
+      key: "index_type",
+      sameXScale: false,
+      sameYScale: true
+    },
+    bar: {
+      isColorMapping: true,
+      color: "index_type",
+      withLabels: true,
+      label: (item) => `${item.index_time}`,
+      labelFontSize: 14
+    }
+  };
+  var indexnodes_indextime_default = barChartConfig;
+
+  // config/nq_RT_1m.js
+  var scatterPlotConfig2 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & RT - 1m",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.RT}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
       sameXScale: true,
       sameYScale: true
     }
   };
-  var scatterPlotConfig_default = scatterPlotConfig;
+  var nq_RT_1m_default = scatterPlotConfig2;
+
+  // config/nq_RT_50m_4qn.js
+  var scatterPlotConfig3 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & RT - 50m - 4queryNodes",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.RT}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var nq_RT_50m_4qn_default = scatterPlotConfig3;
+
+  // config/nq_RT_50m_8qn.js
+  var scatterPlotConfig4 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & RT - 50m - 8queryNodes",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.RT}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var nq_RT_50m_8qn_default = scatterPlotConfig4;
+
+  // config/nq_RT_1m_vps.js
+  var scatterPlotConfig5 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["vps", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & VPS - 1m",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.vps}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "vps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "VPS",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var nq_RT_1m_vps_default = scatterPlotConfig5;
+
+  // config/nq_RT_50m_4qn_vps.js
+  var scatterPlotConfig6 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["vps", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & VPS - 50m - 4queryNodes",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.vps}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "vps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "VPS",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var nq_RT_50m_4qn_vps_default = scatterPlotConfig6;
+
+  // config/nq_RT_50m_8qn_vps.js
+  var scatterPlotConfig7 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["vps", "nq", "topk"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "nq & VPS - 50m - 8queryNodes",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "topk",
+      withLabels: true,
+      label: (item) => `${item.vps}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "topk"
+    },
+    x: {
+      key: "nq",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "nq",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "vps",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "VPS",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "topk",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var nq_RT_50m_8qn_vps_default = scatterPlotConfig7;
+
+  // config/Recall_RT_sift_hnsw.js
+  var scatterPlotConfig8 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "Recall", "ef"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall & RT - sift - HNSW",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "ef",
+      withLabels: true,
+      label: (item) => `ef=${item.ef}`,
+      labelFontSize: 12,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "ef"
+    },
+    x: {
+      key: "Recall",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "sift_hnsw",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var Recall_RT_sift_hnsw_default = scatterPlotConfig8;
+
+  // config/Recall_RT_sift_ivf_flat.js
+  var scatterPlotConfig9 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "Recall", "nprobe"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall & RT - sift - ivf_flat",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "nprobe",
+      withLabels: true,
+      label: (item) => `nprobe=${item.nprobe}`,
+      labelFontSize: 12,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "nprobe"
+    },
+    x: {
+      key: "Recall",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "ivf_flat",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var Recall_RT_sift_ivf_flat_default = scatterPlotConfig9;
+
+  // config/Recall_RT_sift_ivf_sq8.js
+  var scatterPlotConfig10 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "Recall", "nprobe"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall & RT - sift - ivf_sq8",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "nprobe",
+      withLabels: true,
+      label: (item) => `nprobe=${item.nprobe}`,
+      labelFontSize: 12,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "nprobe"
+    },
+    x: {
+      key: "Recall",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "ivf_sq8",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var Recall_RT_sift_ivf_sq8_default = scatterPlotConfig10;
+
+  // config/Recall_RT_glove_ivf_flat.js
+  var scatterPlotConfig11 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 60, 60],
+    tooltip: {
+      hasTooltip: true,
+      content: ["RT", "Recall", "nprobe"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "Recall & RT - glove - ivf_flat",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "nprobe",
+      withLabels: true,
+      label: (item) => `nprobe=${item.nprobe}`,
+      labelFontSize: 12,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "nprobe"
+    },
+    x: {
+      key: "Recall",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "Recall",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT / s",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: true,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: false,
+      key: "glove_ivf_flat",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var Recall_RT_glove_ivf_flat_default = scatterPlotConfig11;
+
+  // config/RT_QPS_1m.js
+  var scatterPlotConfig12 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 50, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["deploy_mode", "RT", "QPS"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "RT & QPS - 1m",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "deploy_mode",
+      withLabels: true,
+      label: (item) => `${item.QPS}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "deploy_mode"
+    },
+    x: {
+      key: "RT",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "RT(TP99) / ms",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "QPS",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "QPS",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "deploy_mode",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var RT_QPS_1m_default = scatterPlotConfig12;
+
+  // config/queryNodes_QPS_50m.js
+  var scatterPlotConfig13 = {
+    width: 1e3,
+    height: 400,
+    border: "1px solid #999",
+    padding: [60, 140, 50, 90],
+    tooltip: {
+      hasTooltip: true,
+      content: ["queryNodes"],
+      fontSize: 16,
+      fontWeight: 500,
+      fontColor: "#43a2ca"
+    },
+    title: {
+      text: "queryNodes & QPS / RT",
+      fontSize: 24,
+      fontWeight: 600,
+      fontColor: "#222"
+    },
+    circle: {
+      r: 3,
+      strokeColor: "#fff",
+      strokeWidth: 1,
+      isCircleColorMapping: true,
+      circleColor: "name",
+      withLabels: true,
+      label: (item) => `${item.name}=${item.value}`,
+      labelFontSize: 14,
+      withLinks: true,
+      isLinkColorMapping: true,
+      linkType: "curve",
+      linkWidth: 2,
+      linkColor: "name"
+    },
+    x: {
+      key: "queryNodes",
+      scaleType: "linear",
+      tickType: "bottom",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "queryNodes",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 8,
+      zoom: true
+    },
+    y: {
+      key: "value",
+      scaleType: "linear",
+      tickType: "left",
+      tickFontSize: 14,
+      tickColor: "#666",
+      label: "",
+      labelFontSize: 16,
+      labelWeight: 600,
+      labelColor: "#444",
+      inset: 6,
+      zoom: false,
+      fromZero: true
+    },
+    groupBy: {
+      isGroupBy: true,
+      key: "name",
+      sameXScale: true,
+      sameYScale: true
+    }
+  };
+  var queryNodes_QPS_50m_default = scatterPlotConfig13;
 
   // index.js
   window.addEventListener("DOMContentLoaded", async () => {
-    const dataFile = "./data/data.json";
-    const data = await fetch(dataFile).then((res) => res.json());
-    const csvFile = "./data/test.csv";
-    const data1 = await csv2(csvFile);
-    console.log(data1);
+    const df_NB_RT = "./data/NB_RT.json";
+    const NB_RT = await fetch(df_NB_RT).then((res) => res.json());
     js_default({
       chartType: "scatter_plot",
-      domSelector: "#container-1",
-      data,
-      config: scatterPlotConfig_default
+      domSelector: "#NB_RT",
+      data: NB_RT,
+      config: NB_RT_default
     });
+    csvFile = "./data/indexnodes_indextime_hnsw.csv";
+    let in_it = await csv2(csvFile);
+    in_it = sort(in_it, (d) => d.indexNodes);
     js_default({
       chartType: "barchart",
-      domSelector: "#container-2",
-      data,
-      config: barChartConfig_default
+      domSelector: "#indexnodes_indextime",
+      data: in_it,
+      config: indexnodes_indextime_default
+    });
+    csvFile = "./data/nq_RT_1m.csv";
+    let nq_RT_1m = await csv2(csvFile);
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_1m",
+      data: nq_RT_1m,
+      config: nq_RT_1m_default
+    });
+    csvFile = "./data/nq_RT_50m_4qn.csv";
+    let nq_RT_50m_4qn = await csv2(csvFile);
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_50m_4qn",
+      data: nq_RT_50m_4qn,
+      config: nq_RT_50m_4qn_default
+    });
+    csvFile = "./data/nq_RT_50m_8qn.csv";
+    let nq_RT_50m_8qn = await csv2(csvFile);
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_50m_8qn",
+      data: nq_RT_50m_8qn,
+      config: nq_RT_50m_8qn_default
+    });
+    nq_RT_1m.forEach((d) => d.vps = (+d.vps).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_1m_vps",
+      data: nq_RT_1m,
+      config: nq_RT_1m_vps_default
+    });
+    nq_RT_50m_4qn.forEach((d) => d.vps = (+d.vps).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_50m_4qn_vps",
+      data: nq_RT_50m_4qn,
+      config: nq_RT_50m_4qn_vps_default
+    });
+    nq_RT_50m_8qn.forEach((d) => d.vps = (+d.vps).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#nq_RT_50m_8qn_vps",
+      data: nq_RT_50m_8qn,
+      config: nq_RT_50m_8qn_vps_default
+    });
+    csvFile = "./data/RT_QPS_1m.csv";
+    let RT_QPS_1m = await csv2(csvFile);
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#RT_QPS_1m",
+      data: RT_QPS_1m,
+      config: RT_QPS_1m_default
+    });
+    csvFile = "./data/queryNodes_QPS_50m.csv";
+    let queryNodes_QPS_50m = await csv2(csvFile);
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#queryNodes_QPS_50m",
+      data: queryNodes_QPS_50m,
+      config: queryNodes_QPS_50m_default
+    });
+    csvFile = "./data/Recall_RT_sift_hnsw.csv";
+    let Recall_RT_sift_hnsw = await csv2(csvFile);
+    Recall_RT_sift_hnsw.forEach((d) => d.RT = (+d.RT).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_sift_hnsw",
+      data: Recall_RT_sift_hnsw,
+      config: Recall_RT_sift_hnsw_default
+    });
+    csvFile = "./data/Recall_RT_sift_ivf_flat.csv";
+    let Recall_RT_sift_ivf_flat = await csv2(csvFile);
+    Recall_RT_sift_ivf_flat.forEach((d) => d.RT = (+d.RT).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_sift_ivf_flat",
+      data: Recall_RT_sift_ivf_flat,
+      config: Recall_RT_sift_ivf_flat_default
+    });
+    csvFile = "./data/Recall_RT_sift_ivf_sq8.csv";
+    let Recall_RT_sift_ivf_sq8 = await csv2(csvFile);
+    Recall_RT_sift_ivf_sq8.forEach((d) => d.RT = (+d.RT).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_sift_ivf_sq8",
+      data: Recall_RT_sift_ivf_sq8,
+      config: Recall_RT_sift_ivf_sq8_default
+    });
+    csvFile = "./data/Recall_RT_glove_ivf_flat.csv";
+    let Recall_RT_glove_ivf_flat = await csv2(csvFile);
+    Recall_RT_glove_ivf_flat.forEach((d) => d.RT = (+d.RT).toFixed(2));
+    js_default({
+      chartType: "scatter_plot",
+      domSelector: "#Recall_RT_glove_ivf_flat",
+      data: Recall_RT_glove_ivf_flat,
+      config: Recall_RT_glove_ivf_flat_default
     });
   });
 })();
