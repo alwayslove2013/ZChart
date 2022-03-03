@@ -51,7 +51,7 @@ const drawLegend = ({ chartType, legendsG, data, colorScale, config, svg }) => {
     .attr("y", legendHeight / 2 + legendFontSize * 0.35)
     .attr("font-size", legendFontSize)
     .attr("fill", (d) => colorScale(d))
-    .text((d) => legendLabel(d));
+    .text(legendLabel);
 
   legendG.style("cursor", "pointer").on("click", function (_, d) {
     const items = svg.selectAll(`.group-${d}`);
