@@ -24,7 +24,7 @@ const scatterPlotConfig = {
     isCircleColorMapping: true,
     circleColor: "name",
     withLabels: true,
-    label: (item) => `${item.name}=${item.value}`,
+    label: "(item) => `${item.name}=${item.value}`",
     labelFontSize: 14,
     withLinks: true,
     isLinkColorMapping: true,

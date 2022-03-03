@@ -20,9 +20,10 @@ const drawBarChart = ({
     isColorMapping = false,
     color = "#888",
     withLabels,
-    label,
+    label: _label = "()=>{}",
     labelFontSize,
   } = bar;
+  const label = eval(_label);
   const colorMap = isColorMapping ? colorScale : () => color;
 
   const barsG = svg.append("g").attr("id", "bars-g");

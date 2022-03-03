@@ -29,7 +29,7 @@ const scatterPlotConfig = {
     isCircleColorMapping: true,
     circleColor: "topk",
     withLabels: true,
-    label: (item) => `${item.vps}`,
+    label: "(item) => `${item.vps}`",
     labelFontSize: 14,
     withLinks: true,
     isLinkColorMapping: true,

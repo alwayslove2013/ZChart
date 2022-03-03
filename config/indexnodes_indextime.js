@@ -59,7 +59,7 @@ const barChartConfig = {
     isColorMapping: true,
     color: "index_type",
     withLabels: true,
-    label: (item) => `${item.index_time}`,
+    label: "(item) => `${item.index_time}`",
     labelFontSize: 14,
   },
 };

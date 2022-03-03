@@ -62,7 +62,12 @@ const drawCircles = (circlesG, data, config, xScale, yScale, colorScale) => {
     .attr("stroke", strokeColor)
     .attr("stroke-width", strokeWidth);
 
-  const { withLabels = false, label = () => "", labelFontSize = 14 } = circle;
+  const {
+    withLabels = false,
+    label: _label = "()=>{}",
+    labelFontSize = 14,
+  } = circle;
+  const label = eval(_label);
   if (withLabels) {
     circleG
       .append("text")

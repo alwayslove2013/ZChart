@@ -29,7 +29,7 @@ const scatterPlotConfig = {
     isCircleColorMapping: true,
     circleColor: "nprobe",
     withLabels: true,
-    label: (item) => `nprobe=${item.nprobe}`,
+    label: "(item) => `nprobe=${item.nprobe}`",
     labelFontSize: 12,
     withLinks: true,
     isLinkColorMapping: true,

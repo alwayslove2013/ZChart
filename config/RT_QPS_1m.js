@@ -24,7 +24,7 @@ const scatterPlotConfig = {
     isCircleColorMapping: true,
     circleColor: "deploy_mode",
     withLabels: true,
-    label: (item) => `${item.QPS}`,
+    label: "(item) => `${item.QPS}`",
     labelFontSize: 14,
     withLinks: true,
     isLinkColorMapping: true,
