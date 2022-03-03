@@ -5,6 +5,7 @@ import { domainExtent, scaleMap } from "./utils.js";
 
 const drawScatterPlot = ({
   svg,
+  circlesPlotG,
   xAxisG,
   yAxisG,
   data,
@@ -14,6 +15,8 @@ const drawScatterPlot = ({
   xRange,
   yRange,
   config,
+  showTooltip,
+  closeTooltip,
 }) => {
   const { groupBy, x, y } = config;
   const zoomedFuncs = [];
@@ -40,8 +43,18 @@ const drawScatterPlot = ({
         yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
         yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
       }
-      const circlesG = svg.append("g").attr("id", `circles-g-${i}`);
-      circlesG.call(drawCircles, data, config, xScale, yScale, colorScale);
+      const circlesG = circlesPlotG.append("g").attr("id", `circles-g-${i}`);
+      circlesG.call(
+        drawCircles,
+        data,
+        config,
+        xScale,
+        yScale,
+        colorScale,
+
+        showTooltip,
+        closeTooltip
+      );
 
       zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
         const _newXScale = groupBy.sameXScale
@@ -56,7 +69,10 @@ const drawScatterPlot = ({
           config,
           x.zoom ? _newXScale : xScales[i] || xScale,
           y.zoom ? _newYScale : yScales[i] || yScale,
-          colorScale
+          colorScale,
+
+          showTooltip,
+          closeTooltip
         );
       });
     });
@@ -75,8 +91,19 @@ const drawScatterPlot = ({
   } else {
     xAxisG.call(xAxis, xScale, config);
     yAxisG.call(yAxis, yScale, config);
-    const circlesG = svg.append("g").attr("id", `circles-g`);
-    circlesG.call(drawCircles, data, config, xScale, yScale, colorScale);
+
+    const circlesG = circlesPlotG.append("g").attr("id", `circles-g`);
+    circlesG.call(
+      drawCircles,
+      data,
+      config,
+      xScale,
+      yScale,
+      colorScale,
+
+      showTooltip,
+      closeTooltip
+    );
 
     const zoomed = ({ transform }) => {
       const newXScale = transform.rescaleX(xScale);
@@ -89,7 +116,10 @@ const drawScatterPlot = ({
         config,
         x.zoom ? newXScale : xScale,
         y.zoom ? newYScale : yScale,
-        colorScale
+        colorScale,
+
+        showTooltip,
+        closeTooltip
       );
     };
     const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);

@@ -3,6 +3,7 @@ import drawTitle from "./title.js";
 import drawScatterPlot from "./scatterPlot.js";
 import drawBarChart from "./barChart.js";
 import drawLegend from "./legend.js";
+import drawTooltip from "./tooltip.js";
 import { domainExtent, scaleMap, colors } from "./utils.js";
 
 const ZChart = ({ chartType, domSelector, data: _data, config }) => {
@@ -16,6 +17,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     x = {},
     y = {},
     groupBy = {},
+    tooltip = {},
   } = config;
 
   // data
@@ -65,9 +67,20 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   const xAxisG = svg.append("g").attr("id", "x-axis-g");
   const yAxisG = svg.append("g").attr("id", "y-axis-g");
 
+  // drawItems - the main part
+  const circlesPlotG = svg.append("g").attr("id", "circles-plot-g");
+  const barsG = svg.append("g").attr("id", "bars-g");
+  const legendsG = svg.append("g").attr("id", "legends-g");
+  const tooltipG = svg
+    .append("g", "tooltip-g")
+    .style("pointer-events", "none")
+    .attr("opacity", 0);
+  const { showTooltip, closeTooltip } = drawTooltip({ tooltipG, tooltip });
+
   if (chartType === "scatter_plot") {
     drawScatterPlot({
       svg,
+      circlesPlotG,
       xAxisG,
       yAxisG,
       data,
@@ -77,11 +90,13 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
       xRange,
       yRange,
       config,
+      showTooltip,
+      closeTooltip,
     });
   }
   if (chartType === "barchart") {
     drawBarChart({
-      svg,
+      barsG,
       xAxisG,
       yAxisG,
       data,
@@ -89,14 +104,16 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
       yScale,
       colorScale,
       config,
+      showTooltip,
+      closeTooltip,
     });
   }
 
   // legend
-  const legendsG = svg
-    .append("g")
-    .attr("id", "legends-g")
-    .attr("transform", `translate(${width - padding[1] * 0.85},${padding[0]})`);
+  legendsG.attr(
+    "transform",
+    `translate(${width - padding[1] * 0.85},${padding[0]})`
+  );
   if (groupBy.isGroupBy) {
     drawLegend({ chartType, legendsG, data, colorScale, config });
   }

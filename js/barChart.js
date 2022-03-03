@@ -1,7 +1,7 @@
 import { xAxis, yAxis } from "./axis.js";
 
 const drawBarChart = ({
-  svg,
+  barsG,
   xAxisG,
   yAxisG,
   data,
@@ -9,6 +9,8 @@ const drawBarChart = ({
   yScale,
   colorScale,
   config,
+  showTooltip,
+  closeTooltip,
 }) => {
   xScale.paddingInner(0.3).paddingOuter(0.5);
   xAxisG.call(xAxis, xScale, config);
@@ -26,7 +28,6 @@ const drawBarChart = ({
   const label = eval(_label);
   const colorMap = isColorMapping ? colorScale : () => color;
 
-  const barsG = svg.append("g").attr("id", "bars-g");
   const barG = barsG.selectAll("g").data(data).join("g");
 
   if (groupBy.isGroupBy) {
@@ -74,50 +75,9 @@ const drawBarChart = ({
         .attr("fill", (d) => colorMap(d[color]));
   }
 
-  if (tooltip.hasTooltip) {
-    const tooltipG = barsG
-      .append("g", "tooltip-g")
-      .style("pointer-events", "none")
-      .attr("opacity", 0);
-    barG.style("cursor", "pointer").on("mousemove", (e, d) => {
-      tooltipG.attr("opacity", 1);
-      const { layerX: __x, layerY: __y } = e;
+  barG.style("cursor", "pointer").on("mousemove", showTooltip);
 
-      tooltipG.attr("transform", `translate(${__x},${__y})`);
-      const path = tooltipG
-        .selectAll("path")
-        .data([,])
-        .join("path")
-        .attr("fill", "white")
-        .attr("stroke", "#666");
-      const text = tooltipG
-        .selectAll("text")
-        .data([,])
-        .join("text")
-        .attr("font-size", tooltip.fontSize)
-        .attr("font-weight", tooltip.fontWeight)
-        .attr("fill", tooltip.fontColor)
-        .call((text) =>
-          text
-            .selectAll("tspan")
-            .data(tooltip.content)
-            .join("tspan")
-            .attr("x", 0)
-            .attr("y", (_, i) => `${i * 1.5}em`)
-            .text((key) => `${key}: ${d[key]}`)
-        );
-      const { y: _y, width: w, height: h } = text.node().getBBox();
-      text.attr("transform", `translate(${-w / 2},${15 - _y})`);
-      path.attr(
-        "d",
-        `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`
-      );
-    });
-
-    barG.on("mouseout", () => {
-      tooltipG.attr("opacity", 0);
-    });
-  }
+  barG.on("mouseout", closeTooltip);
 };
 
 export default drawBarChart;
