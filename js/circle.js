@@ -87,7 +87,7 @@ const drawCircles = (
       .attr("y", -r - 4);
   }
 
-  circleG.style("cursor", "pointer").on("mouseover", showTooltip);
+  circleG.style("cursor", "pointer").on("mousemove", showTooltip);
   circleG.on("mouseout", closeTooltip);
 };
 

@@ -1,12 +1,11 @@
-
-const drawTooltip = ({tooltipG, tooltip}) => {
+const drawTooltip = ({ tooltipG, config }) => {
+  const { height, tooltip } = config;
   let showTooltip = () => {};
   let closeTooltip = () => {};
   if (tooltip.hasTooltip) {
     showTooltip = (e, d) => {
       tooltipG.attr("opacity", 1);
       const { layerX: __x, layerY: __y } = e;
-      tooltipG.attr("transform", `translate(${__x},${__y})`);
 
       const path = tooltipG
         .selectAll("path")
@@ -30,19 +29,29 @@ const drawTooltip = ({tooltipG, tooltip}) => {
             .attr("y", (_, i) => `${i * 1.5}em`)
             .text((key) => `${key}: ${d[key]}`)
         );
-      
+
       const { y: _y, width: w, height: h } = text.node().getBBox();
+
+      let tooltipX = __x;
+      let tooltipY = __y;
+      if (tooltipY > height * 0.65) {
+        tooltipY -= h + 30;
+      } else {
+        tooltipY += 10;
+      }
+      tooltipG.attr("transform", `translate(${tooltipX},${tooltipY})`);
       text.attr("transform", `translate(${-w / 2},${15 - _y})`);
       path.attr(
         "d",
-        `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`
+        `M${-w / 2 - 10},5 H${w / 2 + 10} v${h + 20} h-${w + 20}z`
+        // `M${-w / 2 - 10},5 H-5 l5,-5 l5,5 H${w / 2 + 10} v${h + 20} h-${w + 20}z`
       );
     };
     closeTooltip = () => {
       tooltipG.attr("opacity", 0);
     };
   }
-  return {showTooltip, closeTooltip};
-}
+  return { showTooltip, closeTooltip };
+};
 
 export default drawTooltip;

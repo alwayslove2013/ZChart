@@ -4648,7 +4648,7 @@
     if (withLabels) {
       circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("y", -r - 4);
     }
-    circleG.style("cursor", "pointer").on("mouseover", showTooltip);
+    circleG.style("cursor", "pointer").on("mousemove", showTooltip);
     circleG.on("mouseout", closeTooltip);
   };
   var circle_default = drawCircles;
@@ -4807,7 +4807,8 @@
   var legend_default = drawLegend;
 
   // js/tooltip.js
-  var drawTooltip = ({ tooltipG, tooltip: tooltip2 }) => {
+  var drawTooltip = ({ tooltipG, config: config2 }) => {
+    const { height, tooltip: tooltip2 } = config2;
     let showTooltip2 = () => {
     };
     let closeTooltip2 = () => {
@@ -4816,12 +4817,19 @@
       showTooltip2 = (e, d) => {
         tooltipG.attr("opacity", 1);
         const { layerX: __x, layerY: __y } = e;
-        tooltipG.attr("transform", `translate(${__x},${__y})`);
         const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
         const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip2.fontSize).attr("font-weight", tooltip2.fontWeight).attr("fill", tooltip2.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip2.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
         const { y: _y, width: w, height: h } = text.node().getBBox();
+        let tooltipX = __x;
+        let tooltipY = __y;
+        if (tooltipY > height * 0.65) {
+          tooltipY -= h + 30;
+        } else {
+          tooltipY += 10;
+        }
+        tooltipG.attr("transform", `translate(${tooltipX},${tooltipY})`);
         text.attr("transform", `translate(${-w / 2},${15 - _y})`);
-        path2.attr("d", `M${-w / 2 - 10},5H-5l5,-5l5,5H${w / 2 + 10}v${h + 20}h-${w + 20}z`);
+        path2.attr("d", `M${-w / 2 - 10},5 H${w / 2 + 10} v${h + 20} h-${w + 20}z`);
       };
       closeTooltip2 = () => {
         tooltipG.attr("opacity", 0);
@@ -4842,8 +4850,7 @@
       dataProcessing = {},
       x: x3 = {},
       y: y3 = {},
-      groupBy: groupBy2 = {},
-      tooltip: tooltip2 = {}
+      groupBy: groupBy2 = {}
     } = config2;
     let data2 = _data;
     if (dataProcessing.needSort) {
@@ -4875,7 +4882,7 @@
     const barsG2 = svg.append("g").attr("id", "bars-g");
     const legendsG2 = svg.append("g").attr("id", "legends-g");
     const tooltipG = svg.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
-    const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({ tooltipG, tooltip: tooltip2 });
+    const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({ tooltipG, config: config2, colorScale: colorScale2 });
     if (chartType2 === "scatter_plot") {
       scatterPlot_default({
         svg,

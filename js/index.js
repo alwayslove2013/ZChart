@@ -17,7 +17,6 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     x = {},
     y = {},
     groupBy = {},
-    tooltip = {},
   } = config;
 
   // data
@@ -75,7 +74,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     .append("g", "tooltip-g")
     .style("pointer-events", "none")
     .attr("opacity", 0);
-  const { showTooltip, closeTooltip } = drawTooltip({ tooltipG, tooltip });
+  const { showTooltip, closeTooltip } = drawTooltip({ tooltipG, config, colorScale });
 
   if (chartType === "scatter_plot") {
     drawScatterPlot({

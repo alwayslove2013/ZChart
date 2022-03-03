@@ -14,7 +14,7 @@ const scatterPlotConfig = {
     content: ["RT", "Recall", "ef"],
     fontSize: 16,
     fontWeight: 500,
-    fontColor: "#43a2ca",
+    fontColor: "#666",
   },
   title: {
     text: "Recall & RT - sift - HNSW",

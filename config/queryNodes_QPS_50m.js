@@ -9,7 +9,7 @@ const scatterPlotConfig = {
     content: ["queryNodes"],
     fontSize: 16,
     fontWeight: 500,
-    fontColor: "#43a2ca",
+    fontColor: "#666",
   },
   title: {
     text: "queryNodes & QPS / RT",

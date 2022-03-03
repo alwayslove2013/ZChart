@@ -17,7 +17,7 @@ const barChartConfig = {
     content: ["test_no", "acc", "search_rps", "ef"],
     fontSize: 16,
     fontWeight: 500,
-    fontColor: "#43a2ca",
+    fontColor: "#666",
   },
   title: {
     text: "Recall - Latency",

@@ -14,7 +14,7 @@ const scatterPlotConfig = {
     content: ["vps", "nq", "topk"],
     fontSize: 16,
     fontWeight: 500,
-    fontColor: "#43a2ca",
+    fontColor: "#666",
   },
   title: {
     text: "nq & VPS - 1m",
