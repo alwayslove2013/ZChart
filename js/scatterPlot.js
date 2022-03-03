@@ -19,7 +19,7 @@ const drawScatterPlot = ({
   closeTooltip,
   clip,
 }) => {
-  const { groupBy, x, y } = config;
+  const { groupBy, x, y, width, height } = config;
   const zoomedFuncs = [];
 
   if (groupBy.isGroupBy) {
@@ -80,7 +80,14 @@ const drawScatterPlot = ({
         zoomedFunc({ transform, newXScale, newYScale })
       );
     };
-    const zoom = d3.zoom().scaleExtent([0.5, 1024]).on("zoom", zoomed);
+    const zoom = d3
+      .zoom()
+      .scaleExtent([0.5, 1024])
+      // .extent([
+      //   [xRange[0], width - xRange[1]],
+      //   [yRange[1], height - yRange[0]],
+      // ])
+      .on("zoom", zoomed);
     (x.zoom || y.zoom) && svg.call(zoom).call(zoom.transform, d3.zoomIdentity);
   } else {
     xAxisG.call(xAxis, xScale, config);

@@ -4683,7 +4683,7 @@
     closeTooltip: closeTooltip2,
     clip: clip2
   }) => {
-    const { groupBy: groupBy2, x: x3, y: y3 } = config2;
+    const { groupBy: groupBy2, x: x3, y: y3, width, height } = config2;
     const zoomedFuncs = [];
     if (groupBy2.isGroupBy) {
       const groupByKeySet = new Set(data2.map((d) => d[groupBy2.key]));
