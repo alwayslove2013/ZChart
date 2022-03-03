@@ -43,8 +43,6 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     .style("border", border);
 
   // draw title
-  const titleG = svg.append("g").attr("id", "title-g");
-  titleG.call(drawTitle, config);
 
   // compute Scale - X, Y, Color
   const colorScale = d3.scaleOrdinal().range(colors);
@@ -62,6 +60,22 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
   let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
 
+  const clipId = "chart-clip";
+  const clip = `url(#${clipId})`;
+  svg
+    .append("defs")
+    .append("clipPath")
+    .attr("id", clipId)
+    .append("rect")
+    .attr("x", padding[3])
+    .attr("y", padding[0])
+    .attr("width", width - padding[1] - padding[3])
+    .attr("height", height - padding[0] - padding[2] - y.inset);
+
+  // title
+  const titleG = svg.append("g").attr("id", "title-g");
+  titleG.call(drawTitle, config);
+
   // init axis - g
   const xAxisG = svg.append("g").attr("id", "x-axis-g");
   const yAxisG = svg.append("g").attr("id", "y-axis-g");
@@ -74,7 +88,11 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
     .append("g", "tooltip-g")
     .style("pointer-events", "none")
     .attr("opacity", 0);
-  const { showTooltip, closeTooltip } = drawTooltip({ tooltipG, config, colorScale });
+  const { showTooltip, closeTooltip } = drawTooltip({
+    tooltipG,
+    config,
+    colorScale,
+  });
 
   if (chartType === "scatter_plot") {
     drawScatterPlot({
@@ -91,6 +109,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
       config,
       showTooltip,
       closeTooltip,
+      clip,
     });
   }
   if (chartType === "barchart") {
@@ -105,6 +124,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
       config,
       showTooltip,
       closeTooltip,
+      clip,
     });
   }
 

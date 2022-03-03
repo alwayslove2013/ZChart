@@ -17,6 +17,7 @@ const drawScatterPlot = ({
   config,
   showTooltip,
   closeTooltip,
+  clip,
 }) => {
   const { groupBy, x, y } = config;
   const zoomedFuncs = [];
@@ -44,17 +45,6 @@ const drawScatterPlot = ({
         yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
       }
       const circlesG = circlesPlotG.append("g").attr("id", `circles-g-${i}`);
-      circlesG.call(
-        drawCircles,
-        data,
-        config,
-        xScale,
-        yScale,
-        colorScale,
-
-        showTooltip,
-        closeTooltip
-      );
 
       zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
         const _newXScale = groupBy.sameXScale
@@ -72,7 +62,8 @@ const drawScatterPlot = ({
           colorScale,
 
           showTooltip,
-          closeTooltip
+          closeTooltip,
+          clip
         );
       });
     });
@@ -93,17 +84,6 @@ const drawScatterPlot = ({
     yAxisG.call(yAxis, yScale, config);
 
     const circlesG = circlesPlotG.append("g").attr("id", `circles-g`);
-    circlesG.call(
-      drawCircles,
-      data,
-      config,
-      xScale,
-      yScale,
-      colorScale,
-
-      showTooltip,
-      closeTooltip
-    );
 
     const zoomed = ({ transform }) => {
       const newXScale = transform.rescaleX(xScale);
@@ -119,7 +99,8 @@ const drawScatterPlot = ({
         colorScale,
 
         showTooltip,
-        closeTooltip
+        closeTooltip,
+        clip
       );
     };
     const zoom = d3.zoom().scaleExtent([0.5, 32]).on("zoom", zoomed);

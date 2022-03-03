@@ -4611,7 +4611,7 @@
     curve: catmullRom_default.alpha(0.5),
     linear: linear_default
   };
-  var drawCircles = (circlesG, data, config, xScale, yScale, colorScale, showTooltip, closeTooltip) => {
+  var drawCircles = (circlesG, data, config, xScale, yScale, colorScale, showTooltip, closeTooltip, clip) => {
     circlesG.selectAll("*").remove();
     const { circle, x, y } = config;
     const positions = data.map((item) => [
@@ -4627,9 +4627,9 @@
     } = circle;
     if (withLinks) {
       const link = line_default().curve(linkMap[linkType]).x((d) => d[0]).y((d) => d[1]);
-      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor).attr("stroke-width", linkWidth).attr("d", link(positions));
+      circlesG.append("g").attr("id", "circles-links").append("path").attr("fill", "none").attr("stroke", isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor).attr("stroke-width", linkWidth).attr("d", link(positions)).attr("clip-path", clip);
     }
-    const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g").attr("transform", (_, i) => `translate(${positions[i]})`);
+    const circleG = circlesG.append("g").attr("id", "circles-nodes").selectAll("g").data(data).join("g");
     const {
       circleColor = "#e6550d",
       r = 5,
@@ -4638,7 +4638,7 @@
       isCircleColorMapping = false
     } = circle;
     const circleColorMap = isCircleColorMapping ? colorScale : () => circleColor;
-    circleG.append("circle").attr("fill", (item) => circleColorMap(item[circleColor])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth);
+    circleG.append("circle").attr("fill", (item) => circleColorMap(item[circleColor])).attr("r", r).attr("stroke", strokeColor).attr("stroke-width", strokeWidth).attr("cx", (_, i) => positions[i][0]).attr("cy", (_, i) => positions[i][1]).attr("clip-path", clip);
     const {
       withLabels = false,
       label: _label = "()=>{}",
@@ -4646,7 +4646,7 @@
     } = circle;
     const label = eval(_label);
     if (withLabels) {
-      circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("y", -r - 4);
+      circleG.append("text").text((item) => label(item)).attr("font-size", labelFontSize).attr("fill", (item) => circleColorMap(item[circleColor])).attr("text-anchor", "middle").attr("x", (_, i) => positions[i][0]).attr("y", (_, i) => positions[i][1] - r - 4).attr("clip-path", clip);
     }
     circleG.style("cursor", "pointer").on("mousemove", showTooltip);
     circleG.on("mouseout", closeTooltip);
@@ -4679,7 +4679,8 @@
     yRange,
     config: config2,
     showTooltip: showTooltip2,
-    closeTooltip: closeTooltip2
+    closeTooltip: closeTooltip2,
+    clip: clip2
   }) => {
     const { groupBy: groupBy2, x: x3, y: y3 } = config2;
     const zoomedFuncs = [];
@@ -4703,11 +4704,10 @@
           yScales.push(scaleMap[y3.scaleType]().domain(yDomain).range(yRange));
         }
         const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g-${i}`);
-        circlesG2.call(circle_default, data3, config2, xScale2, yScale2, colorScale2, showTooltip2, closeTooltip2);
         zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
           const _newXScale = groupBy2.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
           const _newYScale = groupBy2.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
-          circlesG2.call(circle_default, data3, config2, x3.zoom ? _newXScale : xScales[i] || xScale2, y3.zoom ? _newYScale : yScales[i] || yScale2, colorScale2, showTooltip2, closeTooltip2);
+          circlesG2.call(circle_default, data3, config2, x3.zoom ? _newXScale : xScales[i] || xScale2, y3.zoom ? _newYScale : yScales[i] || yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
         });
       });
       const zoomed = ({ transform: transform2 }) => {
@@ -4723,13 +4723,12 @@
       xAxisG2.call(xAxis, xScale2, config2);
       yAxisG2.call(yAxis, yScale2, config2);
       const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g`);
-      circlesG2.call(circle_default, data2, config2, xScale2, yScale2, colorScale2, showTooltip2, closeTooltip2);
       const zoomed = ({ transform: transform2 }) => {
         const newXScale = transform2.rescaleX(xScale2);
         const newYScale = transform2.rescaleY(yScale2);
         x3.zoom && xAxisG2.call(xAxis, newXScale, config2);
         y3.zoom && yAxisG2.call(yAxis, newYScale, config2);
-        circlesG2.call(circle_default, data2, config2, x3.zoom ? newXScale : xScale2, y3.zoom ? newYScale : yScale2, colorScale2, showTooltip2, closeTooltip2);
+        circlesG2.call(circle_default, data2, config2, x3.zoom ? newXScale : xScale2, y3.zoom ? newYScale : yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
       (x3.zoom || y3.zoom) && svg.call(zoom).call(zoom.transform, identity3);
@@ -4867,8 +4866,6 @@
     }
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
-    const titleG = svg.append("g").attr("id", "title-g");
-    titleG.call(title_default, config2);
     const colorScale2 = ordinal().range(colors);
     const xDomain = x3.scaleType === "bin" ? data2.map((d) => d[x3.key]) : domainExtent(extent(data2, (d) => +d[x3.key]));
     const xRange = [padding[3] + x3.inset, width - padding[1] - x3.inset];
@@ -4876,13 +4873,22 @@
     const yDomain = y3.fromZero ? domainExtent([0, max(data2, (d) => +d[y3.key])]) : domainExtent(extent(data2, (d) => +d[y3.key]));
     const yRange = [height - padding[2] - y3.inset, padding[0] + y3.inset];
     let yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
+    const clipId = "chart-clip";
+    const clip2 = `url(#${clipId})`;
+    svg.append("defs").append("clipPath").attr("id", clipId).append("rect").attr("x", padding[3]).attr("y", padding[0]).attr("width", width - padding[1] - padding[3]).attr("height", height - padding[0] - padding[2] - y3.inset);
+    const titleG = svg.append("g").attr("id", "title-g");
+    titleG.call(title_default, config2);
     const xAxisG2 = svg.append("g").attr("id", "x-axis-g");
     const yAxisG2 = svg.append("g").attr("id", "y-axis-g");
     const circlesPlotG = svg.append("g").attr("id", "circles-plot-g");
     const barsG2 = svg.append("g").attr("id", "bars-g");
     const legendsG2 = svg.append("g").attr("id", "legends-g");
     const tooltipG = svg.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
-    const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({ tooltipG, config: config2, colorScale: colorScale2 });
+    const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({
+      tooltipG,
+      config: config2,
+      colorScale: colorScale2
+    });
     if (chartType2 === "scatter_plot") {
       scatterPlot_default({
         svg,
@@ -4897,7 +4903,8 @@
         yRange,
         config: config2,
         showTooltip: showTooltip2,
-        closeTooltip: closeTooltip2
+        closeTooltip: closeTooltip2,
+        clip: clip2
       });
     }
     if (chartType2 === "barchart") {
@@ -4911,7 +4918,8 @@
         colorScale: colorScale2,
         config: config2,
         showTooltip: showTooltip2,
-        closeTooltip: closeTooltip2
+        closeTooltip: closeTooltip2,
+        clip: clip2
       });
     }
     legendsG2.attr("transform", `translate(${width - padding[1] * 0.85},${padding[0]})`);
