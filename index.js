@@ -1,20 +1,4 @@
 import ZChart from "./js/index.js";
-import barChartConfig from "./barChartConfig.js";
-import scatterPlotConfig from "./scatterPlotConfig.js";
-import NB_RT_c from "./config/NB_RT.js"
-import in_it_c from "./config/indexnodes_indextime.js"
-import nq_RT_1m_c from "./config/nq_RT_1m.js"
-import nq_RT_50m_4qn_c from "./config/nq_RT_50m_4qn.js"
-import nq_RT_50m_8qn_c from "./config/nq_RT_50m_8qn.js"
-import nq_RT_1m_vps_c from "./config/nq_RT_1m_vps.js"
-import nq_RT_50m_4qn_vps_c from "./config/nq_RT_50m_4qn_vps.js"
-import nq_RT_50m_8qn_vps_c from "./config/nq_RT_50m_8qn_vps.js"
-import Recall_RT_sift_hnsw_c from "./config/Recall_RT_sift_hnsw.js"
-import Recall_RT_sift_ivf_flat_c from "./config/Recall_RT_sift_ivf_flat.js"
-import Recall_RT_sift_ivf_sq8_c from "./config/Recall_RT_sift_ivf_sq8.js"
-import Recall_RT_glove_ivf_flat_c from "./config/Recall_RT_glove_ivf_flat.js"
-import RT_QPS_1m_c from "./config/RT_QPS_1m.js"
-import queryNodes_QPS_50m_c from "./config/queryNodes_QPS_50m.js"
 import * as d3 from "d3";
 
 window.addEventListener("DOMContentLoaded", async () => {
@@ -24,8 +8,11 @@ window.addEventListener("DOMContentLoaded", async () => {
   // const data1 = await d3.csv(csvFile);
 
   // NB & RT
-  const df_NB_RT = "./data/NB_RT.json";
-  const NB_RT = await fetch(df_NB_RT).then((res) => res.json());
+  const data_NB_RT = "./data/NB_RT.json";
+  const NB_RT = await fetch(data_NB_RT).then((res) => res.json());
+  let configFile = "./config_json/NB_RT_c.json";
+  const NB_RT_c = await fetch(configFile).then((res) => res.json());
+
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#NB_RT",
@@ -36,6 +23,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Indexnodes & indextime
   csvFile = "./data/indexnodes_indextime_hnsw.csv";
   let in_it = await d3.csv(csvFile);
+  configFile = "./config_json/in_it_c.json";
+  const in_it_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "barchart",
     domSelector: "#indexnodes_indextime",
@@ -46,6 +35,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // nq & RT - 1m
   csvFile = "./data/nq_RT_1m.csv";
   let nq_RT_1m = await d3.csv(csvFile);
+  configFile = "./config_json/nq_RT_1m_c.json";
+  const nq_RT_1m_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_1m",
@@ -56,6 +47,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // nq & RT - 50m - 4qn
   csvFile = "./data/nq_RT_50m_4qn.csv";
   let nq_RT_50m_4qn = await d3.csv(csvFile);
+  configFile = "./config_json/nq_RT_50m_4qn_c.json";
+  const nq_RT_50m_4qn_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_4qn",
@@ -66,6 +59,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // nq & RT - 50m - 8qn
   csvFile = "./data/nq_RT_50m_8qn.csv";
   let nq_RT_50m_8qn = await d3.csv(csvFile);
+  configFile = "./config_json/nq_RT_50m_8qn_c.json";
+  const nq_RT_50m_8qn_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_8qn",
@@ -74,6 +69,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 1m
+  configFile = "./config_json/nq_RT_1m_vps_c.json";
+  const nq_RT_1m_vps_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_1m_vps",
@@ -82,6 +79,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 50m - 4qn
+  configFile = "./config_json/nq_RT_50m_4qn_vps_c.json";
+  const nq_RT_50m_4qn_vps_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_4qn_vps",
@@ -90,6 +89,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 50m - 8qn
+  configFile = "./config_json/nq_RT_50m_8qn_vps_c.json";
+  const nq_RT_50m_8qn_vps_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_8qn_vps",
@@ -100,6 +101,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // RT & QPS - 1m
   csvFile = "./data/RT_QPS_1m.csv";
   let RT_QPS_1m = await d3.csv(csvFile);
+  configFile = "./config_json/RT_QPS_1m_c.json";
+  const RT_QPS_1m_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#RT_QPS_1m",
@@ -110,6 +113,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // qn & QPS - 50m
   csvFile = "./data/queryNodes_QPS_50m.csv";
   let queryNodes_QPS_50m = await d3.csv(csvFile);
+  configFile = "./config_json/queryNodes_QPS_50m_c.json";
+  const queryNodes_QPS_50m_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#queryNodes_QPS_50m",
@@ -120,6 +125,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-hnsw
   csvFile = "./data/Recall_RT_sift_hnsw.csv";
   let Recall_RT_sift_hnsw = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_sift_hnsw_c.json";
+  const Recall_RT_sift_hnsw_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_hnsw",
@@ -130,6 +137,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_flat
   csvFile = "./data/Recall_RT_sift_ivf_flat.csv";
   let Recall_RT_sift_ivf_flat = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_sift_ivf_flat_c.json";
+  const Recall_RT_sift_ivf_flat_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_ivf_flat",
@@ -140,6 +149,8 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_sq8
   csvFile = "./data/Recall_RT_sift_ivf_sq8.csv";
   let Recall_RT_sift_ivf_sq8 = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_sift_ivf_sq8_c.json";
+  const Recall_RT_sift_ivf_sq8_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_ivf_sq8",
@@ -150,11 +161,12 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_sq8
   csvFile = "./data/Recall_RT_glove_ivf_flat.csv";
   let Recall_RT_glove_ivf_flat = await d3.csv(csvFile);
+  configFile = "./config_json/Recall_RT_glove_ivf_flat_c.json";
+  const Recall_RT_glove_ivf_flat_c = await fetch(configFile).then((res) => res.json());
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_glove_ivf_flat",
     data: Recall_RT_glove_ivf_flat,
     config: Recall_RT_glove_ivf_flat_c,
   });
-
 });
