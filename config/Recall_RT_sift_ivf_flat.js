@@ -4,6 +4,11 @@ const scatterPlotConfig = {
   // background: "rgba(0,0,0,0.1)",
   border: "1px solid #999",
   padding: [60, 140, 60, 60],
+  dataProcessing: {
+    needFixed: true,
+    fixedKey: "RT",
+    fixedNum: 2,
+  },
   tooltip: {
     hasTooltip: true,
     content: ["RT", "Recall", "nprobe"],

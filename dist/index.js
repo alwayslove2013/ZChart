@@ -4799,18 +4799,32 @@
   var barChart_default = drawBarChart;
 
   // js/index.js
-  var ZChart = ({ chartType, domSelector, data, config }) => {
-    const {
+  var ZChart = ({ chartType, domSelector, data: _data, config }) => {
+    let {
       width = 800,
       height = 600,
       background = null,
       border = null,
       padding = [50, 25, 35, 35],
+      dataProcessing = {},
       x: x2 = {},
       y: y2 = {},
       circle = {},
       groupBy = {}
     } = config;
+    let data = _data;
+    if (dataProcessing.needSort) {
+      data = sort(data, (d) => d[dataProcessing.sort]);
+      if (dataProcessing.sortReverse) {
+        data = data.reverse();
+      }
+    }
+    if (dataProcessing.needFixed) {
+      const { fixedKey, fixedNum } = dataProcessing;
+      data.forEach((d) => {
+        d[fixedKey] = (+d[fixedKey]).toFixed(fixedNum);
+      });
+    }
     const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const titleG = svg.append("g").attr("id", "title-g");
@@ -4945,6 +4959,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 50, 90],
+    dataProcessing: {
+      needSort: true,
+      sort: "indexNodes",
+      sortReverse: false
+    },
     tooltip: {
       hasTooltip: true,
       content: ["index_time", "indexNodes", "index_type"],
@@ -5217,6 +5236,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 90],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "vps",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["vps", "nq", "topk"],
@@ -5287,6 +5311,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 90],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "vps",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["vps", "nq", "topk"],
@@ -5357,6 +5386,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 90],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "vps",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["vps", "nq", "topk"],
@@ -5427,6 +5461,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 60],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "RT",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["RT", "Recall", "ef"],
@@ -5497,6 +5536,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 60],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "RT",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["RT", "Recall", "nprobe"],
@@ -5567,6 +5611,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 60],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "RT",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["RT", "Recall", "nprobe"],
@@ -5637,6 +5686,11 @@
     height: 400,
     border: "1px solid #999",
     padding: [60, 140, 60, 60],
+    dataProcessing: {
+      needFixed: true,
+      fixedKey: "RT",
+      fixedNum: 2
+    },
     tooltip: {
       hasTooltip: true,
       content: ["RT", "Recall", "nprobe"],
@@ -5853,7 +5907,6 @@
     });
     csvFile = "./data/indexnodes_indextime_hnsw.csv";
     let in_it = await csv2(csvFile);
-    in_it = sort(in_it, (d) => d.indexNodes);
     js_default({
       chartType: "barchart",
       domSelector: "#indexnodes_indextime",
@@ -5884,21 +5937,18 @@
       data: nq_RT_50m_8qn,
       config: nq_RT_50m_8qn_default
     });
-    nq_RT_1m.forEach((d) => d.vps = (+d.vps).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#nq_RT_1m_vps",
       data: nq_RT_1m,
       config: nq_RT_1m_vps_default
     });
-    nq_RT_50m_4qn.forEach((d) => d.vps = (+d.vps).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#nq_RT_50m_4qn_vps",
       data: nq_RT_50m_4qn,
       config: nq_RT_50m_4qn_vps_default
     });
-    nq_RT_50m_8qn.forEach((d) => d.vps = (+d.vps).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#nq_RT_50m_8qn_vps",
@@ -5923,7 +5973,6 @@
     });
     csvFile = "./data/Recall_RT_sift_hnsw.csv";
     let Recall_RT_sift_hnsw = await csv2(csvFile);
-    Recall_RT_sift_hnsw.forEach((d) => d.RT = (+d.RT).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#Recall_RT_sift_hnsw",
@@ -5932,7 +5981,6 @@
     });
     csvFile = "./data/Recall_RT_sift_ivf_flat.csv";
     let Recall_RT_sift_ivf_flat = await csv2(csvFile);
-    Recall_RT_sift_ivf_flat.forEach((d) => d.RT = (+d.RT).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#Recall_RT_sift_ivf_flat",
@@ -5941,7 +5989,6 @@
     });
     csvFile = "./data/Recall_RT_sift_ivf_sq8.csv";
     let Recall_RT_sift_ivf_sq8 = await csv2(csvFile);
-    Recall_RT_sift_ivf_sq8.forEach((d) => d.RT = (+d.RT).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#Recall_RT_sift_ivf_sq8",
@@ -5950,7 +5997,6 @@
     });
     csvFile = "./data/Recall_RT_glove_ivf_flat.csv";
     let Recall_RT_glove_ivf_flat = await csv2(csvFile);
-    Recall_RT_glove_ivf_flat.forEach((d) => d.RT = (+d.RT).toFixed(2));
     js_default({
       chartType: "scatter_plot",
       domSelector: "#Recall_RT_glove_ivf_flat",

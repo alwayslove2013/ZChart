@@ -36,10 +36,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Indexnodes & indextime
   csvFile = "./data/indexnodes_indextime_hnsw.csv";
   let in_it = await d3.csv(csvFile);
-  // in_it = d3.sort(in_it, (d) => d.indexNodes).reverse();
-  in_it = d3.sort(in_it, (d) => d.indexNodes);
-  // const df_in_it = "./data/indexnodes_indextime.json";
-  // const in_it = await fetch(df_in_it).then((res) => res.json());
   ZChart({
     chartType: "barchart",
     domSelector: "#indexnodes_indextime",
@@ -78,8 +74,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 1m
-  nq_RT_1m.forEach(d =>  d.vps = (+d.vps).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_1m_vps",
@@ -88,8 +82,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 50m - 4qn
-  nq_RT_50m_4qn.forEach(d =>  d.vps = (+d.vps).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_4qn_vps",
@@ -98,8 +90,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   });
 
   // nq & vps - 50m - 8qn
-  nq_RT_50m_8qn.forEach(d =>  d.vps = (+d.vps).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#nq_RT_50m_8qn_vps",
@@ -130,8 +120,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-hnsw
   csvFile = "./data/Recall_RT_sift_hnsw.csv";
   let Recall_RT_sift_hnsw = await d3.csv(csvFile);
-  Recall_RT_sift_hnsw.forEach(d =>  d.RT = (+d.RT).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_hnsw",
@@ -142,8 +130,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_flat
   csvFile = "./data/Recall_RT_sift_ivf_flat.csv";
   let Recall_RT_sift_ivf_flat = await d3.csv(csvFile);
-  Recall_RT_sift_ivf_flat.forEach(d =>  d.RT = (+d.RT).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_ivf_flat",
@@ -154,8 +140,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_sq8
   csvFile = "./data/Recall_RT_sift_ivf_sq8.csv";
   let Recall_RT_sift_ivf_sq8 = await d3.csv(csvFile);
-  Recall_RT_sift_ivf_sq8.forEach(d =>  d.RT = (+d.RT).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_sift_ivf_sq8",
@@ -166,8 +150,6 @@ window.addEventListener("DOMContentLoaded", async () => {
   // Recall & RT - sift-ivf_sq8
   csvFile = "./data/Recall_RT_glove_ivf_flat.csv";
   let Recall_RT_glove_ivf_flat = await d3.csv(csvFile);
-  Recall_RT_glove_ivf_flat.forEach(d =>  d.RT = (+d.RT).toFixed(2) 
-  )
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#Recall_RT_glove_ivf_flat",

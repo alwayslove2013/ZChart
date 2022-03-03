@@ -4,6 +4,14 @@ const barChartConfig = {
   // background: "rgba(0,0,0,0.1)",
   border: "1px solid #999",
   padding: [60, 140, 50, 65],
+  dataProcessing: {
+    needSort: false,
+    sort: "indexNodes",
+    sortReverse: false,
+    needFixed: false,
+    fixedKey: "vps",
+    fixedNum: 2,
+  },
   tooltip: {
     hasTooltip: true,
     content: ["test_no", "acc", "search_rps", "ef"],

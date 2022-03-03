@@ -4,6 +4,11 @@ const barChartConfig = {
   // background: "rgba(0,0,0,0.1)",
   border: "1px solid #999",
   padding: [60, 140, 50, 90],
+  dataProcessing: {
+    needSort: true,
+    sort: 'indexNodes',
+    sortReverse: false,
+  },
   tooltip: {
     hasTooltip: true,
     content: ["index_time", "indexNodes", "index_type"],

@@ -4,18 +4,34 @@ import drawScatterPlot from "./scatterPlot.js";
 import drawBarChart from "./barChart.js";
 import { domainExtent, scaleMap, colors } from "./utils.js";
 
-const ZChart = ({ chartType, domSelector, data, config }) => {
-  const {
+const ZChart = ({ chartType, domSelector, data: _data, config }) => {
+  let {
     width = 800,
     height = 600,
     background = null,
     border = null,
     padding = [50, 25, 35, 35],
+    dataProcessing = {},
     x = {},
     y = {},
     circle = {},
     groupBy = {},
   } = config;
+
+  // data
+  let data = _data;
+  if (dataProcessing.needSort) {
+    data = d3.sort(data, (d) => d[dataProcessing.sort]);
+    if (dataProcessing.sortReverse) {
+      data = data.reverse();
+    }
+  }
+  if (dataProcessing.needFixed) {
+    const { fixedKey, fixedNum } = dataProcessing;
+    data.forEach((d) => {
+      d[fixedKey] = (+d[fixedKey]).toFixed(fixedNum);
+    });
+  }
 
   // init svg
   const svg = d3.select(domSelector).append("svg").attr("id", "chart-svg");
