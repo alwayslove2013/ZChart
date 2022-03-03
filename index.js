@@ -2,17 +2,11 @@ import ZChart from "./js/index.js";
 import * as d3 from "d3";
 
 window.addEventListener("DOMContentLoaded", async () => {
-  // const dataFile = "./data/data.json";
-  // const data = await fetch(dataFile).then((res) => res.json());
-  // let csvFile = "./data/test.csv";
-  // const data1 = await d3.csv(csvFile);
-
   // NB & RT
   const data_NB_RT = "./data/NB_RT.json";
   const NB_RT = await fetch(data_NB_RT).then((res) => res.json());
   let configFile = "./config_json/NB_RT_c.json";
   const NB_RT_c = await fetch(configFile).then((res) => res.json());
-
   ZChart({
     chartType: "scatter_plot",
     domSelector: "#NB_RT",

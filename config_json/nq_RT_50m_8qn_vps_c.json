@@ -76,6 +76,10 @@
     "isGroupBy": true,
     "key": "topk",
     "sameXScale": true,
-    "sameYScale": true
+    "sameYScale": true,
+    "legendHeight": 30,
+    "legendIconWidth": 40,
+    "legendFontSize": 12,
+    "legendLabel": "(topk) =>`topk=${topk}`"
   }
 }

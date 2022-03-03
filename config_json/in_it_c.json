@@ -2,12 +2,7 @@
   "width": 1000,
   "height": 400,
   "border": "1px solid #999",
-  "padding": [
-    60,
-    140,
-    50,
-    90
-  ],
+  "padding": [60, 140, 50, 90],
   "dataProcessing": {
     "needSort": true,
     "sort": "indexNodes",
@@ -15,11 +10,7 @@
   },
   "tooltip": {
     "hasTooltip": true,
-    "content": [
-      "index_time",
-      "indexNodes",
-      "index_type"
-    ],
+    "content": ["index_time", "indexNodes", "index_type"],
     "fontSize": 16,
     "fontWeight": 500,
     "fontColor": "#43a2ca"
@@ -61,7 +52,11 @@
     "isGroupBy": true,
     "key": "index_type",
     "sameXScale": false,
-    "sameYScale": true
+    "sameYScale": true,
+    "legendHeight": 30,
+    "legendIconWidth": 40,
+    "legendFontSize": 16,
+    "legendLabel": "(index_type) => index_type"
   },
   "bar": {
     "isColorMapping": true,

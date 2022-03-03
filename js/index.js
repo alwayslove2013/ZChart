@@ -94,17 +94,21 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
 
   // legend
   if (groupBy.isGroupBy) {
+    const {
+      legendHeight = 30,
+      legendIconWidth = 40,
+      legendFontSize = 16,
+      legendLabel: _legendLabel = "(v)=>v",
+    } = groupBy;
     const legendsG = svg
       .append("g")
       .attr("id", "legends-g")
       .attr(
         "transform",
-        `translate(${width - padding[1] * 0.8},${padding[0]})`
+        `translate(${width - padding[1] * 0.85},${padding[0]})`
       );
 
     const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
-    const legendHeight = 30;
-    const legendIconWidth = 50;
     const legendG = legendsG
       .selectAll("g")
       .data(groupByKeyList)
@@ -139,7 +143,14 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
         .attr("fill", (d) => colorScale(d));
     }
 
-    // legendG.append("");
+    const legendLabel = eval(_legendLabel);
+    legendG
+      .append("text")
+      .attr("x", legendIconWidth + 6)
+      .attr("y", legendHeight / 2 + legendFontSize * 0.35)
+      .attr("font-size", legendFontSize)
+      .attr("fill", (d) => colorScale(d))
+      .text((d) => legendLabel(d));
   }
 };
 

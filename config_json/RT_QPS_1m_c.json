@@ -71,6 +71,10 @@
     "isGroupBy": true,
     "key": "deploy_mode",
     "sameXScale": true,
-    "sameYScale": true
+    "sameYScale": true,
+    "legendHeight": 30,
+    "legendIconWidth": 40,
+    "legendFontSize": 12,
+    "legendLabel": "deploy_mode => deploy_mode"
   }
 }

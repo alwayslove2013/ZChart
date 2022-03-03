@@ -69,6 +69,10 @@
     "isGroupBy": true,
     "key": "name",
     "sameXScale": true,
-    "sameYScale": true
+    "sameYScale": true,
+    "legendHeight": 30,
+    "legendIconWidth": 40,
+    "legendFontSize": 16,
+    "legendLabel": "name => name"
   }
 }
