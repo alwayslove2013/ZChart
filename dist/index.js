@@ -3064,9 +3064,9 @@
     });
     return columns;
   }
-  function pad(value, width2) {
+  function pad(value, width) {
     var s = value + "", length = s.length;
-    return length < width2 ? new Array(width2 - length + 1).join(0) + s : s;
+    return length < width ? new Array(width - length + 1).join(0) + s : s;
   }
   function formatYear(year) {
     return year < 0 ? "-" + pad(-year, 6) : year > 9999 ? "+" + pad(year, 6) : pad(year, 4);
@@ -3236,13 +3236,13 @@
 
   // node_modules/d3-format/src/formatGroup.js
   function formatGroup_default(grouping, thousands) {
-    return function(value, width2) {
+    return function(value, width) {
       var i = value.length, t = [], j = 0, g = grouping[0], length = 0;
       while (i > 0 && g > 0) {
-        if (length + g + 1 > width2)
-          g = Math.max(1, width2 - length);
+        if (length + g + 1 > width)
+          g = Math.max(1, width - length);
         t.push(value.substring(i -= g, i + g));
-        if ((length += g + 1) > width2)
+        if ((length += g + 1) > width)
           break;
         g = grouping[j = (j + 1) % grouping.length];
       }
@@ -3367,7 +3367,7 @@
     var group = locale2.grouping === void 0 || locale2.thousands === void 0 ? identity_default2 : formatGroup_default(map.call(locale2.grouping, Number), locale2.thousands + ""), currencyPrefix = locale2.currency === void 0 ? "" : locale2.currency[0] + "", currencySuffix = locale2.currency === void 0 ? "" : locale2.currency[1] + "", decimal = locale2.decimal === void 0 ? "." : locale2.decimal + "", numerals = locale2.numerals === void 0 ? identity_default2 : formatNumerals_default(map.call(locale2.numerals, String)), percent = locale2.percent === void 0 ? "%" : locale2.percent + "", minus = locale2.minus === void 0 ? "\u2212" : locale2.minus + "", nan = locale2.nan === void 0 ? "NaN" : locale2.nan + "";
     function newFormat(specifier) {
       specifier = formatSpecifier(specifier);
-      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero2 = specifier.zero, width2 = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
+      var fill = specifier.fill, align = specifier.align, sign = specifier.sign, symbol = specifier.symbol, zero2 = specifier.zero, width = specifier.width, comma = specifier.comma, precision = specifier.precision, trim = specifier.trim, type2 = specifier.type;
       if (type2 === "n")
         comma = true, type2 = "g";
       else if (!formatTypes_default[type2])
@@ -3405,21 +3405,21 @@
         }
         if (comma && !zero2)
           value = group(value, Infinity);
-        var length = valuePrefix.length + value.length + valueSuffix.length, padding2 = length < width2 ? new Array(width2 - length + 1).join(fill) : "";
+        var length = valuePrefix.length + value.length + valueSuffix.length, padding = length < width ? new Array(width - length + 1).join(fill) : "";
         if (comma && zero2)
-          value = group(padding2 + value, padding2.length ? width2 - valueSuffix.length : Infinity), padding2 = "";
+          value = group(padding + value, padding.length ? width - valueSuffix.length : Infinity), padding = "";
         switch (align) {
           case "<":
-            value = valuePrefix + value + valueSuffix + padding2;
+            value = valuePrefix + value + valueSuffix + padding;
             break;
           case "=":
-            value = valuePrefix + padding2 + value + valueSuffix;
+            value = valuePrefix + padding + value + valueSuffix;
             break;
           case "^":
-            value = padding2.slice(0, length = padding2.length >> 1) + valuePrefix + value + valueSuffix + padding2.slice(length);
+            value = padding.slice(0, length = padding.length >> 1) + valuePrefix + value + valueSuffix + padding.slice(length);
             break;
           default:
-            value = padding2 + valuePrefix + value + valueSuffix;
+            value = padding + valuePrefix + value + valueSuffix;
             break;
         }
         return numerals(value);
@@ -4572,9 +4572,9 @@
   }
 
   // js/title.js
-  var drawTitle = (titleG2, config2) => {
-    const { width: width2, height: height2, padding: padding2, title } = config2;
-    titleG2.append("text").attr("x", width2 / 2).attr("y", padding2[0] / 2 + title.fontSize / 2).attr("text-anchor", "middle").attr("font-size", title.fontSize).attr("font-weight", title.fontWeight).attr("fill", title.fontColor).text(title.text);
+  var drawTitle = (titleG, config2) => {
+    const { width, height, padding, title } = config2;
+    titleG.append("text").attr("x", width / 2).attr("y", padding[0] / 2 + title.fontSize / 2).attr("text-anchor", "middle").attr("font-size", title.fontSize).attr("font-weight", title.fontWeight).attr("fill", title.fontColor).text(title.text);
   };
   var title_default = drawTitle;
 
@@ -4587,20 +4587,20 @@
   };
   var xAxis = (g, scale, config2) => {
     g.selectAll("*").remove();
-    const { width: width2, height: height2, padding: padding2, x: x3 } = config2;
-    g.attr("transform", x3.tickType === "bottom" ? `translate(0,${height2 - padding2[2]})` : `translate(0,${padding2[0]})`).call(tickMap[x3.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick text").attr("font-size", x3.tickFontSize).attr("fill", x3.tickColor)).call((g2) => g2.append("text").attr("x", (width2 - padding2[1] - padding2[3]) / 2 + padding2[3]).attr("y", x3.tickType === "bottom" ? padding2[2] - 8 : -24).attr("fill", x3.labelColor).attr("text-anchor", "middle").style("font-size", x3.labelFontSize).style("font-weight", x3.labelWeight).text(x3.label));
+    const { width, height, padding, x: x3 } = config2;
+    g.attr("transform", x3.tickType === "bottom" ? `translate(0,${height - padding[2]})` : `translate(0,${padding[0]})`).call(tickMap[x3.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick text").attr("font-size", x3.tickFontSize).attr("fill", x3.tickColor)).call((g2) => g2.append("text").attr("x", (width - padding[1] - padding[3]) / 2 + padding[3]).attr("y", x3.tickType === "bottom" ? padding[2] - 8 : -24).attr("fill", x3.labelColor).attr("text-anchor", "middle").style("font-size", x3.labelFontSize).style("font-weight", x3.labelWeight).text(x3.label));
     if (x3.scaleType === "bin") {
       g.call((g2) => g2.selectAll(".tick line").remove());
     } else {
-      g.call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x3.tickType === "bottom" ? 1 : -1) * (padding2[0] + padding2[2] - height2)).attr("stroke-opacity", 0.1));
+      g.call((g2) => g2.selectAll(".tick line").attr("y1", 0).attr("y2", (x3.tickType === "bottom" ? 1 : -1) * (padding[0] + padding[2] - height)).attr("stroke-opacity", 0.1));
     }
   };
   var yAxis = (g, scale, config2) => {
     g.selectAll("*").remove();
-    const { width: width2, height: height2, padding: padding2, y: y3 } = config2;
-    g.attr("transform", y3.tickType === "left" ? `translate(${padding2[3]},0)` : `translate(${width2 - padding2[1]},0)`).call(tickMap[y3.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y3.tickType === "left" ? 1 : -1) * (width2 - padding2[1] - padding2[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y3.tickFontSize).attr("fill", y3.tickColor)).call((g2) => {
-      const labelX2 = y3.tickType === "left" ? -padding2[3] + 20 : padding2[1] - 20;
-      const labelY2 = (height2 - padding2[0] - padding2[2]) / 2 + padding2[0];
+    const { width, height, padding, y: y3 } = config2;
+    g.attr("transform", y3.tickType === "left" ? `translate(${padding[3]},0)` : `translate(${width - padding[1]},0)`).call(tickMap[y3.tickType](scale)).call((g2) => g2.select(".domain").remove()).call((g2) => g2.selectAll(".tick line").attr("x1", 0).attr("x2", (y3.tickType === "left" ? 1 : -1) * (width - padding[1] - padding[3])).attr("stroke-opacity", 0.1)).call((g2) => g2.selectAll(".tick text").attr("font-size", y3.tickFontSize).attr("fill", y3.tickColor)).call((g2) => {
+      const labelX2 = y3.tickType === "left" ? -padding[3] + 20 : padding[1] - 20;
+      const labelY2 = (height - padding[0] - padding[2]) / 2 + padding[0];
       const rotate2 = y3.tickType === "left" ? 270 : 90;
       g2.append("text").attr("x", 0).attr("y", 0).attr("transform", `translate(${labelX2},${labelY2}) rotate(${rotate2})`).attr("fill", y3.labelColor).attr("text-anchor", "middle").style("font-size", y3.labelFontSize).style("font-weight", y3.labelWeight).text(y3.label);
     });
@@ -4687,8 +4687,8 @@
     colorScale: colorScale2,
     xScale: xScale2,
     yScale: yScale2,
-    xRange: xRange2,
-    yRange: yRange2,
+    xRange,
+    yRange,
     config: config2
   }) => {
     const { groupBy: groupBy2, x: x3, y: y3 } = config2;
@@ -4703,14 +4703,14 @@
       const yScales = [];
       datas.forEach((data3, i) => {
         if (!groupBy2.sameXScale) {
-          const xDomain2 = domainExtent(extent(data3, (d) => d[x3.key]));
-          xScale2 = scaleMap[x3.scaleType]().domain(xDomain2).range(xRange2);
+          const xDomain = domainExtent(extent(data3, (d) => d[x3.key]));
+          xScale2 = scaleMap[x3.scaleType]().domain(xDomain).range(xRange);
           xScales.push(xScale2);
         }
         if (!groupBy2.sameYScale) {
-          const yDomain2 = domainExtent(extent(data3, (d) => d[y3.key]));
-          yScale2 = scaleMap[y3.scaleType]().domain(yDomain2).range(yRange2);
-          yScales.push(scaleMap[y3.scaleType]().domain(yDomain2).range(yRange2));
+          const yDomain = domainExtent(extent(data3, (d) => d[y3.key]));
+          yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
+          yScales.push(scaleMap[y3.scaleType]().domain(yDomain).range(yRange));
         }
         const circlesG2 = svg2.append("g").attr("id", `circles-g-${i}`);
         circlesG2.call(circle_default, data3, config2, xScale2, yScale2, colorScale2);
@@ -4804,8 +4804,33 @@
   };
   var barChart_default = drawBarChart;
 
+  // js/legend.js
+  var drawLegend = ({ chartType, legendsG, data, colorScale, config }) => {
+    const { groupBy, circle } = config;
+    const {
+      legendHeight = 30,
+      legendIconWidth = 40,
+      legendFontSize = 16,
+      legendLabel: _legendLabel = "(v)=>v"
+    } = groupBy;
+    const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
+    const legendG = legendsG.selectAll("g").data(groupByKeyList).join("g").attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
+    if (chartType === "scatter_plot") {
+      if (circle.withLinks) {
+        legendG.append("path").attr("d", `M0,${legendHeight / 2}h${legendIconWidth}`).attr("fill", "none").attr("stroke", (d) => colorScale(d)).attr("stroke-width", circle.linkWidth).attr("stroke-linecap", "round");
+      }
+      legendG.append("circle").attr("cx", legendIconWidth / 2).attr("cy", legendHeight / 2).attr("r", circle.r).attr("fill", (d) => colorScale(d)).attr("stroke", circle.strokeColor).attr("stroke-width", circle.strokeWidth);
+    }
+    if (chartType === "barchart") {
+      legendG.append("rect").attr("x", 0).attr("y", legendHeight * 0.25).attr("width", legendIconWidth).attr("height", legendHeight * 0.5).attr("fill", (d) => colorScale(d));
+    }
+    const legendLabel = eval(_legendLabel);
+    legendG.append("text").attr("x", legendIconWidth + 6).attr("y", legendHeight / 2 + legendFontSize * 0.35).attr("font-size", legendFontSize).attr("fill", (d) => colorScale(d)).text((d) => legendLabel(d));
+  };
+  var legend_default = drawLegend;
+
   // js/index.js
-  var ZChart = ({ chartType, domSelector, data: _data, config }) => {
+  var ZChart = ({ chartType: chartType2, domSelector, data: _data, config: config2 }) => {
     let {
       width = 800,
       height = 600,
@@ -4813,84 +4838,65 @@
       border = null,
       padding = [50, 25, 35, 35],
       dataProcessing = {},
-      x = {},
-      y = {},
-      circle = {},
-      groupBy = {}
-    } = config;
-    let data = _data;
+      x: x3 = {},
+      y: y3 = {},
+      groupBy: groupBy2 = {}
+    } = config2;
+    let data2 = _data;
     if (dataProcessing.needSort) {
-      data = sort(data, (d) => d[dataProcessing.sort]);
+      data2 = sort(data2, (d) => d[dataProcessing.sort]);
       if (dataProcessing.sortReverse) {
-        data = data.reverse();
+        data2 = data2.reverse();
       }
     }
     if (dataProcessing.needFixed) {
       const { fixedKey, fixedNum } = dataProcessing;
-      data.forEach((d) => {
+      data2.forEach((d) => {
         d[fixedKey] = (+d[fixedKey]).toFixed(fixedNum);
       });
     }
-    const svg = select_default2(domSelector).append("svg").attr("id", "chart-svg");
-    svg.attr("width", width).attr("height", height).style("background", background).style("border", border);
-    const titleG = svg.append("g").attr("id", "title-g");
-    titleG.call(title_default, config);
-    const colorScale = ordinal().range(colors);
-    const xDomain = x.scaleType === "bin" ? data.map((d) => d[x.key]) : domainExtent(extent(data, (d) => +d[x.key]));
-    const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
-    let xScale = scaleMap[x.scaleType]().domain(xDomain).range(xRange);
-    const yDomain = y.fromZero ? domainExtent([0, max(data, (d) => +d[y.key])]) : domainExtent(extent(data, (d) => +d[y.key]));
-    const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
-    let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
-    const xAxisG = svg.append("g").attr("id", "x-axis-g");
-    const yAxisG = svg.append("g").attr("id", "y-axis-g");
-    if (chartType === "scatter_plot") {
+    const svg2 = select_default2(domSelector).append("svg").attr("id", "chart-svg");
+    svg2.attr("width", width).attr("height", height).style("background", background).style("border", border);
+    const titleG = svg2.append("g").attr("id", "title-g");
+    titleG.call(title_default, config2);
+    const colorScale2 = ordinal().range(colors);
+    const xDomain = x3.scaleType === "bin" ? data2.map((d) => d[x3.key]) : domainExtent(extent(data2, (d) => +d[x3.key]));
+    const xRange = [padding[3] + x3.inset, width - padding[1] - x3.inset];
+    let xScale2 = scaleMap[x3.scaleType]().domain(xDomain).range(xRange);
+    const yDomain = y3.fromZero ? domainExtent([0, max(data2, (d) => +d[y3.key])]) : domainExtent(extent(data2, (d) => +d[y3.key]));
+    const yRange = [height - padding[2] - y3.inset, padding[0] + y3.inset];
+    let yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
+    const xAxisG2 = svg2.append("g").attr("id", "x-axis-g");
+    const yAxisG2 = svg2.append("g").attr("id", "y-axis-g");
+    if (chartType2 === "scatter_plot") {
       scatterPlot_default({
-        svg,
-        xAxisG,
-        yAxisG,
-        data,
-        xScale,
-        yScale,
-        colorScale,
+        svg: svg2,
+        xAxisG: xAxisG2,
+        yAxisG: yAxisG2,
+        data: data2,
+        xScale: xScale2,
+        yScale: yScale2,
+        colorScale: colorScale2,
         xRange,
         yRange,
-        config
+        config: config2
       });
     }
-    if (chartType === "barchart") {
+    if (chartType2 === "barchart") {
       barChart_default({
-        svg,
-        xAxisG,
-        yAxisG,
-        data,
-        xScale,
-        yScale,
-        colorScale,
-        config
+        svg: svg2,
+        xAxisG: xAxisG2,
+        yAxisG: yAxisG2,
+        data: data2,
+        xScale: xScale2,
+        yScale: yScale2,
+        colorScale: colorScale2,
+        config: config2
       });
     }
-    if (groupBy.isGroupBy) {
-      const {
-        legendHeight = 30,
-        legendIconWidth = 40,
-        legendFontSize = 16,
-        legendLabel: _legendLabel = "(v)=>v"
-      } = groupBy;
-      const legendsG = svg.append("g").attr("id", "legends-g").attr("transform", `translate(${width - padding[1] * 0.85},${padding[0]})`);
-      const groupByKeyList = Array.from(new Set(data.map((d) => d[groupBy.key])));
-      const legendG = legendsG.selectAll("g").data(groupByKeyList).join("g").attr("transform", (d, i) => `translate(0,${i * legendHeight})`);
-      if (chartType === "scatter_plot") {
-        if (circle.withLinks) {
-          legendG.append("path").attr("d", `M0,${legendHeight / 2}h${legendIconWidth}`).attr("fill", "none").attr("stroke", (d) => colorScale(d)).attr("stroke-width", circle.linkWidth).attr("stroke-linecap", "round");
-        }
-        legendG.append("circle").attr("cx", legendIconWidth / 2).attr("cy", legendHeight / 2).attr("r", circle.r).attr("fill", (d) => colorScale(d)).attr("stroke", circle.strokeColor).attr("stroke-width", circle.strokeWidth);
-      }
-      if (chartType === "barchart") {
-        legendG.append("rect").attr("x", 0).attr("y", legendHeight * 0.25).attr("width", legendIconWidth).attr("height", legendHeight * 0.5).attr("fill", (d) => colorScale(d));
-      }
-      const legendLabel = eval(_legendLabel);
-      legendG.append("text").attr("x", legendIconWidth + 6).attr("y", legendHeight / 2 + legendFontSize * 0.35).attr("font-size", legendFontSize).attr("fill", (d) => colorScale(d)).text((d) => legendLabel(d));
+    const legendsG2 = svg2.append("g").attr("id", "legends-g").attr("transform", `translate(${width - padding[1] * 0.85},${padding[0]})`);
+    if (groupBy2.isGroupBy) {
+      legend_default({ chartType: chartType2, legendsG: legendsG2, data: data2, colorScale: colorScale2, config: config2 });
     }
   };
   var js_default = ZChart;
