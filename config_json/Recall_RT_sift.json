@@ -19,6 +19,14 @@
     "fontWeight": 500,
     "fontColor": "#666"
   },
+  "dataProcessing": {
+    "needSort": false,
+    "sort": "Recall",
+    "sortReverse": false,
+    "needFixed": false,
+    "fixedKey": "vps",
+    "fixedNum": 2
+  },
   "title": {
     "text": "Recall & RT - sift",
     "fontSize": 24,
