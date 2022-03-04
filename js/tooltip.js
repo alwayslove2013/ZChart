@@ -1,3 +1,4 @@
+import * as d3 from "d3";
 const drawTooltip = ({ tooltipG, config }) => {
   const { height, tooltip } = config;
   let showTooltip = () => {};
@@ -6,13 +7,15 @@ const drawTooltip = ({ tooltipG, config }) => {
     showTooltip = (e, d) => {
       tooltipG.attr("opacity", 1);
       const { layerX: __x, layerY: __y } = e;
+      // console.log(e);
+      // console.log(d3.mouse(e));
 
       const path = tooltipG
         .selectAll("path")
         .data([,])
         .join("path")
-        .attr("fill", "white")
-        .attr("stroke", "#666");
+        .attr("fill", "#ffffff40")
+        .attr("stroke", "#666")
       const text = tooltipG
         .selectAll("text")
         .data([,])

@@ -47,8 +47,10 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   // compute Scale - X, Y, Color
   const colorScale = d3.scaleOrdinal().range(colors);
 
+  // console.log(d3)
+
   const xDomain =
-    x.scaleType === "bin"
+    (x.scaleType === "bin" || x.scaleType === "ordinal")
       ? data.map((d) => d[x.key])
       : domainExtent(d3.extent(data, (d) => +d[x.key]));
   const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
@@ -85,7 +87,8 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   const barsG = svg.append("g").attr("id", "bars-g");
   const legendsG = svg.append("g").attr("id", "legends-g");
   const tooltipG = svg
-    .append("g", "tooltip-g")
+    .append("g")
+    .attr("id", "tooltip-g")
     .style("pointer-events", "none")
     .attr("opacity", 0);
   const { showTooltip, closeTooltip } = drawTooltip({

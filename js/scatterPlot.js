@@ -72,8 +72,8 @@ const drawScatterPlot = ({
     });
 
     const zoomed = ({ transform }) => {
-      const newXScale = transform.rescaleX(xScale);
-      const newYScale = transform.rescaleY(yScale);
+      const newXScale = x.zoom ? transform.rescaleX(xScale) : xScale;
+      const newYScale = y.zoom ? transform.rescaleY(yScale) : yScale;
       x.zoom && groupBy.sameXScale && xAxisG.call(xAxis, newXScale, config);
       y.zoom && groupBy.sameYScale && yAxisG.call(yAxis, newYScale, config);
       zoomedFuncs.forEach((zoomedFunc) =>
@@ -96,16 +96,16 @@ const drawScatterPlot = ({
     const circlesG = circlesPlotG.append("g").attr("id", `circles-g`);
 
     const zoomed = ({ transform }) => {
-      const newXScale = transform.rescaleX(xScale);
-      const newYScale = transform.rescaleY(yScale);
+      const newXScale = x.zoom ? transform.rescaleX(xScale) : xScale;
+      const newYScale = y.zoom ? transform.rescaleY(yScale) : yScale;
       x.zoom && xAxisG.call(xAxis, newXScale, config);
       y.zoom && yAxisG.call(yAxis, newYScale, config);
       circlesG.call(
         drawCircles,
         data,
         config,
-        x.zoom ? newXScale : xScale,
-        y.zoom ? newYScale : yScale,
+        newXScale,
+        newYScale,
         colorScale,
 
         showTooltip,

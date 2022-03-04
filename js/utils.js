@@ -11,6 +11,7 @@ export const scaleMap = {
   linear: d3.scaleLinear,
   log: d3.scaleLog,
   bin: d3.scaleBand,
+  ordinal: d3.scalePoint,
 };
 
 export const colors = d3.schemeTableau10;

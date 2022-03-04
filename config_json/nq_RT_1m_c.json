@@ -50,7 +50,7 @@
   },
   "x": {
     "key": "nq",
-    "scaleType": "linear",
+    "scaleType": "ordinal",
     "tickType": "bottom",
     "tickFontSize": 14,
     "tickColor": "#666",
@@ -58,8 +58,8 @@
     "labelFontSize": 16,
     "labelWeight": 600,
     "labelColor": "#444",
-    "inset": 8,
-    "zoom": true
+    "inset": 12,
+    "zoom": false
   },
   "y": {
     "key": "RT",

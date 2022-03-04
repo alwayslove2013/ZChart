@@ -3578,6 +3578,19 @@
     };
     return initRange.apply(rescale(), arguments);
   }
+  function pointish(scale) {
+    var copy2 = scale.copy;
+    scale.padding = scale.paddingOuter;
+    delete scale.paddingInner;
+    delete scale.paddingOuter;
+    scale.copy = function() {
+      return pointish(copy2());
+    };
+    return scale;
+  }
+  function point() {
+    return pointish(band.apply(null, arguments).paddingInner(1));
+  }
 
   // node_modules/d3-scale/src/constant.js
   function constants(x3) {
@@ -4662,7 +4675,8 @@
   var scaleMap = {
     linear: linear2,
     log,
-    bin: band
+    bin: band,
+    ordinal: point
   };
   var colors = Tableau10_default;
 
@@ -4712,8 +4726,8 @@
         });
       });
       const zoomed = ({ transform: transform2 }) => {
-        const newXScale = transform2.rescaleX(xScale2);
-        const newYScale = transform2.rescaleY(yScale2);
+        const newXScale = x3.zoom ? transform2.rescaleX(xScale2) : xScale2;
+        const newYScale = y3.zoom ? transform2.rescaleY(yScale2) : yScale2;
         x3.zoom && groupBy2.sameXScale && xAxisG2.call(xAxis, newXScale, config2);
         y3.zoom && groupBy2.sameYScale && yAxisG2.call(yAxis, newYScale, config2);
         zoomedFuncs.forEach((zoomedFunc) => zoomedFunc({ transform: transform2, newXScale, newYScale }));
@@ -4725,11 +4739,11 @@
       yAxisG2.call(yAxis, yScale2, config2);
       const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g`);
       const zoomed = ({ transform: transform2 }) => {
-        const newXScale = transform2.rescaleX(xScale2);
-        const newYScale = transform2.rescaleY(yScale2);
+        const newXScale = x3.zoom ? transform2.rescaleX(xScale2) : xScale2;
+        const newYScale = y3.zoom ? transform2.rescaleY(yScale2) : yScale2;
         x3.zoom && xAxisG2.call(xAxis, newXScale, config2);
         y3.zoom && yAxisG2.call(yAxis, newYScale, config2);
-        circlesG2.call(circle_default, data2, config2, x3.zoom ? newXScale : xScale2, y3.zoom ? newYScale : yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
+        circlesG2.call(circle_default, data2, config2, newXScale, newYScale, colorScale2, showTooltip2, closeTooltip2, clip2);
       };
       const zoom = zoom_default2().scaleExtent([0.5, 32]).on("zoom", zoomed);
       (x3.zoom || y3.zoom) && svg2.call(zoom).call(zoom.transform, identity3);
@@ -4827,7 +4841,7 @@
       showTooltip2 = (e, d) => {
         tooltipG.attr("opacity", 1);
         const { layerX: __x, layerY: __y } = e;
-        const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "white").attr("stroke", "#666");
+        const path2 = tooltipG.selectAll("path").data([,]).join("path").attr("fill", "#ffffff40").attr("stroke", "#666");
         const text = tooltipG.selectAll("text").data([,]).join("text").attr("font-size", tooltip.fontSize).attr("font-weight", tooltip.fontWeight).attr("fill", tooltip.fontColor).call((text2) => text2.selectAll("tspan").data(tooltip.content).join("tspan").attr("x", 0).attr("y", (_, i) => `${i * 1.5}em`).text((key) => `${key}: ${d[key]}`));
         const { y: _y, width: w, height: h } = text.node().getBBox();
         let tooltipX = __x;
@@ -4878,7 +4892,7 @@
     const svg2 = select_default2(domSelector).append("svg").attr("id", "chart-svg");
     svg2.attr("width", width).attr("height", height).style("background", background).style("border", border);
     const colorScale2 = ordinal().range(colors);
-    const xDomain = x3.scaleType === "bin" ? data2.map((d) => d[x3.key]) : domainExtent(extent(data2, (d) => +d[x3.key]));
+    const xDomain = x3.scaleType === "bin" || x3.scaleType === "ordinal" ? data2.map((d) => d[x3.key]) : domainExtent(extent(data2, (d) => +d[x3.key]));
     const xRange = [padding[3] + x3.inset, width - padding[1] - x3.inset];
     let xScale2 = scaleMap[x3.scaleType]().domain(xDomain).range(xRange);
     const yDomain = y3.fromZero ? domainExtent([0, max(data2, (d) => +d[y3.key])]) : domainExtent(extent(data2, (d) => +d[y3.key]));
@@ -4894,7 +4908,7 @@
     const circlesPlotG = svg2.append("g").attr("id", "circles-plot-g");
     const barsG2 = svg2.append("g").attr("id", "bars-g");
     const legendsG2 = svg2.append("g").attr("id", "legends-g");
-    const tooltipG = svg2.append("g", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
+    const tooltipG = svg2.append("g").attr("id", "tooltip-g").style("pointer-events", "none").attr("opacity", 0);
     const { showTooltip: showTooltip2, closeTooltip: closeTooltip2 } = tooltip_default({
       tooltipG,
       config: config2,
