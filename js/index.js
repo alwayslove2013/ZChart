@@ -50,7 +50,7 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   // console.log(d3)
 
   const xDomain =
-    (x.scaleType === "bin" || x.scaleType === "ordinal")
+    x.scaleType === "bin" || x.scaleType === "ordinal"
       ? data.map((d) => d[x.key])
       : domainExtent(d3.extent(data, (d) => +d[x.key]));
   const xRange = [padding[3] + x.inset, width - padding[1] - x.inset];
@@ -62,17 +62,17 @@ const ZChart = ({ chartType, domSelector, data: _data, config }) => {
   const yRange = [height - padding[2] - y.inset, padding[0] + y.inset];
   let yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
 
-  const clipId = "chart-clip";
+  const clipId = `chart-clip-${Math.floor(Math.random() * 999999999)}`;
   const clip = `url(#${clipId})`;
   svg
-    .append("defs")
+    // .append("defs")
     .append("clipPath")
     .attr("id", clipId)
     .append("rect")
-    .attr("x", padding[3])
+    .attr("x", padding[3] - x.inset)
     .attr("y", padding[0])
-    .attr("width", width - padding[1] - padding[3])
-    .attr("height", height - padding[0] - padding[2] - y.inset);
+    .attr("width", width - padding[1] - padding[3] + x.inset * 2)
+    .attr("height", height - padding[0] - padding[2]);
 
   // title
   const titleG = svg.append("g").attr("id", "title-g");

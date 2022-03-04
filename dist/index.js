@@ -4697,7 +4697,7 @@
     closeTooltip: closeTooltip2,
     clip: clip2
   }) => {
-    const { groupBy: groupBy2, x: x3, y: y3, width, height } = config2;
+    const { groupBy: groupBy2, x: x3, y: y3 } = config2;
     const zoomedFuncs = [];
     if (groupBy2.isGroupBy) {
       const groupByKeySet = new Set(data2.map((d) => d[groupBy2.key]));
@@ -4716,9 +4716,10 @@
         if (!groupBy2.sameYScale) {
           const yDomain = domainExtent(extent(data3, (d) => d[y3.key]));
           yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
-          yScales.push(scaleMap[y3.scaleType]().domain(yDomain).range(yRange));
+          yScales.push(yScale2);
         }
         const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g-${i}`).classed(`group-${groupByKeyOrder[i]}`, true);
+        circlesG2.call(circle_default, data3, config2, xScale2, yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
         zoomedFuncs.push(({ transform: transform2, newXScale, newYScale }) => {
           const _newXScale = groupBy2.sameXScale ? newXScale : transform2.rescaleX(xScales[i]);
           const _newYScale = groupBy2.sameYScale ? newYScale : transform2.rescaleY(yScales[i]);
@@ -4738,6 +4739,7 @@
       xAxisG2.call(xAxis, xScale2, config2);
       yAxisG2.call(yAxis, yScale2, config2);
       const circlesG2 = circlesPlotG.append("g").attr("id", `circles-g`);
+      circlesG2.call(circle_default, data2, config2, xScale2, yScale2, colorScale2, showTooltip2, closeTooltip2, clip2);
       const zoomed = ({ transform: transform2 }) => {
         const newXScale = x3.zoom ? transform2.rescaleX(xScale2) : xScale2;
         const newYScale = y3.zoom ? transform2.rescaleY(yScale2) : yScale2;
@@ -4898,9 +4900,9 @@
     const yDomain = y3.fromZero ? domainExtent([0, max(data2, (d) => +d[y3.key])]) : domainExtent(extent(data2, (d) => +d[y3.key]));
     const yRange = [height - padding[2] - y3.inset, padding[0] + y3.inset];
     let yScale2 = scaleMap[y3.scaleType]().domain(yDomain).range(yRange);
-    const clipId = "chart-clip";
+    const clipId = `chart-clip-${Math.floor(Math.random() * 999999999)}`;
     const clip2 = `url(#${clipId})`;
-    svg2.append("defs").append("clipPath").attr("id", clipId).append("rect").attr("x", padding[3]).attr("y", padding[0]).attr("width", width - padding[1] - padding[3]).attr("height", height - padding[0] - padding[2] - y3.inset);
+    svg2.append("clipPath").attr("id", clipId).append("rect").attr("x", padding[3] - x3.inset).attr("y", padding[0]).attr("width", width - padding[1] - padding[3] + x3.inset * 2).attr("height", height - padding[0] - padding[2]);
     const titleG = svg2.append("g").attr("id", "title-g");
     titleG.call(title_default, config2);
     const xAxisG2 = svg2.append("g").attr("id", "x-axis-g");

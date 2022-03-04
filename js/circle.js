@@ -17,7 +17,7 @@ const drawCircles = (
   clip
 ) => {
   circlesG.selectAll("*").remove();
-  circlesG.attr("clip-path", clip)
+  circlesG.attr("clip-path", clip);
 
   const { circle, x, y } = config;
   const positions = data.map((item) => [
@@ -48,8 +48,8 @@ const drawCircles = (
         isLinkColorMapping ? colorScale(data[0][linkColor]) : linkColor
       )
       .attr("stroke-width", linkWidth)
-      .attr("d", link(positions))
-      // .attr("clip-path", clip);
+      .attr("d", link(positions));
+    // .attr("clip-path", clip);
   }
 
   const circleG = circlesG
@@ -74,8 +74,8 @@ const drawCircles = (
     .attr("stroke", strokeColor)
     .attr("stroke-width", strokeWidth)
     .attr("cx", (_, i) => positions[i][0])
-    .attr("cy", (_, i) => positions[i][1])
-    // .attr("clip-path", clip);
+    .attr("cy", (_, i) => positions[i][1]);
+  // .attr("clip-path", clip);
 
   const {
     withLabels = false,
@@ -91,8 +91,8 @@ const drawCircles = (
       .attr("fill", (item) => circleColorMap(item[circleColor]))
       .attr("text-anchor", "middle")
       .attr("x", (_, i) => positions[i][0])
-      .attr("y", (_, i) => positions[i][1] - r - 4)
-      // .attr("clip-path", clip);
+      .attr("y", (_, i) => positions[i][1] - r - 4);
+    // .attr("clip-path", clip);
   }
 
   circleG.style("cursor", "pointer").on("mousemove", showTooltip);

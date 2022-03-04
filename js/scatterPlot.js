@@ -19,7 +19,7 @@ const drawScatterPlot = ({
   closeTooltip,
   clip,
 }) => {
-  const { groupBy, x, y, width, height } = config;
+  const { groupBy, x, y } = config;
   const zoomedFuncs = [];
 
   if (groupBy.isGroupBy) {
@@ -42,12 +42,25 @@ const drawScatterPlot = ({
       if (!groupBy.sameYScale) {
         const yDomain = domainExtent(d3.extent(data, (d) => d[y.key]));
         yScale = scaleMap[y.scaleType]().domain(yDomain).range(yRange);
-        yScales.push(scaleMap[y.scaleType]().domain(yDomain).range(yRange));
+        yScales.push(yScale);
       }
       const circlesG = circlesPlotG
         .append("g")
         .attr("id", `circles-g-${i}`)
         .classed(`group-${groupByKeyOrder[i]}`, true);
+        
+      circlesG.call(
+        drawCircles,
+        data,
+        config,
+        xScale,
+        yScale,
+        colorScale,
+
+        showTooltip,
+        closeTooltip,
+        clip
+      );
 
       zoomedFuncs.push(({ transform, newXScale, newYScale }) => {
         const _newXScale = groupBy.sameXScale
@@ -94,6 +107,19 @@ const drawScatterPlot = ({
     yAxisG.call(yAxis, yScale, config);
 
     const circlesG = circlesPlotG.append("g").attr("id", `circles-g`);
+
+    circlesG.call(
+      drawCircles,
+      data,
+      config,
+      xScale,
+      yScale,
+      colorScale,
+
+      showTooltip,
+      closeTooltip,
+      clip
+    );
 
     const zoomed = ({ transform }) => {
       const newXScale = x.zoom ? transform.rescaleX(xScale) : xScale;
